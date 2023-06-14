@@ -7,6 +7,7 @@ import java.util.List;
 import com.alibaba.fastjson2.annotation.JSONField;
 
 @Data
+@Deprecated//TODO 后面精简模型，用不上的字段干掉，使用groovyInfo模型替换这个模型
 public class ApiConfig {
 	
 	 /**
