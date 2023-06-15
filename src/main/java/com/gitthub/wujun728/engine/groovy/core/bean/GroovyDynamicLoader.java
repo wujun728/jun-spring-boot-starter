@@ -1,10 +1,17 @@
 package com.gitthub.wujun728.engine.groovy.core.bean;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.codehaus.groovy.control.CompilationFailedException;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -45,6 +52,8 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 
 	private static final Logger logger = LoggerFactory.getLogger(GroovyDynamicLoader.class);
 
+	private Map<String,Class> classMap = new HashMap<>();
+
 	private ConfigurableApplicationContext applicationContext;
 
 	private BeanDefinitionRegistry registry;
@@ -65,6 +74,10 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 
 	@Autowired
 	private RequestMappingService requestMappingService;
+
+	@Autowired
+	SqlSessionTemplate sqlSessionTemplate;
+
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -91,13 +104,12 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 		apiInfoCache.putAll(groovyScripts);
 
 		List<GroovyInfo> groovyInfos = convert(groovyScripts);
-
+		initMapper();
 		initNew(groovyInfos);
 
 		refreshMapping(groovyScripts);
 	}
 
-	@SuppressWarnings("rawtypes")
 	private void initNew(List<GroovyInfo> groovyInfos) {
 		if (CollectionUtils.isEmpty(groovyInfos)) {
 			return;
@@ -120,8 +132,115 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 			}
 			log.info("当前groovyInfo加载完成,className-{},path-{},beanName-{},BeanType-{}：",groovyInfo.getClassName(),groovyInfo.getPath(),groovyInfo.getBeanName(),groovyInfo.getBeanType());
 		}
-
 		GroovyInnerCache.put2map(groovyInfos);
+	}
+
+	@SuppressWarnings("rawtypes")
+	private void initMapper() {
+		this.registry = (BeanDefinitionRegistry) applicationContext.getAutowireCapableBeanFactory();
+			try {
+				String className1= "SimpleCode";
+				String classCode1= " package com.bjc.lcp.api.code.entity;\n" +
+						"\n" +
+						"import com.baomidou.mybatisplus.annotation.IdType;\n" +
+						"import com.baomidou.mybatisplus.annotation.TableId;\n" +
+						"import com.baomidou.mybatisplus.annotation.TableName;\n" +
+						"import lombok.Data;\n" +
+						"\n" +
+						"import java.util.Date;\n" +
+						"\n" +
+						"/**\n" +
+						" * 单表代码生成\n" +
+						" *\n" +
+						" * @author wujun\n" +
+						" * @date 2023-06-14 14:49:48\n" +
+						" */\n" +
+						"@Data\n" +
+						"@TableName(\"test_simple_code\")\n" +
+						"public class SimpleCode {\n" +
+						"\n" +
+						"    /**\n" +
+						"     * 主键\n" +
+						"     */\n" +
+						"    @TableId(type = IdType.ASSIGN_ID)\n" +
+						"    private Integer id;\n" +
+						"\n" +
+						"    /**\n" +
+						"     * 名称\n" +
+						"     */\n" +
+						"    private String name;\n" +
+						"\n" +
+						"    /**\n" +
+						"     * 年龄\n" +
+						"     */\n" +
+						"    private Integer age;\n" +
+						"\n" +
+						"    /**\n" +
+						"     * {\"name\":\"状态\",\"1\":\"启用\",\"0\":\"禁用\"}\n" +
+						"     */\n" +
+						"    private Integer status;\n" +
+						"\n" +
+						"    /**\n" +
+						"     * 生日\n" +
+						"     */\n" +
+						"    private Date birthday;\n" +
+						"\n" +
+						"    /**\n" +
+						"     * 备注\n" +
+						"     */\n" +
+						"    private String remarks;\n" +
+						"\n" +
+						"}\n ";
+				String className2= "SimpleCodeMapper";
+				String classCode2= " package com.bjc.lcp.api.code.mapper;\n" +
+						"\n" +
+						"import com.baomidou.mybatisplus.core.mapper.BaseMapper;\n" +
+						"import com.bjc.lcp.api.code.entity.SimpleCode;\n" +
+						"import org.apache.ibatis.annotations.Select;\n" +
+						"\n" +
+						"/**\n" +
+						" * 单表代码生成\n" +
+						" *\n" +
+						" * @author wujun\n" +
+						" * @date 2023-06-14 14:49:48\n" +
+						" */\n" +
+						"public interface SimpleCodeMapper extends BaseMapper<SimpleCode> {\n" +
+						"\n" +
+						"\n" +
+						"    @Select(\"SELECT count(1) from test_simple_code\")\n" +
+						"    int selectCount1();\n" +
+						"}\n ";
+				Class clazz = groovyClassLoader.parseClass(classCode1);
+				BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(clazz);
+				BeanDefinition beanDefinition = builder.getBeanDefinition();
+				registry.registerBeanDefinition(className1, beanDefinition);
+
+				Class clazz2 = groovyClassLoader.parseClass(classCode2);
+				classMap.put(className1,clazz);
+				classMap.put(className2,clazz2);
+//				BeanDefinitionBuilder builder2 = BeanDefinitionBuilder.genericBeanDefinition(clazz2);
+//				BeanDefinition beanDefinition2 = builder2.getBeanDefinition();
+//				registry.registerBeanDefinition(className2, beanDefinition2);
+
+				//		BaseMapper mapper = null;
+				org.apache.ibatis.session.Configuration configuration = sqlSessionTemplate.getConfiguration();
+				configuration.addMapper(clazz2);
+				SqlSessionFactoryBuilder builder11 = new SqlSessionFactoryBuilder();
+				SqlSessionFactory sqlSessionFactory = builder11.build(configuration);
+//				SqlSession sqlSession = sqlSessionFactory.openSession();
+//				sqlSession.getMapper(clazz2).
+			}  catch (Exception e) {
+				log.error("当前Groovy脚本执行失败："+JSON.toJSONString("groovyInfo"));
+			}
+	}
+
+
+	public Map<String, Class> getClassMap() {
+		return classMap;
+	}
+
+	public void setClassMap(Map<String, Class> classMap) {
+		this.classMap = classMap;
 	}
 
 	private void init() {
@@ -170,7 +289,7 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 		destroyBeanDefinition(groovyInfos);
 
 		destroyScriptBeanFactory();
-
+		initMapper();
 		initNew(groovyInfos);
 
 		GroovyInnerCache.put2map(groovyInfos);
@@ -303,8 +422,6 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 
 	/**
 	 * 重建单一请求的注册与缓存
-	 *
-	 * @param refreshMapping
 	 */
 	public void refreshMapping(List<ApiConfig> groovyScripts) {
 		try {
