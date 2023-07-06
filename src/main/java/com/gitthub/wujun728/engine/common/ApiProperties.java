@@ -25,12 +25,14 @@ public class ApiProperties {
 	@Value("${spring.groovy-api.servicename:jun-engine-api}")
     private String servicename;
 
+    @Value("${spring.groovy-api.enable:false}")
+    private String enable;
     /**
      * 基础注册路径
      */
 	@Value("${spring.groovy-api.context:/api}")
     private String context;
-    
+
     @Value("${spring.groovy-api.datasource.dbtype:}")
     private String dbtype;
     
