@@ -3,6 +3,8 @@ package com.gitthub.wujun728.engine.generator;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.db.meta.Column;
+import cn.hutool.db.meta.Table;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
@@ -32,18 +34,31 @@ public class GenUtils {
 	public static String PACKAGE;// 资源文件路径
 	public static String TEMPLATE_FILE_PATH = PROJECT_PATH + "/src/main/resources/templates";// 模板位置
 
+	public static String authorName = "Wujun";
+	public static Boolean isLombok = true;
+	public static Boolean isAutoImport = true;
+	public static Boolean isWithPackage = true;
+	public static Boolean isSwagger = true;
+	public static Boolean isComment = true;
+
 	static {
 		try {
 			PROJECT_PATH = FileUtil.getParent(GenUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath(),2);
 			InputStream is = GenUtils.class.getClassLoader().getResourceAsStream("config.properties");
 			props.load(is);
 			Class.forName(props.getProperty("driver"));
-			PACKAGE = props.getProperty("basePackage");
+			PACKAGE = props.getProperty("packageName");
 			JAVA_PATH = props.getProperty("javaPath");
 			RESOURCES_PATH = props.getProperty("resourcesPath");
 			PAGE_PATH = props.getProperty("pagePath");
 			PROJECT_PATH = props.getProperty("PROJECT_PATH");
 			TEMPLATE_FILE_PATH = PROJECT_PATH + props.getProperty("templateFilePath");// 模板位置
+			authorName = props.getProperty("authorName");
+			isLombok = Boolean.valueOf(props.getProperty("isLombok"));
+			isAutoImport = Boolean.valueOf(props.getProperty("isAutoImport"));
+			isWithPackage = Boolean.valueOf(props.getProperty("isWithPackage"));
+			isSwagger = Boolean.valueOf(props.getProperty("isSwagger"));
+			isComment = Boolean.valueOf(props.getProperty("isComment"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -405,6 +420,50 @@ public class GenUtils {
 			e.printStackTrace();
 		}
 		return list;
+	}
+
+
+
+	public static ClassInfo getClassInfo(Table table) {
+		// V1 初始化数据及对象 模板V1 field List
+		List<FieldInfo> fieldList = new ArrayList<FieldInfo>();
+		for (Column column : table.getColumns()) {
+			// V1 初始化数据及对象
+			String remarks = column.getComment();// cloumnsSet.getString("REMARKS");// 列的描述
+			String columnName = column.getName();// cloumnsSet.getString("COLUMN_NAME"); // 获取列名
+			String javaType = GenUtils.getType(column.getType()/*cloumnsSet.getInt("DATA_TYPE")*/);// 获取类型，并转成JavaType
+			String columnType = column.getTypeName();// 获取类型，并转成JavaType
+			long COLUMN_SIZE = column.getSize();// cloumnsSet.getInt("COLUMN_SIZE");// 获取
+			String COLUMN_DEF = column.getColumnDef();// cloumnsSet.getString("COLUMN_DEF");// 获取
+			Boolean nullable = column.isNullable();// cloumnsSet.getInt("NULLABLE");// 获取
+			String propertyName = GenUtils.replace_(GenUtils.replaceRowPreStr(columnName));// 处理列名，驼峰
+			Boolean isPk = column.isPk();
+
+			// V1 初始化数据及对象
+			FieldInfo fieldInfo = new FieldInfo();
+			fieldInfo.setColumnName(columnName);
+			fieldInfo.setColumnType(columnType);
+			fieldInfo.setFieldName(propertyName);
+			fieldInfo.setFieldClass(GenUtils.simpleName(javaType));
+			fieldInfo.setFieldComment(remarks);
+			fieldInfo.setColumnSize(COLUMN_SIZE);
+			fieldInfo.setNullable(nullable);
+			fieldInfo.setFieldType(javaType);
+			fieldInfo.setIsPrimaryKey(isPk);
+			fieldList.add(fieldInfo);
+		}
+		if (fieldList != null && fieldList.size() > 0) {
+			ClassInfo classInfo = new ClassInfo();
+			classInfo.setTableName(table.getTableName());
+			String className = GenUtils.replace_(GenUtils.replaceTabblePreStr(table.getTableName())); // 名字操作,去掉tab_,tb_，去掉_并转驼峰
+			String classNameFirstUpper = GenUtils.firstUpper(className); // 大写对象
+			classInfo.setClassName(classNameFirstUpper);
+			classInfo.setClassComment(table.getComment());
+			classInfo.setFieldList(fieldList);
+			classInfo.setPkSize(table.getPkNames().size());
+			return classInfo;
+		}
+		return null;
 	}
 
 
