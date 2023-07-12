@@ -6,8 +6,8 @@ import ${packageName}.dto.${classInfo.className}DTO;
 import ${packageName}.mapper.${classInfo.className}Mapper;
 import ${packageName}.entity.${classInfo.className}Entity;
 import ${packageName}.service.${classInfo.className}Service;
-import com.bjc.lcp.common.cnt.enums.CntTableNameEnum;
-import com.bjc.lcp.common.cnt.service.CntService;
+//import com.bjc.lcp.common.cnt.enums.CntTableNameEnum;
+//import com.bjc.lcp.common.cnt.service.CntService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -47,8 +47,8 @@ public class ${classInfo.className}Controller {
     @Resource
     private ${classInfo.className}Mapper ${classInfo.className?uncap_first}Mapper;
     
-    @Autowired
-    private CntService cntService;
+    //@Autowired
+    //private CntService cntService;
     
     @ApiOperation(value = "${classInfo.classComment}-新增")
     @PostMapping("/add")
@@ -58,7 +58,7 @@ public class ${classInfo.className}Controller {
     	BeanUtils.copyProperties(vo, dto);
 <#if classInfo.fieldList?exists && classInfo.fieldList?size gt 0>
 <#list classInfo.fieldList as fieldItem >
-<#if fieldItem.notNull==true>
+<#if fieldItem.nullable==true>
         if (ObjectUtils.isEmpty(dto.get${fieldItem.fieldName?cap_first}())) {
             return DataResult.fail("参数[${fieldItem.fieldName}]不能为空");
         }

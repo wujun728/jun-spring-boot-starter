@@ -1,17 +1,27 @@
 package com.gitthub.wujun728.engine.generator;
 
-import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.db.meta.Column;
+import cn.hutool.db.meta.MetaUtil;
 import cn.hutool.db.meta.Table;
+import com.alibaba.druid.pool.DruidDataSource;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.google.common.collect.Lists;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.sql.*;
 import java.util.*;
 
@@ -26,53 +36,31 @@ import java.util.*;
 @Slf4j
 public class GenUtils {
 
-	public static Properties props = new Properties(); // 配置文件
-	public static String PROJECT_PATH;// 项目在硬盘上的基础路径，项目路径
-	public static String JAVA_PATH; // java文件路径
-	public static String RESOURCES_PATH;// 资源文件路径
-	public static String PAGE_PATH;// 资源文件路径
-	public static String PACKAGE;// 资源文件路径
-	public static String TEMPLATE_FILE_PATH = PROJECT_PATH + "/src/main/resources/templates";// 模板位置
+	private static final Logger logger = LoggerFactory.getLogger(GenUtils.class);
 
-	public static String authorName = "Wujun";
-	public static Boolean isLombok = true;
-	public static Boolean isAutoImport = true;
-	public static Boolean isWithPackage = true;
-	public static Boolean isSwagger = true;
-	public static Boolean isComment = true;
+	public static Properties props; // 配置文件
+	public static List<String> templates; // 模板文件
+	public static List<String> filePaths; // 生成文件
 
-	static {
-		try {
-			PROJECT_PATH = FileUtil.getParent(GenUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath(),2);
-			InputStream is = GenUtils.class.getClassLoader().getResourceAsStream("config.properties");
-			props.load(is);
-			Class.forName(props.getProperty("driver"));
-			PACKAGE = props.getProperty("packageName");
-			JAVA_PATH = props.getProperty("javaPath");
-			RESOURCES_PATH = props.getProperty("resourcesPath");
-			PAGE_PATH = props.getProperty("pagePath");
-			PROJECT_PATH = props.getProperty("PROJECT_PATH");
-			TEMPLATE_FILE_PATH = PROJECT_PATH + props.getProperty("templateFilePath");// 模板位置
-			authorName = props.getProperty("authorName");
-			isLombok = Boolean.valueOf(props.getProperty("isLombok"));
-			isAutoImport = Boolean.valueOf(props.getProperty("isAutoImport"));
-			isWithPackage = Boolean.valueOf(props.getProperty("isWithPackage"));
-			isSwagger = Boolean.valueOf(props.getProperty("isSwagger"));
-			isComment = Boolean.valueOf(props.getProperty("isComment"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+    public static void init(Properties propsV1 , List<String> templatesV1) {
+		templates = templatesV1;
+		props = propsV1;
 	}
-
-
     public static List<String> getFilePaths(List<String> templates, ClassInfo classInfo) {
         List<String> filePaths = new ArrayList<>();
 		for(String template : templates){
 			String path_tmep = FileNameUtil.getName(template).replace(".ftl","");
-			String filename_tmep = upperCaseFirstWordV2(path_tmep);
-			String packageName = PACKAGE+"."+path_tmep;
-			String package2Path = String.format("/%s/", packageName.contains(".") ? packageName.replaceAll("\\.", "/") : packageName);
-			filePaths.add(PROJECT_PATH + JAVA_PATH + package2Path + classInfo.getClassName() + filename_tmep + ".java");
+			String filename_resc = path_tmep;
+			//String package3Path = String.format("/%s/", path1.contains(".") ? path1.replaceAll("\\.", "/") : path1);
+			if(template.contains(".java")){
+				String path1 = path_tmep.substring(0,path_tmep.lastIndexOf("."));
+				String filename_tmep = upperCaseFirstWordV2(path1);
+				String packageName = props.getProperty("packageName")+"."+path1;
+				String package2Path = String.format("/%s/", packageName.contains(".") ? packageName.replaceAll("\\.", "/") : packageName);
+				filePaths.add(props.getProperty("project_path") + props.getProperty("javaPath") + package2Path + classInfo.getClassName() + filename_tmep + ".java");
+			}else{
+				filePaths.add(props.getProperty("project_path") + props.getProperty("resourcesPath") + File.separator+classInfo.getClassName() +File.separator+ filename_resc );
+			}
 		}
         return filePaths;
     }
@@ -201,7 +189,11 @@ public class GenUtils {
 
 	public static void processTemplatesFileWriter(ClassInfo classInfo, Map<String, Object> datas, List<String> templates) throws IOException, TemplateException {
 		for(int i = 0 ; i < templates.size() ; i++) {
-			GenUtils.processFile(templates.get(i), datas, GenUtils.getFilePaths(templates,classInfo).get(i));
+			if(CollectionUtils.isEmpty(filePaths)){
+				GenUtils.processFile(templates.get(i), datas, GenUtils.getFilePaths(templates,classInfo).get(i));
+			}else{
+				GenUtils.processFile(templates.get(i), datas, filePaths.get(i));
+			}
 		}
 	}
 
@@ -231,7 +223,7 @@ public class GenUtils {
 	private static freemarker.template.Configuration getConfiguration() throws IOException {
 		freemarker.template.Configuration cfg = new freemarker.template.Configuration(
 				freemarker.template.Configuration.VERSION_2_3_23);
-		cfg.setDirectoryForTemplateLoading(new File(GenUtils.TEMPLATE_FILE_PATH));
+		cfg.setDirectoryForTemplateLoading(new File(props.getProperty("project_path") +  props.getProperty("templateFilePath")));
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setNumberFormat("#");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.IGNORE_HANDLER);
@@ -291,10 +283,10 @@ public class GenUtils {
 					String path = null;
 					if (templateFileNameSuffix.equalsIgnoreCase(".java")) {
 						// 创建文件夹
-						path = GenUtils.PROJECT_PATH + "/" + PACKAGE.replace(".", "/") + "/" + templateFileNamePrefix.toLowerCase();
+						path = GenUtils.props.getProperty("project_path") + "/" + props.getProperty("packageName").replace(".", "/") + "/" + templateFileNamePrefix.toLowerCase();
 					}
 					if (templateFileNameSuffix.equalsIgnoreCase(".ftl")) {
-						path = GenUtils.PROJECT_PATH + "/" + PACKAGE.replace(".", "/") + "/" + templateFilePathMiddle + "/";
+						path = GenUtils.props.getProperty("project_path") + "/" + props.getProperty("packageName").replace(".", "/") + "/" + templateFilePathMiddle + "/";
 					}
 					String fileNameNew = templateFileNamePrefix
 							.replace("${className}", String.valueOf(modelMap.get("Table")))
@@ -322,8 +314,8 @@ public class GenUtils {
 		List<ClassInfo> list = new ArrayList<ClassInfo>();
 		try {
 			if (conn == null) {
-				conn = DriverManager.getConnection(GenUtils.props.getProperty("url"),
-						GenUtils.props.getProperty("username"), GenUtils.props.getProperty("password"));
+				conn = DriverManager.getConnection(props.getProperty("url"),
+						props.getProperty("uname"), props.getProperty("pwd"));
 			}
 			DatabaseMetaData metaData = conn.getMetaData();
 			String databaseType = metaData.getDatabaseProductName(); // 获取数据库类型：MySQL
@@ -352,7 +344,7 @@ public class GenUtils {
 //						showTableInfo(tableResultSet);
 						log.info("当前表名：" + tableName);
 						Set<String> typeSet = new HashSet<String>(); // 所有需要导包的类型
-						ResultSet cloumnsSet = metaData.getColumns(database, GenUtils.props.getProperty("username"),
+						ResultSet cloumnsSet = metaData.getColumns(database, props.getProperty("uname"),
 								tableName, null); // 获取表所有的列
 //						ResultSet keySet = metaData.getPrimaryKeys(database, GenUtils.props.getProperty("username"),
 //								tableName); // 获取主键
@@ -465,6 +457,90 @@ public class GenUtils {
 		}
 		return null;
 	}
+
+
+	public static void genTables(List<ClassInfo> classInfos, List<String> templates ) throws Exception {
+
+		if(CollectionUtils.isEmpty(templates)){
+			templates = GenUtils.templates;
+			if(CollectionUtils.isEmpty(templates)){
+				templates = GenUtils.templates;
+				logger.info("代码生成模板未初始化，请初始化【templates】");
+			}
+		}
+		List<String> finalTemplates = templates;
+		classInfos.forEach(classInfo -> {
+			Map<String, Object> datas = new HashMap<String, Object>();
+			datas.put("classInfo", classInfo);
+			props.forEach((k, v)->{
+				if(String.valueOf(v).equalsIgnoreCase("true")||String.valueOf(v).equalsIgnoreCase("false")){
+					datas.put(String.valueOf(k), Boolean.valueOf(String.valueOf(v)));
+				}else{
+					datas.put(String.valueOf(k), v);
+				}
+			});
+			datas.put("package", props.getProperty("package"));
+			datas.put("author", props.getProperty("author"));
+			datas.put("email", props.getProperty("email"));
+			datas.put("datetime", DateUtil.now());
+			datas.put("identity", IdWorker.getId());
+			datas.put("addId", IdWorker.getId());
+			datas.put("updateId", IdWorker.getId());
+			datas.put("deleteId", IdWorker.getId());
+			datas.put("selectId", IdWorker.getId());
+
+			Map<String, String> result = new HashMap<String, String>();
+			try {
+				result = GenUtils.processTemplatesStringWriter(datas, finalTemplates);
+				GenUtils.processTemplatesFileWriter(classInfo, datas, finalTemplates);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (TemplateException e) {
+				e.printStackTrace();
+			}
+			// 计算,生成代码行数
+			int lineNum = 0;
+			for (Map.Entry<String, String> item : result.entrySet()) {
+				if (item.getValue() != null) {
+					lineNum += StringUtils.countMatches(item.getValue(), "\n");
+				}
+			}
+			logger.info("生成代码行数：{}", lineNum);
+		});
+		if (CollectionUtils.isEmpty(classInfos)) {
+			logger.error("找不到当前表的元数据classInfos.size()：{}", classInfos.size());
+		}
+	}
+
+
+
+	public static List<ClassInfo> getClassInfos(List<String> tableNames) {
+		DruidDataSource ds = new DruidDataSource();
+		ds.setDriverClassName(props.getProperty("driver"));
+		ds.setUrl(props.getProperty("url"));
+		ds.setUsername(props.getProperty("uname"));
+		ds.setPassword(props.getProperty("pwd"));
+		List<ClassInfo> classInfos = Lists.newArrayList();
+		tableNames.stream().forEach(t -> {
+			Table table = MetaUtil.getTableMeta(ds, t);
+			if(table.getPkNames().size()>0){//没有主键是不生成的
+				classInfos.add(GenUtils.getClassInfo(table));
+			}
+		});
+		return classInfos;
+	}
+
+
+	public static void genCode(List<String> tableNames, List<String> templates ) throws Exception {
+		List<ClassInfo> classInfos = GenUtils.getClassInfos(tableNames);
+		GenUtils.genTables(classInfos, templates);
+	}
+	public static void genCode(List<String> tableNames) throws Exception {
+		List<ClassInfo> classInfos = GenUtils.getClassInfos(tableNames);
+		GenUtils.genTables(classInfos, templates);
+	}
+
+
 
 
 }
