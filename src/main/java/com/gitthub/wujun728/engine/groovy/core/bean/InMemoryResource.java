@@ -14,6 +14,7 @@ import java.util.Arrays;
 /**
  * 内存资源，主要用来将编译后的解析脚本存于内存
  */
+@Deprecated
 public class InMemoryResource extends AbstractResource {
 
     /**

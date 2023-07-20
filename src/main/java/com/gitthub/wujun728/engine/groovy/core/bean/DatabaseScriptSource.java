@@ -17,6 +17,7 @@ import java.io.IOException;
  * Groovy脚本数据库数据源，实现了spring的ScriptSource接口供spring来管理Groovy脚本<br>
  * 每次获取解析报文的Groovy脚本时，从已有的缓存 ParserCache 中读取。
  */
+@Deprecated
 public final class DatabaseScriptSource implements ScriptSource {
 
     /**

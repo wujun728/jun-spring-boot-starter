@@ -22,30 +22,30 @@ public class ApiProperties {
      * 服务名称
      * 所有数据以此作隔离
      */
-	@Value("${spring.groovy-api.servicename:jun-engine-api}")
+	@Value("${project.groovy-api.servicename:jun-engine-api}")
     private String servicename;
 
-    @Value("${spring.groovy-api.enable:false}")
+    @Value("${project.groovy-api.enable:true}")
     private String enable;
     /**
      * 基础注册路径
      */
-	@Value("${spring.groovy-api.context:/api}")
+	@Value("${project.groovy-api.context:/api}")
     private String context;
 
-    @Value("${spring.groovy-api.datasource.dbtype:}")
+    @Value("${project.groovy-api.datasource.dbtype:}")
     private String dbtype;
     
-    @Value("${spring.groovy-api.datasource.url:}")
+    @Value("${project.groovy-api.datasource.url:}")
     private String url;
     
-    @Value("${spring.groovy-api.datasource.username:}")
+    @Value("${project.groovy-api.datasource.username:}")
     private String username;
     
-    @Value("${spring.groovy-api.datasource.password:}")
+    @Value("${project.groovy-api.datasource.password:}")
     private String password;
     
-    @Value("${spring.groovy-api.api_config:api_config}")
+    @Value("${project.groovy-api.api_config:api_config}")
     private String apiconfig;
     
 

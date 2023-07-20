@@ -7,6 +7,7 @@ package com.gitthub.wujun728.engine.groovy.core.bean;
 /**
  * Groovy 相关常量
  */
+@Deprecated
 public final class GroovyConstant {
 
     /**

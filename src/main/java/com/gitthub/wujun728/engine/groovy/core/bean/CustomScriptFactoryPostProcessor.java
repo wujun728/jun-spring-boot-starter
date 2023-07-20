@@ -49,6 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 实现了针对单独脚本进行更新的功能
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
+@Deprecated
 @Service
 public class CustomScriptFactoryPostProcessor extends InstantiationAwareBeanPostProcessorAdapter
         implements

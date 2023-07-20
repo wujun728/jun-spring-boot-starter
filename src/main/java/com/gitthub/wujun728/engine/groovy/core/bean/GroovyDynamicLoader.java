@@ -1,39 +1,6 @@
 package com.gitthub.wujun728.engine.groovy.core.bean;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import cn.hutool.core.lang.Console;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.codehaus.groovy.control.CompilationFailedException;
-import org.mybatis.spring.SqlSessionTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.xml.ResourceEntityResolver;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-
 import com.alibaba.fastjson.JSON;
 import com.gitthub.wujun728.engine.common.ApiConfig;
 import com.gitthub.wujun728.engine.common.ApiService;
@@ -41,10 +8,32 @@ import com.gitthub.wujun728.engine.groovy.cache.IApiConfigCache;
 import com.gitthub.wujun728.engine.groovy.core.cache.GroovyInfo;
 import com.gitthub.wujun728.engine.groovy.core.cache.GroovyInnerCache;
 import com.gitthub.wujun728.engine.groovy.mapping.RequestMappingService;
-
-//import cn.hutool.core.lang.Console;
+import com.jfinal.plugin.activerecord.ActiveRecordException;
 import groovy.lang.GroovyClassLoader;
 import lombok.extern.slf4j.Slf4j;
+import org.codehaus.groovy.control.CompilationFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanDefinitionStoreException;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.sql.SQLSyntaxErrorException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Configuration
@@ -58,8 +47,6 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 	private ConfigurableApplicationContext applicationContext;
 
 	private BeanDefinitionRegistry registry;
-//    @Autowired
-//    GroovyClassLoader groovyClassLoader;
 
 	private static final GroovyClassLoader groovyClassLoader = new GroovyClassLoader(
 			GroovyDynamicLoader.class.getClassLoader());
@@ -85,7 +72,6 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 		logger.warn(" --- warn --- ");
 		logger.error(" --- error --- ");
 
-//		init();
 		initNew();
 
 		long cost = System.currentTimeMillis() - start;
@@ -94,11 +80,14 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 
 	private void initNew() {
 		try {
+			apiService.init();
+
 			List<ApiConfig> groovyScripts = apiService.queryApiConfigList();
 
 			apiInfoCache.putAll(groovyScripts);
 
 			List<GroovyInfo> groovyInfos = convert(groovyScripts);
+
 			initNew(groovyInfos);
 
 			refreshMapping(groovyScripts);
@@ -108,8 +97,13 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 			if(e.getMessage().contains("Config not found by configName")) {
 				Console.log("jfinal数据源配置有误："+e.getMessage());
 			}
+		} catch (ActiveRecordException e) {
+			//e.printStackTrace();
+			if(e.getMessage().contains("doesn't exist")) {
+				Console.log("api_config表在数据库不存在，配置有误："+e.getMessage());
+			}
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		}
 	}
 
@@ -138,35 +132,6 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 		GroovyInnerCache.put2map(groovyInfos);
 	}
 
-	private void init() {
-
-		List<ApiConfig> groovyScripts = apiService.queryApiConfigList();
-
-		apiInfoCache.putAll(groovyScripts);
-
-		List<GroovyInfo> groovyInfos = convert(groovyScripts);
-
-		init(groovyInfos);
-
-		refreshMapping(groovyScripts);
-	}
-
-	private void init(List<GroovyInfo> groovyInfos) {
-
-		if (CollectionUtils.isEmpty(groovyInfos)) {
-			return;
-		}
-
-		ConfigurationXMLWriter config = new ConfigurationXMLWriter();
-
-		addConfiguration(config, groovyInfos);
-//		Console.log(JSONUtil.toJsonStr(groovyInfos));
-
-		GroovyInnerCache.put2map(groovyInfos);
-
-		loadBeanDefinitions(config);
-
-	}
 
 	public void refreshNew() {
 
@@ -180,7 +145,6 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 			return;
 		}
 
-		// loadBeanDefinitions 之后才会生效
 		destroyBeanDefinition(groovyInfos);
 
 		destroyScriptBeanFactory();
@@ -191,35 +155,6 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 		refreshMapping(groovyScripts);
 	}
 	
-
-	public void refresh() {
-
-		List<ApiConfig> groovyScripts = apiService.queryApiConfigList();
-
-		apiInfoCache.putAll(groovyScripts);
-
-		List<GroovyInfo> groovyInfos = convert(groovyScripts);
-
-		if (CollectionUtils.isEmpty(groovyInfos)) {
-			return;
-		}
-
-		// loadBeanDefinitions 之后才会生效
-		destroyBeanDefinition(groovyInfos);
-
-		destroyScriptBeanFactory();
-
-		ConfigurationXMLWriter config = new ConfigurationXMLWriter();
-
-		addConfiguration(config, groovyInfos);
-
-		GroovyInnerCache.put2map(groovyInfos);
-
-		loadBeanDefinitions(config);
-
-		refreshMapping(groovyScripts);
-	}
-
 	private List<GroovyInfo> convert(List<ApiConfig> list) {
 
 		List<GroovyInfo> groovyInfos = new LinkedList<>();
@@ -243,52 +178,6 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 		}
 
 		return groovyInfos;
-	}
-
-	private void addConfiguration(ConfigurationXMLWriter config, List<GroovyInfo> groovyInfos) {
-		for (GroovyInfo groovyInfo : groovyInfos) {
-			try {
-				groovyClassLoader.parseClass(groovyInfo.getGroovyContent());
-			} catch (Exception e) {
-				e.printStackTrace();
-				log.error("解析Groovy源码失败！");
-			}
-			DynamicBean bean = new DynamicBean();
-			String scriptName = groovyInfo.getClassName();
-
-			Assert.notNull(scriptName, "parser className cannot be empty!");
-
-			// 设置bean的属性，这里只有id和script-source-className。
-			bean.put("id", scriptName);
-			bean.put("script-source", GroovyConstant.SCRIPT_SOURCE_PREFIX + scriptName);
-
-			config.write(GroovyConstant.SPRING_TAG, bean);
-		}
-	}
-
-	private void loadBeanDefinitions(ConfigurationXMLWriter config) {
-
-		String contextString = config.getContent();
-
-		if (StringUtils.isBlank(contextString)) {
-			return;
-		}
-
-		XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(
-				(BeanDefinitionRegistry) this.applicationContext.getBeanFactory());
-		beanDefinitionReader.setResourceLoader(this.applicationContext);
-		beanDefinitionReader.setBeanClassLoader(applicationContext.getClassLoader());
-		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this.applicationContext));
-
-		beanDefinitionReader.loadBeanDefinitions(new InMemoryResource(contextString));
-
-		String[] postProcessorNames = applicationContext.getBeanFactory()
-				.getBeanNamesForType(CustomScriptFactoryPostProcessor.class, true, false);
-
-		for (String postProcessorName : postProcessorNames) {
-			applicationContext.getBeanFactory()
-					.addBeanPostProcessor((BeanPostProcessor) applicationContext.getBean(postProcessorName));
-		}
 	}
 
 	private void destroyBeanDefinition(List<GroovyInfo> groovyInfos) {

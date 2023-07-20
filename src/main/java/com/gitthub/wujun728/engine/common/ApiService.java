@@ -40,24 +40,42 @@ public class ApiService {
 	private String tablename = "api_config";
 	
 	@PostConstruct
-	void init(){
+	public void init(){
 		String url = properties.getUrl();
 		String username = properties.getUsername();
 		String password = properties.getPassword();
-		if(!StringUtils.isEmpty(url)) {
-			Console.log(SpringUtil.getProperty("spring.datasource.url"));
-			url = SpringUtil.getProperty("spring.datasource.url");
-			username = SpringUtil.getProperty("spring.datasource.username");
-			password = SpringUtil.getProperty("spring.datasource.password");
+		if(StringUtils.isEmpty(url)) {
+			Console.log(SpringUtil.getProperty("project.datasource.url"));
+			url = SpringUtil.getProperty("project.datasource.url");
+			username = SpringUtil.getProperty("project.datasource.username");
+			password = SpringUtil.getProperty("project.datasource.password");
+		}
+		Boolean isExtsis = false;
+		try {
 			DruidPlugin dp = new DruidPlugin(url, username, password);
 			ActiveRecordPlugin arp = new ActiveRecordPlugin(master, dp);
-			// 与 jfinal web 环境唯一的不同是要手动调用一次相关插件的start()方法
+			arp.setDevMode(true);
+			arp.setShowSql(true);
 			dp.start();
 			arp.start();
-			if(!StringUtils.isEmpty(properties.getApiconfig())) {
-				tablename = properties.getApiconfig();
-			}
+			log.warn("Config have bean created by configName: {}",master);
+			//Db.use(appNo);
+		} catch (IllegalArgumentException e) {
+			isExtsis = true;
+			log.info(e.getMessage());
 		}
+		if( !isExtsis ){
+
+		}
+		/*DruidPlugin dp = new DruidPlugin(url, username, password);
+		ActiveRecordPlugin arp = new ActiveRecordPlugin(master, dp);
+		// 与 jfinal web 环境唯一的不同是要手动调用一次相关插件的start()方法
+		dp.start();
+		arp.start();*/
+		if(!StringUtils.isEmpty(properties.getApiconfig())) {
+			tablename = properties.getApiconfig();
+		}
+
 	}
 
 //	@Autowired

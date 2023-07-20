@@ -26,6 +26,7 @@ import java.util.Iterator;
  * 将<code>DynamicBean</code>表示的Spring Bean信息写入到Spring配置文件中。
  * 配置文件以Document对象保存在内存中，并不真正IO输出到本地文件系统。
  */
+@Deprecated
 public class ConfigurationXMLWriter {
 
     public static String DDD = "http://apache.org/xml/features/disallow-doctype-decl";

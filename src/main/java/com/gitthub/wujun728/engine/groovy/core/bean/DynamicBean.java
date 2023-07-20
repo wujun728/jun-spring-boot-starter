@@ -11,6 +11,7 @@ import java.util.Map;
 /**
  * 需要动态加载到Spring中的Bean配置信息
  */
+@Deprecated
 public final class DynamicBean {
 
     /**

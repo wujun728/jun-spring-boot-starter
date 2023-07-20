@@ -15,13 +15,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.CharsetUtil;
+import com.gitthub.wujun728.engine.common.*;
+import com.gitthub.wujun728.engine.groovy.core.cache.GroovyInnerCache;
+import com.gitthub.wujun728.engine.interfaces.AbstractExecutor;
+import com.gitthub.wujun728.engine.interfaces.IExecutor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.ApplicationContext;
@@ -44,13 +55,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gitthub.wujun728.engine.common.ApiConfig;
-import com.gitthub.wujun728.engine.common.ApiDataSource;
-import com.gitthub.wujun728.engine.common.ApiProperties;
-import com.gitthub.wujun728.engine.common.ApiService;
-import com.gitthub.wujun728.engine.common.ApiSql;
-import com.gitthub.wujun728.engine.common.DataResult;
-import com.gitthub.wujun728.engine.common.RequestWrapper;
 import com.gitthub.wujun728.engine.groovy.cache.IApiConfigCache;
 import com.gitthub.wujun728.engine.plugin.CachePlugin;
 import com.gitthub.wujun728.engine.plugin.PluginManager;
@@ -116,105 +120,33 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 			// 执行方法
 			method.invoke(this, request, response);
 		} catch (NoSuchMethodException e) {
-			log.warn("找不到当前子类实现的方法[process]，走默认Bean定义的逻辑1");
-			IMappingExecutor executor = SpringUtil.getBean("HttpMappingExecutor");
-			executor.execute(request, response);
-			log.warn("找不到当前子类实现的方法[process]，走默认Bean定义的逻辑2");
+			log.warn("当前子类未实现自定义方法[process]，走默认Bean定义的逻辑[无自定义执行逻辑]");
+			IMappingExecutor executor = null;
+			try {
+				executor = SpringUtil.getBean("HttpMappingExecutor");
+				executor.execute(request, response);
+			} catch (NoSuchBeanDefinitionException ex ) {
+				//log.warn("找不到默认执行Bean[HttpMappingExecutor],No bean named 'HttpMappingExecutor' available，走系统默认执行逻辑[无自定义执行逻辑]");
+				//throw new RuntimeException(ex);
+			} catch (RuntimeException  ex ) {
+				log.warn(ex.getMessage());
+				//throw new RuntimeException(ex);
+			} catch (Exception  ex ) {
+				log.warn(ex.getMessage());
+				//throw new RuntimeException(ex);
+			}
 //			Set<Class<?>> clazzs = ClassUtil.scanPackageBySuper("com.jun.plugin", RequestMappingExecutor.class);
 //			for(Class clazz: clazzs) {
 //				ReflectUtil.invoke(clazzs, null, null)
 //			}
-//			defaultMetod(request, response);
+			log.info("执行默认方法的逻辑[无自定义执行逻辑]");
+			defaultMetod(request, response);
 			// 找不到当前子类实现的方法[process]，走默认方法的逻辑
-			log.warn("找不到当前子类实现的方法[process]，走默认方法的逻辑");
-			e.printStackTrace();
+			//e.printStackTrace();
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * 执行脚本逻辑
-	 */
-	public void defaultMetod(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-		log.info("servlet execute");
-		String servletPath = request.getRequestURI();
-		PrintWriter out = null;
-		try {
-			out = response.getWriter();
-			DataResult DataResult = process(servletPath, request, response);
-			out.append(JSON.toJSONString(DataResult));
-
-		} catch (Exception e) {
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			out.append(JSON.toJSONString(DataResult.fail(e.toString())));
-			log.error(e.toString(), e);
-		} finally {
-			if (out != null)
-				out.close();
-		}
-	}
-
-	public DataResult process(String path, HttpServletRequest request, HttpServletResponse response) {
-		System.out.println("servlet execute");
-		// 校验接口是否存在
-		ApiConfig config = apiInfoCache.get(path);
-		if (config == null) {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			log.info("servlet execute");
-			return DataResult.fail("Api not exists");
-		}
-		try {
-			ApiDataSource datasource = apiService.getDatasource(config.getDatasourceId());
-			if (datasource == null) {
-				response.setStatus(500);
-				return DataResult.fail("Datasource not exists!");
-			}
-			Map<String, Object> sqlParam = getParameters(request, config);
-			List<ApiSql> sqlList = config.getSqlList();
-			if (CollectionUtils.isEmpty(sqlParam) && !CollectionUtils.isEmpty(sqlList)
-					&& JSON.toJSONString(sqlList).contains("#")) {
-				return DataResult.fail("Request parameter is not exists(请求入参不能为空)!");
-			}
-			ApiDataSource ds = new ApiDataSource();
-			BeanCopyUtil.copyField(datasource, ds);
-			DruidPooledConnection connection = PoolManager.getPooledConnection(ds);
-			// 是否开启事务
-			boolean flag = config.getOpenTrans() == 1 ? true : false;
-			// 执行sql
-			List<Object> dataList = executeSql(connection, sqlList, sqlParam, flag);
-			// 执行数据转换
-			for (int i = 0; i < sqlList.size(); i++) {
-				ApiSql apiSql = sqlList.get(i);
-				Object data = dataList.get(i);
-				// 如果此单条sql是查询类sql，并且配置了数据转换插件
-				if (data instanceof Iterable && StringUtils.isNotBlank(apiSql.getTransformPlugin())) {
-					log.info("transform plugin execute");
-					List<JSONObject> sourceData = (List<JSONObject>) (data); // 查询类sql的返回结果才可以这样强制转换，只有查询类sql才可以配置转换插件
-					TransformPlugin transformPlugin = (TransformPlugin) PluginManager
-							.getPlugin(apiSql.getTransformPlugin());
-					Object resData = transformPlugin.transform(sourceData, apiSql.getTransformPluginParams());
-					dataList.set(i, resData);// 重新设置值
-				}
-			}
-			Object res = dataList;
-			// 如果只有单条sql,返回结果不是数组格式
-			if (dataList.size() == 1) {
-				res = dataList.get(0);
-			}
-			// 设置缓存
-			if (StringUtils.isNoneBlank(config.getCachePlugin())) {
-				CachePlugin cachePlugin = (CachePlugin) PluginManager.getPlugin(config.getCachePlugin());
-				ApiConfig apiConfig = new ApiConfig();
-				BeanCopyUtil.copyField(datasource, apiConfig);
-				cachePlugin.set(apiConfig, sqlParam, res);
-			}
-			return DataResult.success(res);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(e.getMessage());
 		}
 	}
 
@@ -541,8 +473,6 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 		log.debug("=============================================================");
 		return map;
 	}
-	
-	
 
     public Map<String, Object> getSqlParam(HttpServletRequest request, ApiConfig config) {
         Map<String, Object> map = new HashMap<>();
@@ -605,5 +535,190 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
         }
         return map;
     }
+
+
+	//*****************************************************************************************************************
+	//*****************************************************************************************************************
+	//*****************************************************************************************************************
+
+
+	/**
+	 * 执行脚本逻辑
+	 */
+	public void defaultMetod(HttpServletRequest request, HttpServletResponse response) throws Throwable {
+		log.info("servlet execute");
+
+//		this.request = request;
+//		this.response = response;
+		log.info("HttpMappingExecutor execute  begin ");
+//		R r = null ;
+		Object data = null;
+		String servletPath = request.getRequestURI();
+		PrintWriter out = null;
+		try {
+			out = response.getWriter();
+			//  执行SQL逻辑  *****************************************************************************************************
+			// 校验接口是否存在
+			ApiConfig config = apiInfoCache.get(servletPath);
+			if (config == null) {
+				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				response.setContentType(request.getContentType());
+				response.setCharacterEncoding(CharsetUtil.UTF_8);
+				out.append(JSON.toJSONString(DataResult.fail("Api not exists")));
+			}
+			switch (config.getScriptType()) {
+				case "SQL":
+					data = doSQLProcess(config, request, response);
+					break;
+				case "Class":
+					data = doGroovyProcess(config, request, response);
+					break;
+				case "Groovy":
+					data = doGroovyProcess(config, request, response);
+					break;
+				case "Jython": // TODO
+					data = doGroovyProcess(config, request, response);
+					break; // TODO
+				case "JavaScript": // TODO
+					data = doGroovyProcess(config, request, response);
+				case "Jruby":// TODO
+					data = doGroovyProcess(config, request, response);
+					break;
+				default:
+					break;
+			}
+			response.setContentType(request.getContentType());
+			response.setCharacterEncoding(CharsetUtil.UTF_8);
+			out.append(JSON.toJSONString(data));
+		} catch (Exception e) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType(request.getContentType());
+			response.setCharacterEncoding(CharsetUtil.UTF_8);
+			out.append(JSON.toJSONString(DataResult.fail(e.toString())));
+			log.error(e.toString(), e);
+		} finally {
+			if (out != null)
+				out.close();
+		}
+		log.info("HttpMappingExecutor execute  end ");
+	}
+
+
+	public static void timeOut(String[] args) {
+		// 定义超时时间为3秒
+		long timeout = 3000;
+
+		// 创建一个新的CompletableFuture
+		CompletableFuture<Object> future = CompletableFuture.supplyAsync(() -> {
+			// 这里是要执行的方法
+			//return longRunningMethod();
+			return new Object();
+		});
+		// 获取执行结果
+		try {
+			Object result = future.get(timeout, TimeUnit.MILLISECONDS);
+			System.out.println("方法执行完毕，结果：" + result.toString());
+		} catch (InterruptedException e) {
+			System.out.println("出现异常，结束该方法的执行");
+			future.cancel(true);
+		} catch (ExecutionException e) {
+			System.out.println("出现异常，结束该方法的执行");
+			future.cancel(true);
+		} catch (TimeoutException e) {
+			// 超时了，结束该方法的执行
+			System.out.println("超时了，结束该方法的执行");
+			future.cancel(true);
+		}
+	}
+
+
+	public Object doGroovyProcess(ApiConfig config, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String beanName = GroovyInnerCache.getByPath(config.getPath());
+		//GroovyInfo groovyInfo = GroovyInnerCache.getGroovyInfoByPath(config.getPath());
+		Map<String, Object> params = getParameters(request, config);
+		Object beanObj = SpringUtil.getBean(beanName);
+		try {
+			if(beanObj instanceof IExecutor){
+				IExecutor bean = (IExecutor) beanObj;
+				return bean.execute(params);
+			}else if(beanObj instanceof AbstractExecutor){
+				AbstractExecutor bean = (AbstractExecutor) beanObj;
+				bean.init(request,response);
+				return bean.execute(params);
+			}
+		} catch (BusinessException e) {
+			return DataResult.fail(e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			if(beanObj instanceof  IExecutor){
+				IExecutor bean = (IExecutor) beanObj;
+				bean.rollback(params);
+			}else if(beanObj instanceof  AbstractExecutor){
+				AbstractExecutor bean = (AbstractExecutor) beanObj;
+				bean.init(request,response);
+				bean.rollback(params);
+			}
+			throw e;
+		}
+		return "ERROR：执行错误，请检查执行日志并捕获并处理异常！";
+	}
+
+
+	public Object doSQLProcess(ApiConfig config, HttpServletRequest request, HttpServletResponse response) throws SQLException {
+		try {
+			ApiDataSource datasource = apiService.getDatasource(config.getDatasourceId());
+			if (datasource == null || datasource.getId()==null) {
+				response.setStatus(500);
+				return DataResult.fail("Datasource not exists!");
+			}
+			Map<String, Object> params = getParameters(request, config);
+//			if(MapUtil.getStr(params,"pageNumber")!=null && MapUtil.getStr(params,"pageSize")!=null ){
+//				Integer size = Convert.convert(Integer.class, params.get("pageSize"));
+//				Integer page = Convert.convert(Integer.class, params.get("pageNumber"));
+//				params.put("pageSize", size);
+//				params.put("pageNumber", size*(page-1));
+//			}
+			List<ApiSql> sqlList = config.getSqlList();
+			if (CollectionUtils.isEmpty(params) && !CollectionUtils.isEmpty(sqlList) && JSON.toJSONString(sqlList).contains("#")) {
+				return DataResult.fail("Request parameter is not exists(请求入参不能为空)!");
+			}
+			ApiDataSource ds = new ApiDataSource();
+			BeanUtil.copyProperties(datasource,ds, false);
+			DruidPooledConnection connection = PoolManager.getPooledConnection(ds);
+			// 是否开启事务
+			boolean flag = config.getOpenTrans() == 1 ? true : false;
+			// 执行sql
+			List<Object> dataList = executeSql(connection, sqlList, params, flag);
+			// 执行数据转换
+			for (int i = 0; i < sqlList.size(); i++) {
+				ApiSql apiSql = sqlList.get(i);
+				Object data = dataList.get(i);
+				// 如果此单条sql是查询类sql，并且配置了数据转换插件
+				if (data instanceof Iterable && StringUtils.isNotBlank(apiSql.getTransformPlugin())) {
+					log.info("transform plugin execute");
+					List<JSONObject> sourceData = (List<JSONObject>) (data); // 查询类sql的返回结果才可以这样强制转换，只有查询类sql才可以配置转换插件
+					TransformPlugin transformPlugin = (TransformPlugin) PluginManager.getPlugin(apiSql.getTransformPlugin());
+					Object resData = transformPlugin.transform(sourceData, apiSql.getTransformPluginParams());
+					dataList.set(i, resData);// 重新设置值
+				}
+			}
+			Object res = dataList;
+			// 如果只有单条sql,返回结果不是数组格式
+			if (dataList.size() == 1) {
+				res = dataList.get(0);
+			}
+			// 设置缓存
+			if (StringUtils.isNoneBlank(config.getCachePlugin())) {
+				CachePlugin cachePlugin = (CachePlugin) PluginManager.getPlugin(config.getCachePlugin());
+				ApiConfig apiConfig = new ApiConfig();
+				BeanUtil.copyProperties(config,apiConfig, false);
+				cachePlugin.set(apiConfig, params, res);
+			}
+			return res;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 
 }

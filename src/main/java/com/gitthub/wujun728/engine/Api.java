@@ -12,7 +12,7 @@ import com.gitthub.wujun728.engine.common.ApiDataSource;
 import com.gitthub.wujun728.engine.common.DataResult;
 import com.gitthub.wujun728.engine.config.ApiPorperties;
 import com.gitthub.wujun728.engine.util.JdbcUtil;
-import com.gitthub.wujun728.engine.util.Sql;
+import com.gitthub.wujun728.engine.common.Sql;
 import com.gitthub.wujun728.engine.util.XmlParser;
 import com.gitthub.wujun728.mybatis.sql.SqlMeta;
 import com.gitthub.wujun728.mybatis.sql.engine.DynamicSqlEngine;
