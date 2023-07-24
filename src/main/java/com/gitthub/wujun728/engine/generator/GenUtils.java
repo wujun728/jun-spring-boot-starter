@@ -9,6 +9,8 @@ import cn.hutool.db.meta.Table;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.google.common.collect.Lists;
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
@@ -18,10 +20,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.*;
 
@@ -214,6 +215,27 @@ public class GenUtils {
 	public static String processString(String templateName, Map<String, Object> params)
 			throws IOException, TemplateException {
 		Template template = getConfiguration().getTemplate(templateName);
+		StringWriter result = new StringWriter();
+		template.process(params, result);
+		String htmlText = result.toString();
+		return htmlText;
+	}
+
+	public static String genTemplateStr(Map<String, Object> params,String templateContent)
+			throws IOException, TemplateException {
+		return genTemplateStr(params,"temp",templateContent);
+	}
+	/**
+	 *  解析模板
+	 * @param params 内容
+	 * @param templateName 参数
+	 * @param templateContent 参数
+	 * @return
+	 */
+	public static String genTemplateStr(Map<String, Object> params,String templateName,String templateContent)
+			throws IOException, TemplateException {
+		StringTemplateLoader stringLoader = new StringTemplateLoader();
+		freemarker.template.Template template = new freemarker.template.Template(templateName, new StringReader(templateContent));
 		StringWriter result = new StringWriter();
 		template.process(params, result);
 		String htmlText = result.toString();

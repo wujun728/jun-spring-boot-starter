@@ -556,7 +556,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 		String servletPath = request.getRequestURI();
 		PrintWriter out = null;
 		try {
-			out = response.getWriter();
+
 			//  执行SQL逻辑  *****************************************************************************************************
 			// 校验接口是否存在
 			ApiConfig config = apiInfoCache.get(servletPath);
@@ -564,6 +564,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 				response.setContentType(request.getContentType());
 				response.setCharacterEncoding(CharsetUtil.UTF_8);
+				out = response.getWriter();
 				out.append(JSON.toJSONString(DataResult.fail("Api not exists")));
 			}
 			switch (config.getScriptType()) {
@@ -589,11 +590,13 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 			}
 			response.setContentType(request.getContentType());
 			response.setCharacterEncoding(CharsetUtil.UTF_8);
+			out = response.getWriter();
 			out.append(JSON.toJSONString(data));
 		} catch (Exception e) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.setContentType(request.getContentType());
 			response.setCharacterEncoding(CharsetUtil.UTF_8);
+			out = response.getWriter();
 			out.append(JSON.toJSONString(DataResult.fail(e.toString())));
 			log.error(e.toString(), e);
 		} finally {

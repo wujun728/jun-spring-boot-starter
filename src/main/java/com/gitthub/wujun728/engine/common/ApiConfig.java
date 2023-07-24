@@ -13,7 +13,7 @@ public class ApiConfig {
 	 /**
      * 主鍵ID
      */
-    private String id;
+    private Integer id;
 
     private String path;
 

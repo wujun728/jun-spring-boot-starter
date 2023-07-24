@@ -106,7 +106,7 @@ public class ApiService {
 								continue;
 							}
 							ApiSql apisql = new ApiSql();
-							apisql.setApiId(item.getId());
+							apisql.setApiId(item.getId()+"");
 							apisql.setSqlText(sql);
 							sqlList.add(apisql);
 						}
