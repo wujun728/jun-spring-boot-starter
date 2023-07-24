@@ -1,10 +1,10 @@
-package com.gitthub.wujun728.engine.groovy.core.bean;
+package com.gitthub.wujun728.engine.groovy;
 
 import cn.hutool.core.lang.Console;
 import com.alibaba.fastjson.JSON;
 import com.gitthub.wujun728.engine.common.model.ApiConfig;
+import com.gitthub.wujun728.engine.mapping.http.cache.IApiConfigCache;
 import com.gitthub.wujun728.engine.service.ApiService;
-import com.gitthub.wujun728.engine.groovy.cache.IApiConfigCache;
 import com.gitthub.wujun728.engine.groovy.cache.GroovyInfo;
 import com.gitthub.wujun728.engine.groovy.cache.GroovyInnerCache;
 import com.gitthub.wujun728.engine.mapping.http.RequestMappingService;
@@ -146,7 +146,7 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 
 		destroyBeanDefinition(groovyInfos);
 
-		destroyScriptBeanFactory();
+		//destroyScriptBeanFactory();
 		initNew(groovyInfos);
 
 		GroovyInnerCache.put2map(groovyInfos);
@@ -192,15 +192,15 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 		}
 	}
 
-	private void destroyScriptBeanFactory() {
-		String[] postProcessorNames = applicationContext.getBeanFactory()
-				.getBeanNamesForType(CustomScriptFactoryPostProcessor.class, true, false);
-		for (String postProcessorName : postProcessorNames) {
-			CustomScriptFactoryPostProcessor processor = (CustomScriptFactoryPostProcessor) applicationContext
-					.getBean(postProcessorName);
-			processor.destroy();
-		}
-	}
+//	private void destroyScriptBeanFactory() {
+//		String[] postProcessorNames = applicationContext.getBeanFactory()
+//				.getBeanNamesForType(CustomScriptFactoryPostProcessor.class, true, false);
+//		for (String postProcessorName : postProcessorNames) {
+//			CustomScriptFactoryPostProcessor processor = (CustomScriptFactoryPostProcessor) applicationContext
+//					.getBean(postProcessorName);
+//			processor.destroy();
+//		}
+//	}
 
 	/**
 	 * 重建单一请求的注册与缓存

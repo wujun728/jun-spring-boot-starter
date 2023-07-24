@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.groovy.cache;
+package com.gitthub.wujun728.engine.mapping.http.cache;
 
 import java.util.Collection;
 import java.util.List;

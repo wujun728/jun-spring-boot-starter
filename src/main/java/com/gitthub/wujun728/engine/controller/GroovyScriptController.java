@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gitthub.wujun728.engine.base.DataResult;
-import com.gitthub.wujun728.engine.groovy.core.bean.GroovyDynamicLoader;
+import com.gitthub.wujun728.engine.groovy.GroovyDynamicLoader;
 
 import javax.annotation.Resource;
 import javax.script.*;

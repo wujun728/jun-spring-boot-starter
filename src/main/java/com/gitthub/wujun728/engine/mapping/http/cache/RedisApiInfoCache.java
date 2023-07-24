@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.groovy.cache;
+package com.gitthub.wujun728.engine.mapping.http.cache;
 //package com.jun.plugin.engine.core.mapping.base.cache;
 //
 //
