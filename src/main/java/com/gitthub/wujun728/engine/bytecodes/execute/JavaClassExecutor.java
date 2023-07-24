@@ -2,6 +2,7 @@ package com.gitthub.wujun728.engine.bytecodes.execute;
 
 import com.gitthub.wujun728.engine.bytecodes.compile.StringSourceCompilerExtend;
 import com.gitthub.wujun728.engine.bytecodes.util.ClassLoaderUtil;
+import com.gitthub.wujun728.engine.util.SpringContextUtil;
 
 import javax.tools.JavaFileObject;
 import java.lang.reflect.InvocationTargetException;
@@ -89,7 +90,9 @@ public class JavaClassExecutor {
 		try {
 			Class clazz = classLoader.loadClass(compilerExtend.getMainClassName());
 			Method mainMethod = clazz.getMethod("main", new Class[]{String[].class});
-			mainMethod.invoke(null, new String[]{null});
+			Object o = clazz.newInstance();
+			SpringContextUtil.autowireBean(o);
+			mainMethod.invoke(o, new String[]{null});
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -102,6 +105,8 @@ public class JavaClassExecutor {
             而是要把异常信息 print 到 HackSystem.err 以反馈给客户端
             */
 			e.getCause().printStackTrace(HackSystem.err);
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
 		}
 
 		// 6. 从HackSystem中获取返回结果
