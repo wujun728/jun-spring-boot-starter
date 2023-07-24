@@ -2,7 +2,6 @@ package com.gitthub.wujun728.engine.util;
 
 import org.springframework.cglib.beans.BeanMap;
 
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -11,7 +10,7 @@ import java.util.Map;
 /**
  * Map集合与Bean对象转换 工具类
  */
-public class BeanMapUtils {
+public class BeanMapUtil {
     /**
      * 将对象属性转化为map结合
      */

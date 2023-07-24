@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.gitthub.wujun728.engine.util.BeanMapUtils;
+import com.gitthub.wujun728.engine.util.BeanMapUtil;
 import com.gitthub.wujun728.engine.util.FieldUtils;
 import com.google.common.collect.Lists;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
@@ -149,7 +149,7 @@ public class ApiService {
 			lists.forEach(item->{
 				Object info = null;
 				try {
-					info = BeanMapUtils.columnsMapToBean(item.getColumns(), clazz);
+					info = BeanMapUtil.columnsMapToBean(item.getColumns(), clazz);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -162,7 +162,7 @@ public class ApiService {
 	public Object convertRecord(Record record,Class clazz){
 		Object info = null;
 		try {
-			info = BeanMapUtils.columnsMapToBean(record.getColumns(), clazz);
+			info = BeanMapUtil.columnsMapToBean(record.getColumns(), clazz);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -202,7 +202,7 @@ public class ApiService {
 		ApiDataSource info = new ApiDataSource();
 		Record record= Db.use(master).findById("api_datasource", id);
 		//List<ApiDataSource> lists = jdbcTemplate.query("select * from api_datasource ",new BeanPropertyRowMapper(ApiDataSource.class));
-		info = BeanMapUtils.columnsMapToBean(record.getColumns(), ApiDataSource.class);
+		info = BeanMapUtil.columnsMapToBean(record.getColumns(), ApiDataSource.class);
 		return info;
 	}
 	

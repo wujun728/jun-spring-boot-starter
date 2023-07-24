@@ -1,5 +1,7 @@
 package com.gitthub.wujun728.engine.controller;
 
+import com.gitthub.wujun728.engine.util.SpringContextUtil;
+import groovy.lang.GroovyClassLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
@@ -12,6 +14,7 @@ import com.gitthub.wujun728.engine.groovy.GroovyDynamicLoader;
 
 import javax.annotation.Resource;
 import javax.script.*;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 
 @RestController
@@ -58,5 +61,21 @@ public class GroovyScriptController {
             put("spring", applicationContext);
         }}), ScriptContext.ENGINE_SCOPE);
         return engine.eval(script, context).toString();
+    }
+
+    @RequestMapping("/runScript")
+    public Object runScript(String script) throws Exception {
+        if (script != null) {
+            // 这里其实就是groovy的api动态的加载生成一个Class，然后反射生成对象，然后执行run方法，最后返回结果
+            // 最精华的地方就是SpringContextUtils.autowireBean，可以实现自动注入bean，
+            Class clazz = new GroovyClassLoader().parseClass(script);
+            Method run = clazz.getMethod("run");
+            Object o = clazz.newInstance();
+            SpringContextUtil.autowireBean(o);
+            Object ret = run.invoke(o);
+            return ret;
+        } else {
+            return "no script";
+        }
     }
 }
