@@ -1,7 +1,5 @@
 package com.gitthub.wujun728.engine.controller;
 
-//import io.swagger.annotations.Api;
-//import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
@@ -51,7 +49,7 @@ public class GroovyScriptController {
         this.applicationContext = applicationContext;
     }
 
-    @PostMapping
+    @PostMapping("/execute")
     //@ApiOperation(notes = "执行Groovy脚本", value = "执行groovy脚本")
     public Object execute(String script) throws ScriptException {
         ScriptEngine engine = scriptEngineManager.getEngineByName("groovy");
