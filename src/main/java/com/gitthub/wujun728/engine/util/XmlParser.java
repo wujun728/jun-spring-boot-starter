@@ -1,11 +1,11 @@
 package com.gitthub.wujun728.engine.util;
 
-import com.gitthub.wujun728.engine.common.Sql;
+import com.gitthub.wujun728.engine.common.model.Sql;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import com.gitthub.wujun728.engine.common.ApiDataSource;
+import com.gitthub.wujun728.engine.common.model.ApiDataSource;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;

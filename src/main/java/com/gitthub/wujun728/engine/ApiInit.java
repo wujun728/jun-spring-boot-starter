@@ -8,11 +8,11 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ResourceUtils;
 
-import com.gitthub.wujun728.engine.common.ApiDataSource;
-import com.gitthub.wujun728.engine.common.DataResult;
+import com.gitthub.wujun728.engine.common.model.ApiDataSource;
+import com.gitthub.wujun728.engine.base.DataResult;
 import com.gitthub.wujun728.engine.config.ApiPorperties;
 import com.gitthub.wujun728.engine.util.JdbcUtil;
-import com.gitthub.wujun728.engine.common.Sql;
+import com.gitthub.wujun728.engine.common.model.Sql;
 import com.gitthub.wujun728.engine.util.XmlParser;
 import com.gitthub.wujun728.mybatis.sql.SqlMeta;
 import com.gitthub.wujun728.mybatis.sql.engine.DynamicSqlEngine;
@@ -21,7 +21,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class Api {
+public class ApiInit {
 
     DynamicSqlEngine dynamicSqlEngine = new DynamicSqlEngine();
 
@@ -30,12 +30,12 @@ public class Api {
     Map<String, Sql> sqlMap;
     Map<String, ApiDataSource> dataSourceMap;
     
-    public Api() {
+    public ApiInit() {
     	this.dataSourceMap = Maps.newHashMap();
     	this.sqlMap = Maps.newHashMap();
     }
 
-    public Api(ApiPorperties config) {
+    public ApiInit(ApiPorperties config) {
         this.apiConfig = config;
 
         try {

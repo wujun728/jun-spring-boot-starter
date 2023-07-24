@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.common;
+package com.gitthub.wujun728.engine.service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +7,10 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import com.gitthub.wujun728.engine.common.ApiProperties;
+import com.gitthub.wujun728.engine.common.model.ApiConfig;
+import com.gitthub.wujun728.engine.common.model.ApiDataSource;
+import com.gitthub.wujun728.engine.common.model.ApiSql;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

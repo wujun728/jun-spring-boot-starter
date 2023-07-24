@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.groovy.mapping;
+package com.gitthub.wujun728.engine.mapping.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,10 +27,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.CharsetUtil;
+import com.gitthub.wujun728.engine.base.DataResult;
 import com.gitthub.wujun728.engine.common.*;
-import com.gitthub.wujun728.engine.groovy.core.cache.GroovyInnerCache;
-import com.gitthub.wujun728.engine.interfaces.AbstractExecutor;
-import com.gitthub.wujun728.engine.interfaces.IExecutor;
+import com.gitthub.wujun728.engine.common.ext.RequestWrapper;
+import com.gitthub.wujun728.engine.common.model.ApiConfig;
+import com.gitthub.wujun728.engine.common.model.ApiDataSource;
+import com.gitthub.wujun728.engine.common.model.ApiSql;
+import com.gitthub.wujun728.engine.groovy.cache.GroovyInnerCache;
+import com.gitthub.wujun728.engine.base.interfaces.AbstractExecutor;
+import com.gitthub.wujun728.engine.base.interfaces.IExecutor;
+import com.gitthub.wujun728.engine.service.ApiService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,14 +65,11 @@ import com.gitthub.wujun728.engine.groovy.cache.IApiConfigCache;
 import com.gitthub.wujun728.engine.plugin.CachePlugin;
 import com.gitthub.wujun728.engine.plugin.PluginManager;
 import com.gitthub.wujun728.engine.plugin.TransformPlugin;
-import com.gitthub.wujun728.engine.util.BeanCopyUtil;
 import com.gitthub.wujun728.engine.util.JdbcUtil;
 import com.gitthub.wujun728.engine.util.PoolManager;
 import com.gitthub.wujun728.mybatis.sql.SqlMeta;
 import com.google.common.collect.Lists;
 
-import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 //import cn.hutool.core.bean.BeanUtil;
 //import cn.hutool.core.lang.Console;
@@ -151,7 +154,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 	}
 
 	public List<Object> executeSql(Connection connection, List<ApiSql> sqlList, Map<String, Object> sqlParam,
-			boolean flag) {
+								   boolean flag) {
 		List<Object> dataList = new ArrayList<>();
 		try {
 			if (flag)

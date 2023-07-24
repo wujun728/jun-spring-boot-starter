@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
-import com.gitthub.wujun728.engine.common.ApiDataSource;
+import com.gitthub.wujun728.engine.common.model.ApiDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 

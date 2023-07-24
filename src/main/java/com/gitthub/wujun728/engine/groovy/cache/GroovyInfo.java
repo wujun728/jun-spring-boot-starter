@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.groovy.core.cache;
+package com.gitthub.wujun728.engine.groovy.cache;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

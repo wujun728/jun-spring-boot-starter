@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gitthub.wujun728.engine.common.DataResult;
+import com.gitthub.wujun728.engine.base.DataResult;
 import com.gitthub.wujun728.engine.groovy.core.bean.GroovyDynamicLoader;
 
 import javax.annotation.Resource;

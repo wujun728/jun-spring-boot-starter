@@ -3,7 +3,7 @@ package com.gitthub.wujun728.engine.groovy.cache;
 import java.util.Collection;
 import java.util.List;
 
-import com.gitthub.wujun728.engine.common.ApiConfig;
+import com.gitthub.wujun728.engine.common.model.ApiConfig;
 
 /**
  * API信息缓存

@@ -2,12 +2,12 @@ package com.gitthub.wujun728.engine.groovy.core.bean;
 
 import cn.hutool.core.lang.Console;
 import com.alibaba.fastjson.JSON;
-import com.gitthub.wujun728.engine.common.ApiConfig;
-import com.gitthub.wujun728.engine.common.ApiService;
+import com.gitthub.wujun728.engine.common.model.ApiConfig;
+import com.gitthub.wujun728.engine.service.ApiService;
 import com.gitthub.wujun728.engine.groovy.cache.IApiConfigCache;
-import com.gitthub.wujun728.engine.groovy.core.cache.GroovyInfo;
-import com.gitthub.wujun728.engine.groovy.core.cache.GroovyInnerCache;
-import com.gitthub.wujun728.engine.groovy.mapping.RequestMappingService;
+import com.gitthub.wujun728.engine.groovy.cache.GroovyInfo;
+import com.gitthub.wujun728.engine.groovy.cache.GroovyInnerCache;
+import com.gitthub.wujun728.engine.mapping.http.RequestMappingService;
 import com.jfinal.plugin.activerecord.ActiveRecordException;
 import groovy.lang.GroovyClassLoader;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.sql.SQLSyntaxErrorException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;

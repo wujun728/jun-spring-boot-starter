@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.groovy.mapping;
+package com.gitthub.wujun728.engine.mapping.http;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

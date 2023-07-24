@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.groovy.mapping;
+package com.gitthub.wujun728.engine.mapping.http;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.gitthub.wujun728.engine.common.ApiConfig;
+import com.gitthub.wujun728.engine.common.model.ApiConfig;
 import com.gitthub.wujun728.engine.common.ApiProperties;
 
 //import cn.hutool.core.lang.Console;

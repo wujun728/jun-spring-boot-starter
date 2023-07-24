@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.interfaces;
+package com.gitthub.wujun728.engine.base.interfaces;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;

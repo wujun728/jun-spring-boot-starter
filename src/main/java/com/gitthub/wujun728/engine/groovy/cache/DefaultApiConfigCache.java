@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Component;
 
-import com.gitthub.wujun728.engine.common.ApiConfig;
+import com.gitthub.wujun728.engine.common.model.ApiConfig;
 import com.gitthub.wujun728.engine.util.IdUtil;
 
 //import cn.hutool.core.util.IdUtil;

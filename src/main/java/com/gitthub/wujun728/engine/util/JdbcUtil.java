@@ -12,13 +12,11 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.boot.autoconfigure.batch.BatchProperties.Job;
-
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.gitthub.wujun728.engine.common.ApiDataSource;
-import com.gitthub.wujun728.engine.common.DataResult;
+import com.gitthub.wujun728.engine.common.model.ApiDataSource;
+import com.gitthub.wujun728.engine.base.DataResult;
 import com.gitthub.wujun728.mybatis.sql.engine.DynamicSqlEngine;
 
 import lombok.extern.slf4j.Slf4j;
