@@ -1,6 +1,9 @@
 package com.gitthub.wujun728.engine.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.gitthub.wujun728.engine.bytecodes.service.ExecuteStringSourceService;
+import com.gitthub.wujun728.engine.bytecodes.util.CompileResult;
+import com.gitthub.wujun728.engine.util.HttpRequestLocal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping(path = "/class")
-public class RunCodeController {
-    private Logger logger = LoggerFactory.getLogger(RunCodeController.class);
+public class JavaCodeController {
+    private Logger logger = LoggerFactory.getLogger(JavaCodeController.class);
 
     @Autowired
     private ExecuteStringSourceService executeStringSourceService;
@@ -35,17 +38,33 @@ public class RunCodeController {
         return defaultSource;
     }
 
+    @RequestMapping(path = {"/execute"}, method = RequestMethod.POST)
+    @ResponseBody
+    public String execute(@RequestParam("source") String source,
+                          @RequestParam("systemIn") String systemIn, Model model, HttpServletRequest request) {
+        HttpRequestLocal.setRequest(request);
+        String runResult = executeStringSourceService.execute2(source, systemIn);
+        runResult = runResult.replaceAll(System.lineSeparator(), "<br/>"); // 处理html中换行的问题
+        model.addAttribute("lastSource", source);
+        model.addAttribute("lastSystemIn", systemIn);
+        model.addAttribute("runResult", runResult);
+        //return "ide.html";
+        return runResult;
+    }
+
     @RequestMapping(path = {"/code/run"}, method = RequestMethod.POST)
     @ResponseBody
     public String runCode(@RequestParam("source") String source,
                           @RequestParam("systemIn") String systemIn, Model model, HttpServletRequest request) {
-
-        String runResult = executeStringSourceService.execute2(source, systemIn);
+        HttpRequestLocal.setRequest(request);
+        //String runResult = executeStringSourceService.execute3(source, systemIn);
+        CompileResult compileResult = executeStringSourceService.execute3(source, systemIn);
+        String runResult = compileResult.getExecuteMsg();
         runResult = runResult.replaceAll(System.lineSeparator(), "<br/>"); // 处理html中换行的问题
 		model.addAttribute("lastSource", source);
         model.addAttribute("lastSystemIn", systemIn);
         model.addAttribute("runResult", runResult);
         //return "ide.html";
-        return runResult;
+        return JSON.toJSONString(compileResult);
     }
 }

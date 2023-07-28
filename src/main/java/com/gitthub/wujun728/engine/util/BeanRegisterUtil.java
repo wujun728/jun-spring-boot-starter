@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
  * 动态注册对象到容器
  */
 @Slf4j
-public class DynamicLoadUtils {
+public class BeanRegisterUtil {
     /**
      * 动态添加controller到spring容器
      * @param controllerBeanName

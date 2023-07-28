@@ -10,24 +10,22 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.CharsetUtil;
 import com.gitthub.wujun728.engine.base.DataResult;
+import com.gitthub.wujun728.engine.util.HttpRequestLocal;
 import com.gitthub.wujun728.engine.common.*;
 import com.gitthub.wujun728.engine.common.ext.RequestWrapper;
 import com.gitthub.wujun728.engine.common.model.ApiConfig;
@@ -47,14 +45,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.alibaba.druid.pool.DruidPooledConnection;
 import com.alibaba.fastjson2.JSON;
@@ -81,9 +75,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RequestMappingExecutor implements IMappingExecutor,ApplicationListener<ContextRefreshedEvent> {
 
 	@Autowired
-	private ObjectMapper objectMapper;
-
-	@Autowired
 	private ApiProperties apiProperties;
 
 	@Autowired
@@ -94,8 +85,6 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 
 	@Autowired
 	private ServerProperties serverProperties;
-
-	private List<String> bodyMethods = Arrays.asList("POST", "PUT", "PATCH");
 
 	public void init(Boolean isStart) throws Exception {
 
@@ -196,7 +185,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 
 	}
 
-	protected Map<String, Object> getParameters(HttpServletRequest request1, ApiConfig apiConfig) {
+	public static Map<String, Object> getParameters(HttpServletRequest request1, ApiConfig apiConfig) {
 		HttpServletRequest request = null;
 		try {
 			request = new RequestWrapper((HttpServletRequest) request1);
@@ -216,7 +205,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 		Map<String, Object> params = null;
 		// 如果是application/json请求，不管接口规定的content-type是什么，接口都可以访问，且请求参数都以json body 为准
 		if (contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-			JSONObject jo = getHttpJsonBody(request);
+			JSONObject jo = HttpRequestLocal.getHttpJsonBody(request);
 			if (!ObjectUtils.isEmpty(jo)) {
 				params = JSONObject.parseObject(jo.toJSONString(), new TypeReference<Map<String, Object>>() {
 				});
@@ -243,12 +232,12 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 			throw new RuntimeException("content-type not supported: " + contentType);
 		}
 		String uri = request.getRequestURI();
-		Map<String, String> header = RequestMappingExecutor.buildHeaderParams(request);
-		Map<String, Object> session = RequestMappingExecutor.buildSessionParams(request);
-		Map<String, Object> urivar = this.getParam(request);
-		String pattern = RequestMappingExecutor.buildPattern(request);
-		Map<String, String> pathvar = this.getPathVar(pattern, uri);
-		Map<String, Object> params1 = RequestMappingExecutor.getFromParams(request);
+		Map<String, String> header = HttpRequestLocal.buildHeaderParams(request);
+		Map<String, Object> session = HttpRequestLocal.buildSessionParams(request);
+		Map<String, Object> urivar = HttpRequestLocal.getParam(request);
+		String pattern = HttpRequestLocal.buildPattern(request);
+		Map<String, String> pathvar = HttpRequestLocal.getPathVar(pattern, uri);
+		Map<String, Object> params1 = HttpRequestLocal.getFromParams(request);
 		if (!CollectionUtils.isEmpty(session)) {
 			params.putAll(session);
 		}
@@ -267,129 +256,6 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 		params.put("path",apiConfig.getPath());
 		return params;
 	}
-	
-	public static Map<String, Object> getParameters(HttpServletRequest request1) {
-		HttpServletRequest request = null;
-		try {
-			request = new RequestWrapper((HttpServletRequest) request1);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		String unParseContentType = request.getContentType();
-		
-		// 如果是浏览器get请求过来，取出来的contentType是null
-		if (unParseContentType == null) {
-			unParseContentType = MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-		}
-		// issues/I57ZG2
-		// 解析contentType 格式: appliation/json;charset=utf-8
-		String[] contentTypeArr = unParseContentType.split(";");
-		String contentType = contentTypeArr[0];
-		Map<String, Object> params = null;
-		// 如果是application/json请求，不管接口规定的content-type是什么，接口都可以访问，且请求参数都以json body 为准
-		if (contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-			params = getHttpJsonParams(request);
-		}
-		// 如果是application/x-www-form-urlencoded请求，先判断接口规定的content-type是不是确实是application/x-www-form-urlencoded
-//		else if (contentType.equalsIgnoreCase(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
-//			if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equalsIgnoreCase(contentType)) {
-//				params = getSqlParam(request, apiConfig);
-//			} else if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equalsIgnoreCase(apiConfig.getContentType())) {
-//				params = getSqlParam(request, apiConfig);
-//			} else {
-//				params = getSqlParam(request, apiConfig);
-//				System.err.println("this API only support content-type: " + apiConfig.getContentType()
-//				+ ", but you use: " + contentType);
-//			}
-//		} 
-		// 如果multipart/form-data请求，先判断接口规定的content-type是不是确实是multipart/form-data
-//		else if (contentType.equalsIgnoreCase(MediaType.MULTIPART_FORM_DATA_VALUE)) {
-//			params = getSqlParam(request, apiConfig);
-//		} 
-		else {
-//			params = getSqlParam(request, apiConfig);
-//			JSONObject jo = getHttpJsonBody(request);
-//			if (!ObjectUtils.isEmpty(jo)) {
-//				params = JSONObject.parseObject(jo.toJSONString(), new TypeReference<Map<String, Object>>() {
-//				});
-//			}
-			params = getHttpJsonParams(request);
-			//throw new RuntimeException("content-type not supported: " + contentType);
-		}
-		String uri = request.getRequestURI();
-		Map<String, String> header = RequestMappingExecutor.buildHeaderParams(request);
-		Map<String, Object> session = RequestMappingExecutor.buildSessionParams(request);
-		Map<String, Object> urivar = RequestMappingExecutor.getParam(request);
-		String pattern = RequestMappingExecutor.buildPattern(request);
-		Map<String, String> pathvar = RequestMappingExecutor.getPathVar(pattern, uri);
-		Map<String, Object> params1 = RequestMappingExecutor.getFromParams(request);
-		if (!CollectionUtils.isEmpty(session)) {
-			params.putAll(session);
-		}
-		if (!CollectionUtils.isEmpty(header)) {
-			params.putAll(header);
-		}
-		if (!CollectionUtils.isEmpty(pathvar)) {
-			params.putAll(pathvar);
-		}
-		if (!CollectionUtils.isEmpty(urivar)) {
-			params.putAll(urivar);
-		}
-		if (!CollectionUtils.isEmpty(params1)) {
-			params.putAll(params1);
-		}
-		params.put("path",uri);
-		return params;
-	}
-
-	@Deprecated
-	public static JSONObject getHttpJsonBody(HttpServletRequest request) {
-		try {
-			InputStreamReader in = new InputStreamReader(request.getInputStream(), "utf-8");
-			BufferedReader br = new BufferedReader(in);
-			StringBuilder sb = new StringBuilder();
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				sb.append(line);
-			}
-			br.close();
-			JSONObject jsonObject = JSON.parseObject(sb.toString());
-			return jsonObject;
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		} finally {
-
-		}
-		return null;
-	}
-	
-	public static Map<String,Object> getHttpJsonParams(HttpServletRequest request) {
-		try {
-			ServletRequest requestWrapper = new RequestWrapper((HttpServletRequest) request);
-			Map<String,Object> params = new HashMap<>();
-			JSONObject jsonObject = new JSONObject();
-			InputStreamReader in = new InputStreamReader(requestWrapper.getInputStream(), "utf-8");
-			BufferedReader br = new BufferedReader(in);
-			StringBuilder sb = new StringBuilder();
-			String line = null;
-			while ((line = br.readLine()) != null) {
-				sb.append(line);
-			}
-			br.close();
-			jsonObject = JSON.parseObject(sb.toString());
-			
-			if (!ObjectUtils.isEmpty(jsonObject)) {
-				params = JSONObject.parseObject(jsonObject.toJSONString(), new TypeReference<Map<String, Object>>() {
-				});
-			}
-			return params;
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		} finally {
-			
-		}
-		return null;
-	}
 
 	@SneakyThrows
 	@Override
@@ -400,84 +266,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 		}
 	}
 
-	public static String buildPattern(HttpServletRequest request) {
-		return (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-	}
-
-	public static Map<String, Object> buildSessionParams(HttpServletRequest request) {
-		Enumeration<String> keys = request.getSession().getAttributeNames();
-		Map<String, Object> result = new HashMap<>();
-		while (keys.hasMoreElements()) {
-			String key = keys.nextElement();
-			result.put(key, request.getSession().getAttribute(key));
-		}
-		return result;
-	}
-
-	public static Map<String, String> buildHeaderParams(HttpServletRequest request)
-	/* throws UnsupportedEncodingException */ {
-		Enumeration<String> headerKeys = request.getHeaderNames();
-		Map<String, String> result = new HashMap<>();
-		while (headerKeys.hasMoreElements()) {
-			String key = headerKeys.nextElement();
-			String value = request.getHeader(key);
-			result.put(key, value);
-		}
-		return result;
-	}
-
-	public static Map<String, String> getPathVar(String pattern, String url) {
-		Integer beginIndex = url.indexOf("/", 8);
-		if (beginIndex == -1) {
-			return null;
-		}
-		Integer endIndex = url.indexOf("?") == -1 ? url.length() : url.indexOf("?");
-		String path = url.substring(beginIndex, endIndex);
-		AntPathMatcher matcher = new AntPathMatcher();
-		if (matcher.match(pattern, path)) {
-			return matcher.extractUriTemplateVariables(pattern, path);
-		}
-		return null;
-	}
-
-	private static Map<String, Object> getParam(HttpServletRequest request) {
-		StringBuffer url = request.getRequestURL();
-        if (request.getQueryString() != null) {
-            url.append("?");
-            url.append(request.getQueryString());
-        }
-		Map<String, Object> result = new HashMap<>();
-		MultiValueMap<String, String> urlMvp = UriComponentsBuilder.fromHttpUrl(url.toString()).build().getQueryParams();
-		urlMvp.forEach((key, value) -> {
-			String firstValue = CollectionUtils.isEmpty(value) ? null : value.get(0);
-			result.put(key, firstValue);
-		});
-		return result;
-	}
-
-	public static Map<String, Object> getFromParams(HttpServletRequest request) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		Enumeration paramNames = request.getParameterNames();
-		while (paramNames.hasMoreElements()) {
-			String paramName = (String) paramNames.nextElement();
-			String[] paramValues = request.getParameterValues(paramName);
-			if (paramValues.length > 0) {
-				String paramValue = paramValues[0];
-				if (paramValue.length() != 0) {
-					map.put(paramName, paramValue);
-				}
-			}
-		}
-		Set<Map.Entry<String, Object>> set = map.entrySet();
-		log.debug("==============================================================");
-		for (Map.Entry entry : set) {
-			log.debug(entry.getKey() + ":" + entry.getValue());
-		}
-		log.debug("=============================================================");
-		return map;
-	}
-
-    public Map<String, Object> getSqlParam(HttpServletRequest request, ApiConfig config) {
+    public static Map<String, Object> getSqlParam(HttpServletRequest request, ApiConfig config) {
         Map<String, Object> map = new HashMap<>();
 
         JSONArray requestParams = JSON.parseArray(config.getParams());

@@ -94,12 +94,12 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 			//e.printStackTrace();
 			Console.log("数据源配置有误："+e.getMessage());
 			if(e.getMessage().contains("Config not found by configName")) {
-				Console.log("jfinal数据源配置有误："+e.getMessage());
+				Console.error("jfinal数据源配置有误："+e.getMessage());
 			}
 		} catch (ActiveRecordException e) {
 			//e.printStackTrace();
 			if(e.getMessage().contains("doesn't exist")) {
-				Console.log("api_config表在数据库不存在，配置有误："+e.getMessage());
+				Console.error("api_config表或关联表结构在数据库不存在，配置有误："+e.getMessage());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
