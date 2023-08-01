@@ -1,6 +1,7 @@
 package com.gitthub.wujun728.engine.controller;
 
 import com.gitthub.wujun728.engine.util.SpringContextUtil;
+import com.jun.plugin.common.Result;
 import groovy.lang.GroovyClassLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gitthub.wujun728.engine.base.DataResult;
 import com.gitthub.wujun728.engine.groovy.GroovyDynamicLoader;
 
 import javax.annotation.Resource;
@@ -34,14 +34,14 @@ public class GroovyScriptController {
 	}
 
 	@RequestMapping("/refresh")
-	public DataResult refresh() {
+	public Result refresh() {
 		try {
 			groovyDynamicLoader.refreshNew();
 		} catch (Exception e) {
-			DataResult.success("緩存刷新失败！" + e.getMessage());
+			Result.success("緩存刷新失败！" + e.getMessage());
 			e.printStackTrace();
 		}
-		return DataResult.success("緩存刷新成功");
+		return Result.success("緩存刷新成功");
 	}
 
     @Autowired

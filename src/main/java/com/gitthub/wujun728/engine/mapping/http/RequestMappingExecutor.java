@@ -1,8 +1,6 @@
 package com.gitthub.wujun728.engine.mapping.http;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,10 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.CharsetUtil;
-import com.gitthub.wujun728.engine.base.DataResult;
 import com.gitthub.wujun728.engine.util.HttpRequestLocal;
-import com.gitthub.wujun728.engine.common.*;
-import com.gitthub.wujun728.engine.common.ext.RequestWrapper;
 import com.gitthub.wujun728.engine.common.model.ApiConfig;
 import com.gitthub.wujun728.engine.common.model.ApiDataSource;
 import com.gitthub.wujun728.engine.common.model.ApiSql;
@@ -36,6 +31,10 @@ import com.gitthub.wujun728.engine.base.interfaces.AbstractExecutor;
 import com.gitthub.wujun728.engine.base.interfaces.IExecutor;
 import com.gitthub.wujun728.engine.mapping.http.cache.IApiConfigCache;
 import com.gitthub.wujun728.engine.service.ApiService;
+import com.jun.plugin.common.Result;
+import com.jun.plugin.common.exception.BusinessException;
+import com.gitthub.wujun728.engine.util.RequestWrapper;
+import com.jun.plugin.common.properties.ApiProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,6 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gitthub.wujun728.engine.plugin.CachePlugin;
 import com.gitthub.wujun728.engine.plugin.PluginManager;
 import com.gitthub.wujun728.engine.plugin.TransformPlugin;
@@ -357,7 +355,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 				response.setContentType(request.getContentType());
 				response.setCharacterEncoding(CharsetUtil.UTF_8);
 				out = response.getWriter();
-				out.append(JSON.toJSONString(DataResult.fail("Api not exists")));
+				out.append(JSON.toJSONString(Result.fail("Api not exists")));
 			}
 			switch (config.getScriptType()) {
 				case "SQL":
@@ -389,7 +387,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 			response.setContentType(request.getContentType());
 			response.setCharacterEncoding(CharsetUtil.UTF_8);
 			out = response.getWriter();
-			out.append(JSON.toJSONString(DataResult.fail(e.toString())));
+			out.append(JSON.toJSONString(Result.fail(e.toString())));
 			log.error(e.toString(), e);
 		} finally {
 			if (out != null)
@@ -442,7 +440,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 				return bean.execute(params);
 			}
 		} catch (BusinessException e) {
-			return DataResult.fail(e.getMessage());
+			return Result.fail(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 			if(beanObj instanceof  IExecutor){
@@ -464,7 +462,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 			ApiDataSource datasource = apiService.getDatasource(config.getDatasourceId());
 			if (datasource == null || datasource.getId()==null) {
 				response.setStatus(500);
-				return DataResult.fail("Datasource not exists!");
+				return Result.fail("Datasource not exists!");
 			}
 			Map<String, Object> params = getParameters(request, config);
 //			if(MapUtil.getStr(params,"pageNumber")!=null && MapUtil.getStr(params,"pageSize")!=null ){
@@ -475,7 +473,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 //			}
 			List<ApiSql> sqlList = config.getSqlList();
 			if (CollectionUtils.isEmpty(params) && !CollectionUtils.isEmpty(sqlList) && JSON.toJSONString(sqlList).contains("#")) {
-				return DataResult.fail("Request parameter is not exists(请求入参不能为空)!");
+				return Result.fail("Request parameter is not exists(请求入参不能为空)!");
 			}
 			ApiDataSource ds = new ApiDataSource();
 			BeanUtil.copyProperties(datasource,ds, false);

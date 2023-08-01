@@ -20,7 +20,7 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.gitthub.wujun728.engine.common.model.ApiConfig;
-import com.gitthub.wujun728.engine.common.ApiProperties;
+import com.jun.plugin.common.properties.ApiProperties;
 
 //import cn.hutool.core.lang.Console;
 //import cn.hutool.core.util.StrUtil;

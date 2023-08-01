@@ -8,7 +8,7 @@ import javax.annotation.PostConstruct;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson2.JSON;
-import com.gitthub.wujun728.engine.common.ApiProperties;
+import com.jun.plugin.common.properties.ApiProperties;
 import com.gitthub.wujun728.engine.common.model.ApiConfig;
 import com.gitthub.wujun728.engine.common.model.ApiDataSource;
 import com.gitthub.wujun728.engine.common.model.ApiSql;

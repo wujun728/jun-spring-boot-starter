@@ -4,13 +4,13 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import com.gitthub.wujun728.engine.config.ApiPorperties;
+import com.jun.plugin.common.Result;
 import org.apache.commons.io.FileUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ResourceUtils;
 
 import com.gitthub.wujun728.engine.common.model.ApiDataSource;
-import com.gitthub.wujun728.engine.base.DataResult;
-import com.gitthub.wujun728.engine.config.ApiPorperties;
 import com.gitthub.wujun728.engine.util.JdbcUtil;
 import com.gitthub.wujun728.engine.common.model.Sql;
 import com.gitthub.wujun728.engine.util.XmlParser;
@@ -88,14 +88,14 @@ public class ApiInit {
         }
     }
 
-    public DataResult execute(Map<String, Object> data, String sqlId) {
+    public Result execute(Map<String, Object> data, String sqlId) {
         try {
             if (!sqlMap.containsKey(sqlId)) {
-                return DataResult.fail("sql not found by id : " + sqlId);
+                return Result.fail("sql not found by id : " + sqlId);
             }
             Sql sql = this.sqlMap.get(sqlId);
             if (!dataSourceMap.containsKey(sql.getDatasourceId())) {
-                return DataResult.fail("datasource not found : " + sql.getDatasourceId());
+                return Result.fail("datasource not found : " + sql.getDatasourceId());
             }
             ApiDataSource dataSource = dataSourceMap.get(sql.getDatasourceId());
             SqlMeta sqlMeta = dynamicSqlEngine.parse(sql.getText(), data);
@@ -104,11 +104,11 @@ public class ApiInit {
                 isSelect = 1;
             }
 
-            DataResult result = JdbcUtil.executeSql(isSelect, dataSource, sqlMeta.getSql(), sqlMeta.getJdbcParamValues());
+            Result result = JdbcUtil.executeSql(isSelect, dataSource, sqlMeta.getSql(), sqlMeta.getJdbcParamValues());
             return result;
         } catch (Exception e) {
             log.error(e.getMessage());
-            return DataResult.fail(e.getMessage());
+            return Result.fail(e.getMessage());
         }
 
     }

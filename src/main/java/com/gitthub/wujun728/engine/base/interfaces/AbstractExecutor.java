@@ -3,12 +3,12 @@ package com.gitthub.wujun728.engine.base.interfaces;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import com.gitthub.wujun728.engine.common.BusinessException;
 import com.google.common.collect.Lists;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.plugin.druid.DruidPlugin;
+import com.jun.plugin.common.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;

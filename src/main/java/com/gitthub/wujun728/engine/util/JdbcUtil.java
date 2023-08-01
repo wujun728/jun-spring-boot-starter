@@ -16,9 +16,9 @@ import com.alibaba.druid.pool.DruidPooledConnection;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.gitthub.wujun728.engine.common.model.ApiDataSource;
-import com.gitthub.wujun728.engine.base.DataResult;
 import com.gitthub.wujun728.mybatis.sql.engine.DynamicSqlEngine;
 
+import com.jun.plugin.common.Result;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -101,7 +101,7 @@ public class JdbcUtil {
 			String sql;
 			switch (type) {
 			case "POSTGRESQL":
-				sql = "select * from \"" + table + "\" where 1=2";
+				sql = "select * from " + table + " where 1=2";
 				break;
 			default:
 				sql = "select * from " + table + " where 1=2";
@@ -249,7 +249,7 @@ public class JdbcUtil {
         return connection;
     }
 
-    public static DataResult executeSql(int isSelect, ApiDataSource datasource, String sql, List<Object> jdbcParamValues) {
+    public static Result executeSql(int isSelect, ApiDataSource datasource, String sql, List<Object> jdbcParamValues) {
         log.info("sql:\n" + sql);
         DruidPooledConnection connection = null;
         try {
@@ -284,14 +284,14 @@ public class JdbcUtil {
                     });
                     list.add(jo);
                 }
-                return DataResult.success(list);
+                return Result.success(list);
             } else {
                 int rs = statement.executeUpdate();
-                return DataResult.success("sql修改数据行数： " + rs);
+                return Result.success("sql修改数据行数： " + rs);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return DataResult.fail(e.getMessage());
+            return Result.fail(e.getMessage());
         } finally {
             try {
                 connection.close();
