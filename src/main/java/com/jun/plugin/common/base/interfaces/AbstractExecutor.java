@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.base.interfaces;
+package com.jun.plugin.common.base.interfaces;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -39,7 +39,7 @@ public abstract class AbstractExecutor<T,P> {
 
 	public abstract T execute(P params) throws Exception;//抽象方法，没有方法体，有abstract关键字做修饰
 
-	public abstract T rollback(P params);
+//	public abstract T rollback(P params);
 
 	Context context;
 	

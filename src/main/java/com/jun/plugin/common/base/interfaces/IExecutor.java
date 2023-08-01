@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.base.interfaces;
+package com.jun.plugin.common.base.interfaces;
 
 import java.util.Map;
 
@@ -17,6 +17,6 @@ public interface IExecutor<T, P extends Map> {
 	 * 
 	 * @return
 	 */
-	public T rollback(P params);
+//	public T rollback(P params);
 
 }

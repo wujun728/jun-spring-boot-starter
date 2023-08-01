@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.base.interfaces;
+package com.jun.plugin.common.base.interfaces;
 
 import java.util.HashMap;
 import java.util.Map;

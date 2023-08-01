@@ -94,17 +94,17 @@ public class ApiService {
 
 	public Integer queryCountSql() {
 		//Long aLong = jdbcTemplate.queryForObject("select count(*) from test ", Long.class);
-		Integer count = Db.use(master).queryInt("select count(*) from test ");
+		Integer count = Db.use(master).queryInt("select count(*) from  "+tablename+"  ");
 		return count;
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<ApiDataSource> queryDatasourceList() {
-		Page<Record> lists = Db.use(master).paginate(1,2,"select * "," from api_datasource where id <> ? ",1);
+		Page<Record> lists = Db.use(master).paginate(1,2,"select * "," from  "+tablename+"  where id <> ? ",1);
 		//Console.log(JSON.toJSONString(lists));
 		Console.log(JSON.toJSONString(RecordUtil.pageRecordToPage(lists)));
 
-		String from = "from api_datasource where id > ?";
+		String from = "from  "+tablename+"  where id > ?";
 		String totalRowSql = "select count(*) " + from;
 		String findSql = "select * " + from + " order by id";
 		Db.paginateByFullSql(1, 10, totalRowSql, findSql, 18);
@@ -114,7 +114,7 @@ public class ApiService {
 	
 	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> querySQLList(String apiId) {
-		List<Record> lists = Db.use(master).find("select * from api_sql ");
+		List<Record> lists = Db.use(master).find("select * from  "+tablename+"  ");
 		// List<Map<String, Object>> lists = jdbcTemplate.queryForList("select * from api_sql where api_id = "+apiId);
 		List<ApiSql> datas = RecordUtil.recordToListBean(lists,ApiSql.class);
 		List<Map<String, Object>>  datas2 = RecordUtil.recordToMaps(lists);
@@ -127,7 +127,7 @@ public class ApiService {
 	@SuppressWarnings("unchecked")
 	public ApiDataSource getDatasource(String id) {
 		ApiDataSource info = new ApiDataSource();
-		Record record= Db.use(master).findById("api_datasource", id);
+		Record record= Db.use(master).findById( tablename , id);
 		//List<ApiDataSource> lists = jdbcTemplate.query("select * from api_datasource ",new BeanPropertyRowMapper(ApiDataSource.class));
 		//info = BeanMapUtil.columnsMapToBean(record.getColumns(), ApiDataSource.class);
 		return RecordUtil.recordToBean(record,ApiDataSource.class);

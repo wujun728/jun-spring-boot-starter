@@ -27,8 +27,8 @@ import com.gitthub.wujun728.engine.common.model.ApiConfig;
 import com.gitthub.wujun728.engine.common.model.ApiDataSource;
 import com.gitthub.wujun728.engine.common.model.ApiSql;
 import com.gitthub.wujun728.engine.groovy.cache.GroovyInnerCache;
-import com.gitthub.wujun728.engine.base.interfaces.AbstractExecutor;
-import com.gitthub.wujun728.engine.base.interfaces.IExecutor;
+import com.jun.plugin.common.base.interfaces.AbstractExecutor;
+import com.jun.plugin.common.base.interfaces.IExecutor;
 import com.gitthub.wujun728.engine.mapping.http.cache.IApiConfigCache;
 import com.gitthub.wujun728.engine.service.ApiService;
 import com.jun.plugin.common.Result;
@@ -443,14 +443,14 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 			return Result.fail(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if(beanObj instanceof  IExecutor){
-				IExecutor bean = (IExecutor) beanObj;
-				bean.rollback(params);
-			}else if(beanObj instanceof  AbstractExecutor){
-				AbstractExecutor bean = (AbstractExecutor) beanObj;
-				bean.init(request,response);
-				bean.rollback(params);
-			}
+//			if(beanObj instanceof  IExecutor){
+//				IExecutor bean = (IExecutor) beanObj;
+//				bean.rollback(params);
+//			}else if(beanObj instanceof  AbstractExecutor){
+//				AbstractExecutor bean = (AbstractExecutor) beanObj;
+//				bean.init(request,response);
+//				bean.rollback(params);
+//			}
 			throw e;
 		}
 		return "ERROR：执行错误，请检查执行日志并捕获并处理异常！";

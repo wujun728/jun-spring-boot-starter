@@ -39,21 +39,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Controller
 @Slf4j
-public class RunBeetlSqlController {
+public class RunSqlController {
 	private static final String defaultSource =
 			"public class Run {\n" + "    public static void main(String[] args) {\n" + "        \n" + "    }\n" + "}";
 
-	private Logger logger = LoggerFactory.getLogger(RunBeetlSqlController.class);
+	private Logger logger = LoggerFactory.getLogger(RunSqlController.class);
 	@Autowired
 	private ExecuteStringSourceService executeStringSourceService;
 
 	private AtomicInteger count = new AtomicInteger();
 
-	public RunBeetlSqlController(){
+	public RunSqlController(){
 
 	}
 
-	@RequestMapping(path = {"/"}, method = RequestMethod.GET)
+	@RequestMapping(path = {"/code"}, method = RequestMethod.GET)
 	public String entry(Model model) {
 		URL fileUrl = this.getClass().getResource("/code");
 		System.out.println(fileUrl);
