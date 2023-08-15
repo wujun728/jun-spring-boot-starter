@@ -21,7 +21,7 @@ public class PasswordUtils {
      * @return 是否匹配
      */
     public static boolean matches(String salt, String rawPass, String encPass) {
-        return new PasswordEncoder(salt).matches(encPass, rawPass);
+        return new PasswordEncoderAES(salt).matches(encPass, rawPass);
     }
 
     /**
@@ -32,7 +32,7 @@ public class PasswordUtils {
      * @reture 加密后
      */
     public static String encode(String rawPass, String salt) {
-        return new PasswordEncoder(salt).encode(rawPass);
+        return new PasswordEncoderAES(salt).encode(rawPass);
     }
 
     /**
@@ -43,5 +43,14 @@ public class PasswordUtils {
     public static String getSalt() {
         return UUID.randomUUID().toString().replaceAll("-", "").substring(0, 20);
     }
+    
+    public static void main(String[] args) throws Exception {
+    	String pasword = "123456";
+//    	String passwd = PasswordUtils.encode(pasword, getSalt());
+        String passwd = PasswordUtils.encode(pasword, "324ce32d86224b00a02b");
+		System.out.println("passwd="+passwd);
+		System.out.println(PasswordUtils.matches(getSalt(), pasword, passwd));
+		//System.out.println("pasword="+EncryptUtils.aesDecrypt(passwd, EncryptUtils.KEY));
+	}
 
 }

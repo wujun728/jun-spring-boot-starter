@@ -1,5 +1,6 @@
 package com.jun.plugin.common.exception;
 
+
 import com.jun.plugin.common.exception.code.BaseResponseCode;
 import com.jun.plugin.common.exception.code.ResponseCodeInterface;
 

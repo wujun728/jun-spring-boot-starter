@@ -2,6 +2,7 @@ package com.jun.plugin.common.entity;
 
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;
 
 import java.util.List;
@@ -37,4 +38,9 @@ public class BaseEntity {
     
 	@TableField(exist = false)
 	private Integer isOwner;
+
+	public Page getQueryPage(){
+        Page page = new Page(getPage(), getLimit());
+        return page;
+    }
 }
