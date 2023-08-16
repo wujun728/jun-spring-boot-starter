@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.util;
+package com.jun.plugin.common.util;
 
 import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,41 +7,40 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
-import com.gitthub.wujun728.engine.common.model.ApiDataSource;
 
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-public class PoolManager {
+public class DbPoolManager {
 
     private static Lock lock = new ReentrantLock();
 
     private static Lock deleteLock = new ReentrantLock();
 
-  //所有数据源的连接池存在map里
+    //所有数据源的连接池存在map里
     static ConcurrentHashMap<String, DruidDataSource> map = new ConcurrentHashMap<>();
 
-    public static DruidDataSource getJdbcConnectionPool(ApiDataSource ds) {
-        if (map.containsKey(ds.getId())) {
-            return map.get(ds.getId());
+    public static DruidDataSource init(String dsname,String url,String username,String password,String driver) {
+        if (map.containsKey(dsname)) {
+            return map.get(dsname);
         } else {
             lock.lock();
             try {
                 log.info(Thread.currentThread().getName() + "获取锁");
-                if (!map.containsKey(ds.getId())) {
+                if (!map.containsKey(dsname)) {
                     DruidDataSource druidDataSource = new DruidDataSource();
-                    druidDataSource.setName(ds.getName());
-                    druidDataSource.setUrl(ds.getUrl());
-                    druidDataSource.setUsername(ds.getUsername());
-                    druidDataSource.setPassword(ds.getPassword());
-                    druidDataSource.setDriverClassName(ds.getDriver());
+                    druidDataSource.setName(dsname);
+                    druidDataSource.setUrl(url);
+                    druidDataSource.setUsername(username);
+                    druidDataSource.setPassword(password);
+                    druidDataSource.setDriverClassName(driver);
                     druidDataSource.setConnectionErrorRetryAttempts(3);       //失败后重连次数
                     druidDataSource.setBreakAfterAcquireFailure(true);
-                    map.put(ds.getId(), druidDataSource);
-                    log.info("创建Druid连接池成功：{}", ds.getId());
+                    map.put(dsname, druidDataSource);
+                    log.info("创建Druid连接池成功：{}", dsname);
                 }
-                return map.get(ds.getId());
+                return map.get(dsname);
             } catch (Exception e) {
                 return null;
             } finally {
@@ -49,15 +48,29 @@ public class PoolManager {
             }
         }
     }
+    public static Boolean exitst(String dsname) {
+        if (map.containsKey(dsname)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public static DruidDataSource get(String dsname) {
+        if (map.containsKey(dsname)) {
+            return map.get(dsname);
+        } else {
+            return null;
+        }
+    }
 
     //删除数据库连接池
-    public static void removeJdbcConnectionPool(String id) {
+    public static void remove(String dsname) {
         deleteLock.lock();
         try {
-            DruidDataSource druidDataSource = map.get(id);
+            DruidDataSource druidDataSource = map.get(dsname);
             if (druidDataSource != null) {
                 druidDataSource.close();
-                map.remove(id);
+                map.remove(dsname);
             }
         } catch (Exception e) {
             log.error(e.toString());
@@ -67,8 +80,8 @@ public class PoolManager {
 
     }
 
-    public static DruidPooledConnection getPooledConnection(ApiDataSource ds) throws SQLException {
-        DruidDataSource pool = PoolManager.getJdbcConnectionPool(ds);
+    public static DruidPooledConnection getPooledConnection(String dsname) throws SQLException {
+        DruidDataSource pool = DbPoolManager.get(dsname);
         DruidPooledConnection connection = pool.getConnection();
 //        log.info("获取连接成功");
         return connection;

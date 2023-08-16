@@ -1,7 +1,8 @@
-package com.jun.plugin.common.utils;
+package com.jun.plugin.common.util;
 
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.ArrayUtil;
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -13,60 +14,78 @@ import java.util.Arrays;
 import java.util.Map;
 
 @Component
-public class SpringUtils implements ApplicationContextAware {
+public class SpringContextUtil implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        SpringUtils.applicationContext = applicationContext;
+    public void setApplicationContext(ApplicationContext context)
+            throws BeansException {
+        SpringContextUtil.applicationContext = context;
     }
+
+    public static ApplicationContext getContext() {
+        return applicationContext;
+    }
+
+    public static void autowireBean(Object bean) {
+        applicationContext.getAutowireCapableBeanFactory().autowireBean(bean);
+    }
+
+    public static <T> T getBean(Class<T> clazz) {
+        return applicationContext.getBean(clazz);
+    }
+
+
+    public static Object getBean(String name) {
+        try {
+            return applicationContext.getBean(name);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public static <T> T getBean(String name, Class<T> requiredType) {
+        return applicationContext.getBean(name, requiredType);
+    }
+
+    public static boolean containsBean(String name) {
+        return applicationContext.containsBean(name);
+    }
+
+    public static boolean isSingleton(String name) {
+        return applicationContext.isSingleton(name);
+    }
+
+    public static Class<? extends Object> getType(String name) {
+        return applicationContext.getType(name);
+    }
+
 
     /**
      * 获取applicationContext
-     *
-     * @return ApplicationContext
      */
     public static ApplicationContext getApplicationContext() {
         return applicationContext;
     }
 
-    //通过name获取 Bean.
 
     /**
-     * 通过name获取 Bean
-     *
-     * @param <T>  Bean类型
-     * @param name Bean名称
-     * @return Bean
+     * 获取配置文件配置项的值
+     * @param key 配置项key
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T getBean(String name) {
-        return (T) applicationContext.getBean(name);
+    public static String getEnvironmentProperty(String key){
+        return getApplicationContext().getEnvironment().getProperty(key);
     }
 
-    /**
-     * 通过class获取Bean
-     *
-     * @param <T>   Bean类型
-     * @param clazz Bean类
-     * @return Bean对象
-     */
-    public static <T> T getBean(Class<T> clazz) {
-        return applicationContext.getBean(clazz);
-    }
 
-    /**
-     * 通过name,以及Clazz返回指定的Bean
-     *
-     * @param <T>   bean类型
-     * @param name  Bean名称
-     * @param clazz bean类型
-     * @return Bean对象
-     */
-    public static <T> T getBean(String name, Class<T> clazz) {
-        return applicationContext.getBean(name, clazz);
-    }
+
+
+
+
+
+
+
 
     /**
      * 通过类型参考返回带泛型参数的Bean
@@ -155,8 +174,6 @@ public class SpringUtils implements ApplicationContextAware {
         ConfigurableApplicationContext context = (ConfigurableApplicationContext) applicationContext;
         context.getBeanFactory().registerSingleton(beanName, bean);
     }
+
+
 }
-
-
-
-

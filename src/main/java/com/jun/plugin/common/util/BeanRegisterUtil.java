@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.util;
+package com.jun.plugin.common.util;
 
 
 import lombok.extern.slf4j.Slf4j;

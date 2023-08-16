@@ -1,4 +1,4 @@
-package com.gitthub.wujun728.engine.util;
+package com.jun.plugin.common.util;
 
 import org.springframework.cglib.beans.BeanMap;
 
@@ -34,7 +34,7 @@ public class BeanMapUtil {
         beanMap.putAll(map);
         return bean;
     }
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> T columnsMapToBean(Map<String, Object> map, Class<T> clazz){
     	T bean = null;
@@ -55,7 +55,7 @@ public class BeanMapUtil {
 		}
     	return bean;
     }
-    
+
     public static String dateToStr(java.sql.Timestamp time) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
         String str = df.format(time);
@@ -65,6 +65,28 @@ public class BeanMapUtil {
         DateFormat df = new SimpleDateFormat(strFormat);
         String str = df.format(time);
         return str;
+    }
+
+
+    // -------------------   cglib BeanMap  -------------------
+    //map对象转java
+    public static <T> T MapToObject(Map<String, Object> map, Class<T> beanClass) throws Exception {
+        T object = beanClass.newInstance();
+        BeanMap beanMap = BeanMap.create(object);
+        beanMap.putAll(map);
+        return object;
+    }
+
+    //java对象转map
+    public static Map<String, Object> ObjectToMap(Object obj) {
+        Map<String, Object> map = new HashMap();
+        if (obj != null) {
+            BeanMap beanMap = BeanMap.create(obj);
+            for (Object key : beanMap.keySet()) {
+                map.put(key + "", beanMap.get(key));
+            }
+        }
+        return map;
     }
 }
 

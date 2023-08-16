@@ -1,5 +1,6 @@
 package com.jun.plugin.common.utils;
 
+import com.jun.plugin.common.util.SpringContextUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
@@ -14,7 +15,7 @@ public class EhCacheUtil {
      * 获取EhCacheManager管理对象
      */
     public static CacheManager getCacheManager(){
-        return SpringUtil.getBean(CacheManager.class);
+        return SpringContextUtil.getBean(CacheManager.class);
     }
 
     /**

@@ -1,4 +1,10 @@
-package com.gitthub.wujun728.engine.util;
+package com.jun.plugin.common.util;
+
+//import com.alibaba.fastjson2.JSONObject;
+//import com.google.common.collect.Lists;
+import com.jfinal.plugin.activerecord.Page;
+import com.jfinal.plugin.activerecord.Record;
+import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -6,13 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
-import com.google.common.collect.Lists;
-import com.jfinal.plugin.activerecord.Page;
-import com.jfinal.plugin.activerecord.Record;
-import org.springframework.util.CollectionUtils;
 
 /**
  * @ClassName: RecordUtils
@@ -22,7 +21,7 @@ import org.springframework.util.CollectionUtils;
 public class RecordUtil {
 
     public static <T> List<Record> javaBeanToRecords(List<T> objs) throws IllegalArgumentException, IllegalAccessException{
-        List<Record> datas = Lists.newArrayList();
+        List<Record> datas = new ArrayList();
         for(T item :objs){
             datas.add(javaBeanToRecord(item));
         }
@@ -91,7 +90,7 @@ public class RecordUtil {
 
     @Deprecated
 	public List convertRecord(List<Record> lists,Class clazz){
-		List datas = Lists.newArrayList();
+		List datas = new ArrayList();
 		if(!CollectionUtils.isEmpty(lists)) {
 			lists.forEach(item->{
 				Object info = null;
@@ -119,7 +118,7 @@ public class RecordUtil {
 
     @SuppressWarnings("unchecked")
     public static <T> List mapToBeans(List<Map<String, Object>> lists, Class<T> clazz){
-        List<T> datas = Lists.newArrayList();
+        List<T> datas = new ArrayList();
         if(!CollectionUtils.isEmpty(lists)) {
             lists.forEach(item->{
                 datas.add(RecordUtil.mapToBean(item,clazz));
@@ -134,11 +133,12 @@ public class RecordUtil {
             m.put(FieldUtils.columnNameToFieldName(String.valueOf(k)), v);
         });
         try {
-            obj = clazz.newInstance();
-            obj = JSONObject.parseObject(JSONObject.toJSONString(m), clazz);
+            //obj = clazz.newInstance();
+            obj = BeanMapUtil.mapToBean(item,clazz);
+            //obj = JSONObject.parseObject(JSONObject.toJSONString(m), clazz);
         } catch (InstantiationException e) {
             e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return obj;
