@@ -1,77 +1,39 @@
 package com.gitthub.wujun728.engine.service;
 
+import cn.hutool.core.lang.Console;
+import com.alibaba.fastjson2.JSON;
+import com.gitthub.wujun728.engine.common.model.ApiConfig;
+import com.gitthub.wujun728.engine.common.model.ApiDataSource;
+import com.gitthub.wujun728.engine.common.model.ApiSql;
+import com.google.common.collect.Lists;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.Page;
+import com.jfinal.plugin.activerecord.Record;
+import com.jun.plugin.common.util.DbPoolManager;
+import com.jun.plugin.common.util.RecordUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
-
-import com.alibaba.druid.pool.DruidDataSource;
-import com.alibaba.fastjson2.JSON;
-import com.jun.plugin.common.properties.ApiProperties;
-import com.gitthub.wujun728.engine.common.model.ApiConfig;
-import com.gitthub.wujun728.engine.common.model.ApiDataSource;
-import com.gitthub.wujun728.engine.common.model.ApiSql;
-import com.gitthub.wujun728.engine.util.RecordUtil;
-import com.jfinal.plugin.activerecord.Page;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import com.google.common.collect.Lists;
-import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
-import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.activerecord.Record;
-
-import cn.hutool.core.lang.Console;
-import cn.hutool.extra.spring.SpringUtil;
-//import cn.hutool.core.bean.BeanUtil;
-//import cn.hutool.core.bean.copier.CopyOptions;
-//import cn.hutool.db.Db;
-import lombok.extern.slf4j.Slf4j;
+import static com.jun.plugin.common.util.DbPoolManager.master;
 
 @Service
 @Slf4j
 public class ApiService {
 	
-	@Autowired
-	ApiProperties properties;
-	
-	public static String master = "_main";
+
 	
 	private String tablename = "api_config";
 	
 	@PostConstruct
 	public void init(){
-		String url = properties.getUrl();
-		String username = properties.getUsername();
-		String password = properties.getPassword();
-		Console.log("project.groovy-api.datasource.url:{}",url);
-		if(StringUtils.isEmpty(url)) {
-			Console.log("project.datasource.url:{}",SpringUtil.getProperty("project.datasource.url"));
-			url = SpringUtil.getProperty("project.datasource.url");
-			username = SpringUtil.getProperty("project.datasource.username");
-			password = SpringUtil.getProperty("project.datasource.password");
-		}
-		DruidDataSource ds = new DruidDataSource();
-		ds.setUrl(url);
-		ds.setUsername(username);
-		ds.setPassword(password);
-		try {
-			//DruidPlugin dp = new DruidPlugin(url, username, password);
-			ActiveRecordPlugin arp = new ActiveRecordPlugin(master, ds);
-			arp.setDevMode(true);
-			arp.setShowSql(true);
-			//dp.start();
-			arp.start();
-			log.warn("Config have bean created by configName: {}",master);
-		} catch (IllegalArgumentException e) {
-			log.info(e.getMessage());
-		}
-		if(!StringUtils.isEmpty(properties.getApiconfig())) {
-			tablename = properties.getApiconfig();
-		}
+		DbPoolManager.initDefaultActiveRecordPlugin();
 	}
 	@SuppressWarnings("unchecked")
 	public List<ApiConfig> queryApiConfigList() {

@@ -19,6 +19,7 @@ import com.gitthub.wujun728.engine.common.model.ApiDataSource;
 import com.gitthub.wujun728.mybatis.sql.engine.DynamicSqlEngine;
 
 import com.jun.plugin.common.Result;
+import com.jun.plugin.common.util.DbPoolManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -249,12 +250,12 @@ public class JdbcUtil {
         return connection;
     }
 
-    public static Result executeSql(int isSelect, ApiDataSource datasource, String sql, List<Object> jdbcParamValues) {
+    public static Result executeSql(int isSelect, ApiDataSource ds, String sql, List<Object> jdbcParamValues) {
         log.info("sql:\n" + sql);
         DruidPooledConnection connection = null;
         try {
 
-            connection = PoolManager.getPooledConnection(datasource);
+            connection = DbPoolManager.init(ds.getName(),ds.getUrl(),ds.getUsername(),ds.getPassword(),ds.getDriver()).getConnection();
             PreparedStatement statement = connection.prepareStatement(sql);
             //参数注入
             for (int i = 1; i <= jdbcParamValues.size(); i++) {

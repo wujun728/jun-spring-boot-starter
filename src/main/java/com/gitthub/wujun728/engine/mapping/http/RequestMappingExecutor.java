@@ -35,6 +35,7 @@ import com.jun.plugin.common.Result;
 import com.jun.plugin.common.exception.BusinessException;
 import com.gitthub.wujun728.engine.util.RequestWrapper;
 import com.jun.plugin.common.properties.ApiProperties;
+import com.jun.plugin.common.util.DbPoolManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,6 @@ import com.gitthub.wujun728.engine.plugin.CachePlugin;
 import com.gitthub.wujun728.engine.plugin.PluginManager;
 import com.gitthub.wujun728.engine.plugin.TransformPlugin;
 import com.gitthub.wujun728.engine.util.JdbcUtil;
-import com.gitthub.wujun728.engine.util.PoolManager;
 import com.gitthub.wujun728.mybatis.sql.SqlMeta;
 import com.google.common.collect.Lists;
 
@@ -477,7 +477,8 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 			}
 			ApiDataSource ds = new ApiDataSource();
 			BeanUtil.copyProperties(datasource,ds, false);
-			DruidPooledConnection connection = PoolManager.getPooledConnection(ds);
+			//DruidPooledConnection connection = PoolManager.getPooledConnection(ds);
+			DruidPooledConnection connection = DbPoolManager.init(ds.getName(),ds.getUrl(),ds.getUsername(),ds.getPassword(),ds.getDriver()).getConnection();
 			// 是否开启事务
 			boolean flag = config.getOpenTrans() == 1 ? true : false;
 			// 执行sql

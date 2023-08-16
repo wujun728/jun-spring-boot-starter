@@ -3,12 +3,12 @@ package com.gitthub.wujun728.engine.mapping.http.cache;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Component;
 
 import com.gitthub.wujun728.engine.common.model.ApiConfig;
-import com.gitthub.wujun728.engine.util.IdUtil;
 
 //import cn.hutool.core.util.IdUtil;
 //import cn.hutool.core.util.StrUtil;
@@ -21,7 +21,8 @@ public class DefaultApiConfigCache implements IApiConfigCache {
 
     private Map<String, ApiConfig> cacheApiConfig = new ConcurrentHashMap<>();
 
-    private String instanceId = IdUtil.generateUUID();
+    private String instanceId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 15);;
+//    private String instanceId = IdUtil.generateUUID();
 
     @Override
     public ApiConfig get(ApiConfig apiInfo){

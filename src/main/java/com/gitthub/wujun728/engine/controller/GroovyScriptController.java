@@ -1,7 +1,7 @@
 package com.gitthub.wujun728.engine.controller;
 
-import com.gitthub.wujun728.engine.util.SpringContextUtil;
 import com.jun.plugin.common.Result;
+import com.jun.plugin.common.util.SpringContextUtil;
 import groovy.lang.GroovyClassLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
