@@ -24,6 +24,7 @@ public class ProjectProperties {
     /** xss防护设置 */
     private ProjectProperties.Xxs xxs = new ProjectProperties.Xxs();
 
+
     /**
      * xss防护设置
      */

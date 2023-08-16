@@ -114,11 +114,11 @@ public class Result<T> {
     	return new Result(null,0,msg);
     }
 
-    public Result successWithData(T data) {
+    public static Result successWithData(Object data) {
     	return new Result(data,0,"操作成功");
     }
 
-    public Result successWithDataMsg(T data, String msg) {
+    public static Result successWithDataMsg(Object data, String msg) {
     	return new Result(data,0,msg);
     }
 

@@ -44,7 +44,10 @@ public class ApiProperties {
     
     @Value("${project.groovy-api.datasource.password:}")
     private String password;
-    
+
+    @Value("${project.groovy-api.datasource.driver:}")
+    private String driver;
+
     @Value("${project.groovy-api.api_config:api_config}")
     private String apiconfig;
     
@@ -88,6 +91,8 @@ public class ApiProperties {
 
     }
 
+
+
     /**
      * 纯SQL模式下，通过脚本能自动识别增删改查数据库行为，但查询又分为分页，计数，返回一条，和列表，四种不种的返回格式
      * 这四种行为将通过url后缀形式来识别，配置如下：
@@ -96,6 +101,7 @@ public class ApiProperties {
     private ApiSqlModel sqlModel = new ApiSqlModel();
 
     private DataSource dataSource = new DataSource();
+
 
     @Data
     public static class DataSource{
