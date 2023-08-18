@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<optional>true</optional>
+			<version>1.18.26</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
@@ -96,7 +96,6 @@
 		    <artifactId>jun-mybatis-sql-engine</artifactId>
 		    <version>1.0.0-RELEASE</version>
 		</dependency>
-		
         <!-- https://mvnrepository.com/artifact/cglib/cglib-nodep -->
         <dependency>
             <groupId>cglib</groupId>
