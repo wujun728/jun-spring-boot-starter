@@ -4,7 +4,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import com.gitthub.wujun728.engine.config.ApiPorperties;
+import com.gitthub.wujun728.engine.config.ApiPorps;
 import com.jun.plugin.common.Result;
 import org.apache.commons.io.FileUtils;
 import org.springframework.util.CollectionUtils;
@@ -25,7 +25,7 @@ public class ApiInit {
 
     DynamicSqlEngine dynamicSqlEngine = new DynamicSqlEngine();
 
-    ApiPorperties apiConfig;
+    ApiPorps apiConfig;
 
     Map<String, Sql> sqlMap;
     Map<String, ApiDataSource> dataSourceMap;
@@ -35,7 +35,7 @@ public class ApiInit {
     	this.sqlMap = Maps.newHashMap();
     }
 
-    public ApiInit(ApiPorperties config) {
+    public ApiInit(ApiPorps config) {
         this.apiConfig = config;
 
         try {
@@ -51,7 +51,7 @@ public class ApiInit {
         }
     }
     
-    public void init(ApiPorperties config) {
+    public void init(ApiPorps config) {
         this.apiConfig = config;
         try {
             File file = ResourceUtils.getFile(this.apiConfig.getSql());

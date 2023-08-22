@@ -34,7 +34,6 @@ import com.gitthub.wujun728.engine.service.ApiService;
 import com.jun.plugin.common.Result;
 import com.jun.plugin.common.exception.BusinessException;
 import com.gitthub.wujun728.engine.util.RequestWrapper;
-import com.jun.plugin.common.properties.ApiProperties;
 import com.jun.plugin.common.util.DbPoolManager;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -73,9 +72,6 @@ import lombok.extern.slf4j.Slf4j;
 public class RequestMappingExecutor implements IMappingExecutor,ApplicationListener<ContextRefreshedEvent> {
 
 	@Autowired
-	private ApiProperties apiProperties;
-
-	@Autowired
 	private ApiService apiService;
 
 	@Autowired
@@ -92,7 +88,8 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 		String content = serverProperties.getServlet().getContextPath() == null ? ""
 				: serverProperties.getServlet().getContextPath();
 		Integer port = serverProperties.getPort() == null ? 8080 : serverProperties.getPort();
-		return "http://localhost:" + port + ("/" + content + apiProperties.getContext()).replace("//", "/");
+		String context = SpringUtil.getProperty("project.groovy-api.context");
+		return "http://localhost:" + port + ("/" + content + context).replace("//", "/");
 	}
 
 	/**

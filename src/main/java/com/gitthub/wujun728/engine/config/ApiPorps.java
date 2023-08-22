@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Data
 @ConfigurationProperties("spring.groovy-api.config")
-public class ApiPorperties {
+public class ApiPorps {
     String sql;
 
     String datasource;

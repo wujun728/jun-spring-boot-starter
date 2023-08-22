@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -20,7 +22,6 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.gitthub.wujun728.engine.common.model.ApiConfig;
-import com.jun.plugin.common.properties.ApiProperties;
 
 //import cn.hutool.core.lang.Console;
 //import cn.hutool.core.util.StrUtil;
@@ -32,9 +33,6 @@ public class RequestMappingService implements InitializingBean {
 
 	@Autowired
 	private RequestMappingHandlerMapping requestMappingHandlerMapping;
-
-	@Autowired
-	private ApiProperties apiProperties;
 
 	@Autowired
 	@Lazy
@@ -54,10 +52,11 @@ public class RequestMappingService implements InitializingBean {
 			}
 
 			String groupName = map.get(info).getBeanType().getSimpleName();
+			String context = SpringUtil.getProperty("project.groovy-api.context");
+			String servicename = SpringUtil.getProperty("project.groovy-api.servicename");
 			for (String path : getPatterns(info)) {
-
 				// 过滤本身的类
-				if (path.indexOf(apiProperties.getContext()) == 0 || path.equals("/error")) {
+				if (path.indexOf(context) == 0 || path.equals("/error")) {
 					continue;
 				}
 
@@ -67,7 +66,7 @@ public class RequestMappingService implements InitializingBean {
 					apiInfo.setPath(path);
 					apiInfo.setMethod("All");
 					apiInfo.setScriptType("Code");
-					apiInfo.setBeanName(apiProperties.getServicename());
+					apiInfo.setBeanName(servicename);
 					apiInfo.setCreator("admin");
 					apiInfo.setDatasourceId("");
 					apiInfo.setScriptContent("");
@@ -79,7 +78,7 @@ public class RequestMappingService implements InitializingBean {
 						apiInfo.setPath(path);
 						apiInfo.setMethod(method.name());
 						apiInfo.setScriptType("Code");
-						apiInfo.setBeanName(apiProperties.getServicename());
+						apiInfo.setBeanName(servicename);
 						apiInfo.setCreator("admin");
 						apiInfo.setDatasourceId("");
 						apiInfo.setScriptContent("");

@@ -11,7 +11,6 @@ import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
 
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
-import com.jun.plugin.common.properties.ApiProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,7 +108,6 @@ public class DbPoolManager {
     public static String master = "_main";
 
     public static void initDefaultActiveRecordPlugin() {
-        //ApiProperties properties = SpringContextUtil.getBean(ApiProperties.class);
         String url = SpringUtil.getProperty("project.groovy-api.datasource.url");
         String username = SpringUtil.getProperty("project.groovy-api.datasource.username");
         String password = SpringUtil.getProperty("project.groovy-api.datasource.password");
