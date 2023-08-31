@@ -6,7 +6,7 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-groovy-api-spring-boot-starter</artifactId>
-	<version>1.0.5-RELEASE</version>
+	<version>1.0.6-RELEASE</version>
 	<name>jun-groovy-api-spring-boot-starter</name>
 	<description>jun-groovy-api-spring-boot-starter</description>
 	<url>https://github.com/wujun728/jun-groovy-api-spring-boot-starter</url>
@@ -109,9 +109,9 @@
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.jfinal/activerecord -->
 		<dependency>
-		    <groupId>com.jfinal</groupId>
-		    <artifactId>activerecord</artifactId>
-		    <version>5.1.1</version>
+			<groupId>com.jfinal</groupId>
+			<artifactId>activerecord</artifactId>
+			<version>5.1.2</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus -->
 		<dependency>

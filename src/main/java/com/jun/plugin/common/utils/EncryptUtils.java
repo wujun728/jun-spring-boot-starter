@@ -9,7 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 
 //import org.apache.tomcat.util.codec.binary.Base64;
 import org.apache.tomcat.util.codec.binary.Base64;
-import sun.misc.BASE64Decoder;
+import org.springframework.util.Base64Utils;
+//import sun.misc.BASE64Decoder;
 
 /**
  * AES算法进行加密
@@ -58,7 +59,7 @@ public class EncryptUtils {
      * @throws Exception 抛出异常
      */
     private static byte[] base64Decode(String base64Code) throws Exception{
-        return StringUtils.isEmpty(base64Code) ? null : new BASE64Decoder().decodeBuffer(base64Code);
+        return StringUtils.isEmpty(base64Code) ? null : Base64Utils.decodeFromString(base64Code);
     }
 
 
@@ -116,7 +117,7 @@ public class EncryptUtils {
      * @return 解密后的string
      */
     public static String aesDecrypt(String encryptStr, String decryptKey) throws Exception {
-        return StringUtils.isEmpty(encryptStr) ? null : aesDecryptByBytes(base64Decode(encryptStr), decryptKey);
+        return StringUtils.isEmpty(encryptStr) ? null : aesDecryptByBytes(Base64Utils.decodeFromString(encryptStr), decryptKey);
     }
 
 }

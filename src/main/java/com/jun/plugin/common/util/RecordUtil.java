@@ -158,6 +158,10 @@ public class RecordUtil {
         }
         return list;
     }
+//    public static Page pageRecordToPageList(Page<Record> pageList){
+//        return RecordUtil.pageRecordToPage(pageList);
+//    }
+
     public static Page pageRecordToPage(Page<Record> pageList){
         if (pageList == null || pageList.getList().size() == 0){
             return null;

@@ -12,7 +12,7 @@ import javax.script.ScriptEngineManager;
 public class ApiAutoConfig {
 
 	@Bean
-	@ConditionalOnMissingBean(ScriptEngineManager.class)
+	@ConditionalOnMissingBean
 	public ScriptEngineManager scriptEngineManager() {
 		return new ScriptEngineManager();
 	}

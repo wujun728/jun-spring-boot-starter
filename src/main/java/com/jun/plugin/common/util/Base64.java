@@ -9,8 +9,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.FileUtils;
-
-import sun.misc.BASE64Decoder;
+import org.springframework.util.Base64Utils;
 
 
 public class Base64 {
@@ -31,14 +30,15 @@ public class Base64 {
 			gzip.close();
 		}
 //		BASE64Encoder
-		return new String(java.util.Base64.getEncoder().encode(out.toByteArray()));
+		return new String(Base64Utils.encode(out.toByteArray()));
+//		return new String(java.util.Base64.getEncoder().encode(out.toByteArray()));
 	}
 	
 	public static String decode(String content) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BASE64Decoder base64 = new BASE64Decoder();
+//		BASE64Decoder base64 = new BASE64Decoder();
 		try {
-			byte [] bytes = base64.decodeBuffer(content);
+			byte [] bytes = Base64Utils.decodeFromString(content);
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
 			GZIPInputStream gzip = new GZIPInputStream(byteArrayInputStream);
 			byte [] b = new byte[128];
@@ -56,9 +56,9 @@ public class Base64 {
 
 	public static byte[] decodeV2(String content) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BASE64Decoder base64 = new BASE64Decoder();
+//		BASE64Decoder base64 = new BASE64Decoder();
 		try {
-			byte [] bytes = base64.decodeBuffer(content);
+			byte [] bytes = Base64Utils.decodeFromString(content);
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
 			GZIPInputStream gzip = new GZIPInputStream(byteArrayInputStream);
 			byte [] b = new byte[128];
