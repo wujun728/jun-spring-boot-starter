@@ -14,8 +14,8 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
-	<modules>
-
+	<modules> 
+		<module>jun-common</module>
 		<module>jun-groovy-api-spring-boot-starter</module>
 		<module>jun-mybatis-sql-engine</module> 
 
