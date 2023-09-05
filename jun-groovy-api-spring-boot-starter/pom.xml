@@ -6,10 +6,10 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-groovy-api-spring-boot-starter</artifactId>
-	<version>1.0.6-RELEASE</version>
+	<version>1.0.0</version>
 	<name>jun-groovy-api-spring-boot-starter</name>
 	<description>jun-groovy-api-spring-boot-starter</description>
-	<url>https://github.com/wujun728/jun-groovy-api-spring-boot-starter</url>
+	<url>https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter</url>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -46,16 +46,7 @@
 		</dependency>
 		 <dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-freemarker</artifactId>
-		</dependency>
-		 <dependency>
-			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>1.18.26</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
@@ -78,18 +69,6 @@
 			<groupId>com.alibaba.fastjson2</groupId>
 			<artifactId>fastjson2</artifactId>
 			<version>2.0.37</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-		<dependency>
-		    <groupId>commons-io</groupId>
-		    <artifactId>commons-io</artifactId>
-		    <version>2.13.0</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
-		<dependency>
-		    <groupId>com.google.guava</groupId>
-		    <artifactId>guava</artifactId>
-		    <version>32.1.1-jre</version>
 		</dependency>
 		<dependency>
 		    <groupId>io.github.wujun728</groupId>
@@ -119,13 +98,6 @@
             <artifactId>mybatis-plus</artifactId>
             <version>3.5.3.1</version>
         </dependency>
-		<!-- Redis-Jedis -->
-		<!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
-		<dependency>
-			<groupId>redis.clients</groupId>
-			<artifactId>jedis</artifactId>
-			<version>5.0.0-alpha2</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.auth0/java-jwt -->
 		<dependency>
 			<groupId>com.auth0</groupId>
@@ -149,6 +121,11 @@
 			<artifactId>pinyin4j</artifactId>
 			<version>2.5.1</version>
 		</dependency>
+		<dependency>
+			<groupId>io.github.wujun728</groupId>
+			<artifactId>jun-common</artifactId>
+			<version>1.0.0</version>
+		</dependency>
         
 	</dependencies>
 	
@@ -171,14 +148,14 @@
 		<developer>
 			<name>wujun728</name>
 			<email>wujun728@163.com</email>
-			<url>https://github.com/wujun728/jun-groovy-api-spring-boot-starter</url>
+			<url>https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter</url>
 		</developer>
 	</developers>
 
 	<scm>
-		<url>https://github.com/wujun728/jun-groovy-api-spring-boot-starter.git</url>
-		<connection>scm:git:https://github.com/wujun728/jun-groovy-api-spring-boot-starter.git</connection>
-		<developerConnection>scm:git:https://github.com/wujun728/jun-groovy-api-spring-boot-starter.git</developerConnection>
+		<url>https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter.git</url>
+		<connection>scm:git:https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter.git</connection>
+		<developerConnection>scm:git:https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter.git</developerConnection>
 	</scm>
 
 	<licenses>
@@ -239,7 +216,7 @@
 				</executions>
 			</plugin>
 			<!-- GPG -->
-			<!--  --> <plugin>
+			<!-- <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>1.6</version>
@@ -251,7 +228,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> -->
 
 			<!--Compiler -->
 			<plugin>

@@ -3,11 +3,14 @@ package com.jun.plugin.rest.controller;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.meta.Column;
 import cn.hutool.db.meta.MetaUtil;
 import cn.hutool.db.meta.Table;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.gitthub.wujun728.engine.util.HttpRequestLocal;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
@@ -54,13 +57,13 @@ public class RestServiceController {
 
 	@GetMapping(path = "/page", produces = "application/json")
 	//@ApiOperation(value = "返回实体数据列表", notes = "page与size同时大于零时返回分页实体数据列表,否则返回全部数据列表;
-	public Result page(@PathVariable("entityName") String entityName, Integer size, Integer page, String export,
+	public Result page(@PathVariable("entityName") String entityName, Integer limit, Integer page, String export,
 			@RequestParam Map<String, String> queryParams) throws Exception {
 		try {
 			String tableName = StrUtil.toUnderlineCase(entityName);
 			Result fail = check(tableName);
 			if (fail != null) return fail;
-			return Result.success(queryPage(size,page,tableName));
+			return Result.success(queryPage(limit,page,tableName));
 		} catch (Exception e) {
 			String message = ExceptionUtils.getMessage(e);
 			log.error(message, e);
@@ -70,13 +73,23 @@ public class RestServiceController {
 
 	@GetMapping(path = "/layui/page", produces = "application/json")
 	//@ApiOperation(value = "返回实体数据列表", notes = "page与size同时大于零时返回分页实体数据列表,否则返回全部数据列表;
-	public Result layuiList(@PathVariable("entityName") String entityName, Integer size, Integer page, String export,
+	public Result layuiList(@PathVariable("entityName") String entityName, Integer limit, Integer page, String export,
+							String like,String equal,String asc,String desc,
 							@RequestParam Map<String, String> queryParams) throws Exception {
 		try {
 			String tableName = StrUtil.toUnderlineCase(entityName);
 			Result fail = check(tableName);
 			if (fail != null) return fail;
-			Page page1 = queryPage(size,page,tableName);
+			Page page1 = new Page<>();
+			if(page !=null && limit != null ){
+				String select = "select *";
+				String from = " from "+ tableName;
+				List<Map> likes = JSON.parseArray(like, Map.class);
+				Page<Record> pages = Db.use(master).paginate(page, limit, select, from);
+				Page datas = RecordUtil.pageRecordToPage(pages);
+				page1 =  datas;
+			}
+
 			return Result.success().put("count",page1.getTotalRow()).put("data",page1.getList()).put("limit",page1.getPageSize()).put("page",page1.getPageNumber());
 		} catch (Exception e) {
 			String message = ExceptionUtils.getMessage(e);
@@ -172,14 +185,17 @@ public class RestServiceController {
 			for(Column column : columns){
 				String val = MapUtil.getStr(params,column.getName());
 				String fieldName = FieldUtils.columnNameToFieldName(column.getName());
-				if(StrUtil.isEmpty(val)){
+				if(ObjectUtil.isEmpty(val)){
 					val = MapUtil.getStr(params,fieldName);
 				}
 				val = getId(val);
-				if(StrUtil.isNotEmpty(val)){
+				if(ObjectUtil.isNotEmpty(val)){
 					record.set(column.getName(), (val) );
 				}else {
-					record.set(column.getName(), getDefaultValue(fieldName) );
+					if(ObjectUtil.isNotEmpty(getDefaultValue(fieldName))){
+						record.set(column.getName(), getDefaultValue(fieldName) );
+					}
+					//record.set(column.getName(), val ); //可为空字段，没传值默认新增不初始化
 				}
 				if(!column.isAutoIncrement()){
 
@@ -228,15 +244,18 @@ public class RestServiceController {
 			for(Column column : columns){
 				String val = MapUtil.getStr(params,column.getName());
 				String fieldName = FieldUtils.columnNameToFieldName(column.getName());
-				if(StrUtil.isEmpty(val)){
+				if(ObjectUtil.isEmpty(val)){
 					val = MapUtil.getStr(params,fieldName);
 				}
 				val = getId(val);
 
-				if(StrUtil.isNotEmpty(val)){
+				if(ObjectUtil.isNotEmpty(val)){
 					record.set(column.getName(), (val) );
 				}else {
-					record.set(column.getName(), getDefaultValue(fieldName) );
+					if(ObjectUtil.isNotEmpty(getDefaultValue(fieldName))){
+						record.set(column.getName(), getDefaultValue(fieldName) );
+					}
+					//record.set(column.getName(), val ); //可为空字段，没传值默认不修改
 				}
 				if(!column.isAutoIncrement()){
 
