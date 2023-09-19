@@ -55,7 +55,7 @@
         </dependency>
 
         <!--测试test-->
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -64,7 +64,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
         <!-- thymeleaf ThymeleafConfigration 配置類  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -104,15 +104,22 @@
             <version>2.0.37</version>
         </dependency>
         <!--数据库持久化 及 插件依赖-->
-        <dependency>
+        <!--<dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus</artifactId>
-            <version>3.5.3.1</version>
-        </dependency>
+            <version>3.5.3.2</version>
+        </dependency>-->
+        <!--
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
-            <version>3.5.3.1</version>
+            <version>3.5.3.2</version>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-annotation</artifactId>
+            <version>3.5.3.2</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
         <dependency>

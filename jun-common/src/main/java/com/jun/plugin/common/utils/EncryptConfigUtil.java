@@ -1,4 +1,4 @@
-package com.jun.plugin.module.utils;
+package com.jun.plugin.common.utils;
 
 import org.jasypt.util.text.BasicTextEncryptor;
 

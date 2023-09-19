@@ -21,7 +21,11 @@ public class PasswordUtils {
      * @return 是否匹配
      */
     public static boolean matches(String salt, String rawPass, String encPass) {
-        return new PasswordEncoderAES(salt).matches(encPass, rawPass);
+//        return new PasswordEncoderAES(salt).matches(encPass, rawPass);
+        String pass1 = "" + encPass;
+        String pass2 = encode(rawPass,"");
+
+        return pass1.equals(pass2);
     }
 
     /**
@@ -32,7 +36,14 @@ public class PasswordUtils {
      * @reture 加密后
      */
     public static String encode(String rawPass, String salt) {
-        return new PasswordEncoderAES(salt).encode(rawPass);
+//        return new PasswordEncoderAES(salt).encode(rawPass);
+        String result;
+        try {
+            result = EncryptUtils.aesEncrypt(rawPass, EncryptUtils.KEY);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return result;
     }
 
     /**

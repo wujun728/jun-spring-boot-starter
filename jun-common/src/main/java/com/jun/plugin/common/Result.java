@@ -1,5 +1,7 @@
 package com.jun.plugin.common;
 
+import com.jun.plugin.common.exception.code.BaseResponseCode;
+
 import java.util.HashMap;
 
 /**
@@ -52,7 +54,15 @@ public class Result extends HashMap<String, Object>
         super.put(MSG_TAG, msg);
         super.put(DATA_TAG, data);
     }
-    
+
+    public static Result getResult(int i, String s) {
+        return Result.error(i,s);
+    }
+
+    public static Result getResult(BaseResponseCode systemRedisBusy) {
+        return Result.error(systemRedisBusy.getCode(),systemRedisBusy.getMsg());
+    }
+
     /**
      * 方便链式调用
      *
@@ -86,6 +96,10 @@ public class Result extends HashMap<String, Object>
      * 
      * @return 成功消息
      */
+    public static Result ok(Object data)
+    {
+        return Result.success("success", data);
+    }
     public static Result success(Object data)
     {
         return Result.success("success", data);

@@ -1,8 +1,8 @@
 package com.jun.plugin.common.exception;
 
+import com.jun.plugin.common.Result;
 import com.jun.plugin.common.exception.BusinessException;
 import com.jun.plugin.common.exception.code.BaseResponseCode;
-import com.jun.plugin.common.utils.DataResult;
 import lombok.extern.slf4j.Slf4j;
 //import org.apache.shiro.authz.AuthorizationException;
 import org.springframework.validation.ObjectError;
@@ -31,44 +31,44 @@ public class RestExceptionHandler {
      * 系统繁忙，请稍候再试"
      */
     @ExceptionHandler(Exception.class)
-    public DataResult handleException(Exception e) {
+    public Result handleException(Exception e) {
         log.error("Exception,exception:{}", e, e);
-        return DataResult.getResult(500,"系统繁忙，请稍候再试!异常信息："+e.getMessage());
-        //return DataResult.getResult(BaseResponseCode.SYSTEM_BUSY);
+        return Result.getResult(500,"系统繁忙，请稍候再试!异常信息："+e.getMessage());
+        //return Result.getResult(BaseResponseCode.SYSTEM_BUSY);
     }
     
     @ExceptionHandler(org.springframework.dao.QueryTimeoutException.class)
-    public DataResult handleQueryTimeoutException(Exception e) {
+    public Result handleQueryTimeoutException(Exception e) {
     	log.error("Exception,exception:{}", e, e);
-    	return DataResult.getResult(BaseResponseCode.SYSTEM_REDIS_BUSY);
+    	return Result.getResult(BaseResponseCode.SYSTEM_REDIS_BUSY);
     }
 
     /**
      * 自定义全局异常处理
      */
     @ExceptionHandler(value = BusinessException.class)
-    DataResult businessExceptionHandler(BusinessException e) {
+    Result businessExceptionHandler(BusinessException e) {
         log.error("Exception,exception:{}", e, e);
-        return new DataResult(e.getMessageCode(), e.getDetailMessage());
+        return new Result(e.getMessageCode(), e.getDetailMessage());
     }
 
     /**
      * 没有权限 返回403视图
      */
 //    @ExceptionHandler(value = AuthorizationException.class)
-//    public DataResult errorPermission(AuthorizationException e) {
+//    public Result errorPermission(AuthorizationException e) {
 //        log.error("Exception,exception:{}", e, e);
-//        return new DataResult(BaseResponseCode.UNAUTHORIZED_ERROR);
+//        return new Result(BaseResponseCode.UNAUTHORIZED_ERROR);
 //    }
 
     /**
      * 处理validation 框架异常
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    DataResult methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+    Result methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
         log.error("methodArgumentNotValidExceptionHandler bindingResult.allErrors():{},exception:{}", e.getBindingResult().getAllErrors(), e);
         List<ObjectError> errors = e.getBindingResult().getAllErrors();
-        return DataResult.getResult(BaseResponseCode.METHODARGUMENTNOTVALIDEXCEPTION.getCode(), errors.get(0).getDefaultMessage());
+        return Result.getResult(BaseResponseCode.METHODARGUMENTNOTVALIDEXCEPTION.getCode(), errors.get(0).getDefaultMessage());
     }
 
     /**
@@ -76,7 +76,7 @@ public class RestExceptionHandler {
      * 处理Validated List<entity> 异常
      */
     @ExceptionHandler
-    public DataResult handle(ConstraintViolationException exception) {
+    public Result handle(ConstraintViolationException exception) {
         log.error("methodArgumentNotValidExceptionHandler bindingResult.allErrors():{},exception:{}", exception, exception);
         Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
         StringBuilder builder = new StringBuilder();
@@ -84,7 +84,7 @@ public class RestExceptionHandler {
             builder.append(violation.getMessage());
             break;
         }
-        return DataResult.getResult(BaseResponseCode.METHODARGUMENTNOTVALIDEXCEPTION.getCode(), builder.toString());
+        return Result.getResult(BaseResponseCode.METHODARGUMENTNOTVALIDEXCEPTION.getCode(), builder.toString());
     }
 
 }

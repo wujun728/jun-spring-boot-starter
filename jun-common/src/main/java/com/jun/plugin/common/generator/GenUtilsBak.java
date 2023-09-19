@@ -3,6 +3,7 @@ package com.jun.plugin.common.generator;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.db.meta.Column;
 import cn.hutool.db.meta.MetaUtil;
@@ -10,7 +11,6 @@ import cn.hutool.db.meta.Table;
 import cn.hutool.setting.dialect.Props;
 import cn.hutool.setting.dialect.PropsUtil;
 import com.alibaba.druid.pool.DruidDataSource;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.google.common.collect.Lists;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Template;
@@ -520,11 +520,11 @@ public class GenUtilsBak {
 			datas.put("author", getProp("author"));
 			datas.put("email", getProp("email"));
 			datas.put("datetime", DateUtil.now());
-			datas.put("identity", IdWorker.getId());
-			datas.put("addId", IdWorker.getId());
-			datas.put("updateId", IdWorker.getId());
-			datas.put("deleteId", IdWorker.getId());
-			datas.put("selectId", IdWorker.getId());
+			datas.put("identity", IdUtil.getSnowflakeNextIdStr());
+			datas.put("addId", IdUtil.getSnowflakeNextIdStr());
+			datas.put("updateId", IdUtil.getSnowflakeNextIdStr());
+			datas.put("deleteId", IdUtil.getSnowflakeNextIdStr());
+			datas.put("selectId", IdUtil.getSnowflakeNextIdStr());
 
 			Map<String, String> result = new HashMap<String, String>();
 			try {
