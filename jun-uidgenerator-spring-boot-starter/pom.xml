@@ -8,6 +8,8 @@
     <artifactId>jun-uidgenerator-spring-boot-starter</artifactId>
     <version>1.0.1</version>
     <name>jun-uidgenerator-spring-boot-starter</name>
+    <description>百度uidgenerator升级修改版，自用，具体见readme</description>
+    <url>https://github.com/wujun728/jun-spring-boot-starter/jun-uidgenerator-spring-boot-starter</url>
 
     <properties>
         <java.version>8</java.version>
@@ -96,14 +98,14 @@
         <developer>
             <name>wujun728</name>
             <email>wujun728@163.com</email>
-            <url>https://github.com/wujun728/jun_jar_publish/jun-common</url>
+            <url>https://github.com/wujun728/jun-spring-boot-starter/jun-uidgenerator-spring-boot-starter</url>
         </developer>
     </developers>
 
     <scm>
-        <url>https://github.com/wujun728/jun_jar_publish/jun-common.git</url>
-        <connection>scm:git:https://github.com/wujun728/jun_jar_publish/jun-common.git</connection>
-        <developerConnection>scm:git:https://github.com/wujun728/jun_jar_publish/jun-common.git</developerConnection>
+        <url>https://github.com/wujun728/jun-spring-boot-starter/jun-uidgenerator-spring-boot-starter.git</url>
+        <connection>scm:git:https://github.com/wujun728/jun-spring-boot-starter/jun-uidgenerator-spring-boot-starter.git</connection>
+        <developerConnection>scm:git:https://github.com/wujun728/jun-spring-boot-starter/jun-uidgenerator-spring-boot-starter.git</developerConnection>
     </scm>
 
     <licenses>
