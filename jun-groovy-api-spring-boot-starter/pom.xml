@@ -9,7 +9,7 @@
 	<version>1.0.8</version>
 	<name>jun-groovy-api-spring-boot-starter</name>
 	<description>jun-groovy-api-spring-boot-starter</description>
-	<url>https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter</url>
+	<url>https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter</url>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -148,14 +148,14 @@
 		<developer>
 			<name>wujun728</name>
 			<email>wujun728@163.com</email>
-			<url>https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter</url>
+			<url>https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter</url>
 		</developer>
 	</developers>
 
 	<scm>
-		<url>https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter.git</url>
-		<connection>scm:git:https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter.git</connection>
-		<developerConnection>scm:git:https://github.com/wujun728/jun_jar_publish/jun-groovy-api-spring-boot-starter.git</developerConnection>
+		<url>https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter.git</url>
+		<connection>scm:git:https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter.git</connection>
+		<developerConnection>scm:git:https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter.git</developerConnection>
 	</scm>
 
 	<licenses>
@@ -216,7 +216,7 @@
 				</executions>
 			</plugin>
 			<!-- GPG -->
-			<!-- <plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
 				<version>1.6</version>
@@ -228,7 +228,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin> -->
+			</plugin><!--   -->
 
 			<!--Compiler -->
 			<plugin>
