@@ -7,7 +7,6 @@ import org.springframework.util.StringUtils;
 
 /**
  * 项目配置项-固定配置-默认配置
- * @author wujun
  * @date 2018/11/6
  */
 @Data

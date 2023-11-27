@@ -13,14 +13,6 @@ import java.util.Set;
 public class TestUser {
 
     @Test
-    public void test() {
-        StringBuilder builder = new StringBuilder();
-        String a = null;
-        builder.append("abc").append(a).append("333");
-        System.out.println(builder.toString());
-    }
-
-    @Test
     public void testSubMap() {
         DynamicSqlEngine engine = new DynamicSqlEngine();
         String sql = "id &lt;= #{maxId.maxId}";

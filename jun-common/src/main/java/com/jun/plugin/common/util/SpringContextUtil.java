@@ -167,7 +167,6 @@ public class SpringContextUtil implements ApplicationContextAware {
      * @param <T>      Bean类型
      * @param beanName 名称
      * @param bean     bean
-     * @author shadow
      * @since 5.4.2
      */
     public static <T> void registerBean(String beanName, T bean) {

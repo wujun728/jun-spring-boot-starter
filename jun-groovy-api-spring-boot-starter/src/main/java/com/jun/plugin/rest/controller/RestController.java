@@ -10,7 +10,7 @@ import cn.hutool.db.meta.MetaUtil;
 import cn.hutool.db.meta.Table;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
-import com.gitthub.wujun728.engine.util.RequestLocal;
+import com.jun.plugin.common.util.HttpRequestLocal;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.jun.plugin.common.util.DbPoolManager.master;
+import static com.jun.plugin.common.util.DataSourcePool.master;
 
 @Slf4j
 @org.springframework.web.bind.annotation.RestController
@@ -54,63 +54,45 @@ public class RestController {
 	}
 
 
-	@GetMapping(path = "/page", produces = "application/json")
-	//@ApiOperation(value = "返回实体数据列表", notes = "page与size同时大于零时返回分页实体数据列表,否则返回全部数据列表;
-	public Result page(@PathVariable("entityName") String entityName, Integer limit, Integer page, String export,
-			@RequestParam Map<String, String> queryParams) throws Exception {
-		try {
-			String tableName = StrUtil.toUnderlineCase(entityName);
-			Result fail = check(tableName);
-			if (fail != null) return fail;
-			return Result.success(queryPage(limit,page,tableName));
-		} catch (Exception e) {
-			String message = ExceptionUtils.getMessage(e);
-			log.error(message, e);
-			return Result.error(message);
-		}
-	}
-
-	@GetMapping(path = "/page/layui", produces = "application/json")
-	//@ApiOperation(value = "返回实体数据列表", notes = "page与size同时大于零时返回分页实体数据列表,否则返回全部数据列表;
-	public Result layuiList(@PathVariable("entityName") String entityName, Integer limit, Integer page, String export,
-							String like,String equal,String asc,String desc,
-							@RequestParam Map<String, String> queryParams) throws Exception {
-		try {
-			if(page==null || page ==0){
-				page = 1;
-			}
-			if(limit==null || limit ==0){
-				limit = 10;
-			}
-			String tableName = StrUtil.toUnderlineCase(entityName);
-			Result fail = check(tableName);
-			if (fail != null) return fail;
-			Page page1 = new Page<>();
-			if(page !=null && limit != null ){
-				String select = "select *";
-				String from = " from "+ tableName;
-				List<Map> likes = JSON.parseArray(like, Map.class);
-				Page<Record> pages = Db.use(master).paginate(page, limit, select, from);
-				Page datas = RecordUtil.pageRecordToPage(pages);
-				page1 =  datas;
-			}
-			return Result.success().put("count",page1.getTotalRow()).put("data",page1.getList()).put("limit",page1.getPageSize()).put("page",page1.getPageNumber());
-		} catch (Exception e) {
-			String message = ExceptionUtils.getMessage(e);
-			log.error(message, e);
-			return Result.error(message);
-		}
-	}
-
 	@GetMapping(path = "/list", produces = "application/json")
 	//@ApiOperation(value = "返回实体数据列表", notes = "page与size同时大于零时返回分页实体数据列表,否则返回全部数据列表;
-	public Result list(@PathVariable("entityName") String entityName, Integer size, Integer page, String export,
-			@RequestParam Map<String, String> queryParams) throws Exception {
+	public Result list(@PathVariable("entityName") String entityName,HttpServletRequest request) throws Exception {
 		try {
+			Map<String, Object>  parameters = HttpRequestLocal.getAllParameters(request);
 			String tableName = StrUtil.toUnderlineCase(entityName);
 			Result fail = check(tableName);
 			if (fail != null) return fail;
-			return Result.success(queryList(size,page,tableName));
+			String id = MapUtil.getStr(parameters,"id");
+			String like = MapUtil.getStr(parameters,"like");
+			Integer page = MapUtil.getInt(parameters,"page");
+			Integer limit = MapUtil.getInt(parameters,"limit");
+			Boolean isLayui = MapUtil.getBool(parameters,"layui",false);
+			Boolean isPageQuery = true;
+			if( (page==null || page ==0) || (limit==null || limit ==0) ){
+				page = 1;
+				limit = 10;
+				isPageQuery = false;
+			}
+			if(isPageQuery){
+				Page page1 = new Page<>();
+				if(page !=null && limit != null ){
+					String select = "select *";
+					String from = " from "+ tableName;
+					List<Map> likes = JSON.parseArray(like, Map.class);
+					Page<Record> pages = Db.use(master).paginate(page, limit, select, from);
+					Page datas = RecordUtil.pageRecordToPage(pages);
+					page1 =  datas;
+				}
+				if(isLayui){
+					return Result.success().put("count",page1.getTotalRow()).put("data",page1.getList()).put("limit",page1.getPageSize()).put("page",page1.getPageNumber());
+				}else{
+					return Result.success(page1);
+				}
+			}else{
+				List<Record> lists = Db.use(master).find("select * from "+ tableName +" ");
+				List<Map<String, Object>> datas = RecordUtil.recordToMaps(lists);
+				return Result.success(datas);
+			}
 		} catch (Exception e) {
 			String message = ExceptionUtils.getMessage(e);
 			log.error(message, e);
@@ -118,35 +100,27 @@ public class RestController {
 		}
 	}
 
-	private static Page queryPage(Integer size, Integer page, String tableName) {
-		if(page !=null && size != null ){
-			Page<Record> pages = Db.use(master).paginate(page, size,"select *"," from "+ tableName);
-			Page datas = RecordUtil.pageRecordToPage(pages);
-			return datas;
-		}
-		return null;
-	}
-	private static List queryList(Integer size, Integer page, String tableName) {
-		List<Record> lists = Db.use(master).find("select * from "+ tableName +" ");
-		List<Map<String, Object>> datas = RecordUtil.recordToMaps(lists);
-		return datas;
-	}
 
-	private static Result check(String tableName) {
-		Table table = MetaUtil.getTableMeta(Db.use(master).getConfig().getDataSource(), tableName);
-		if(CollectionUtils.isEmpty(table.getColumns())){
-			return Result.fail("实体对应的表不存在！");
-		}
-		return null;
-	}
-
-	@GetMapping(path = "/findById", produces = "application/json")
+	@GetMapping(path = "/find", produces = "application/json")
 	//@ApiOperation(value = "根据ID返回单个实体数据")
-	public Result get(@PathVariable("entityName") String entityName, String id, String primaryKey) {
+	public Result get(@PathVariable("entityName") String entityName,HttpServletRequest request) {
 		try {
+			Map<String, Object>  parameters = HttpRequestLocal.getAllParameters(request);
 			String tableName = StrUtil.toUnderlineCase(entityName);
+			String id = MapUtil.getStr(parameters,"id");
+			if(StrUtil.isEmpty(id)){
+				throw new BusinessException("接口必须参数id,可选参数primaryKey，有多列，均使用英文逗号分隔");
+			}
+			String primaryKey = MapUtil.getStr(parameters,"primaryKey");
 			Result fail = check(tableName);
 			if (fail != null) return fail;
+			if(StrUtil.isEmpty(id)){
+				throw new BusinessException("接口必须含参数id,可选参数primaryKey，有多列，均使用英文逗号分隔");
+			}
+			if(StrUtil.isEmpty(primaryKey)){
+				primaryKey = "id";
+			}
+
 			if(StrUtil.isEmpty(primaryKey)){
 				Record record= Db.use(master).findById( tableName , id);
 				Map data =  RecordUtil.recordToMap(record);
@@ -168,6 +142,62 @@ public class RestController {
 		return Result.success();
 	}
 
+	@DeleteMapping(path = "/remove", produces = "application/json")
+	//@ApiOperation(value = "根据id删除实体数据" )
+	public Result delete(@PathVariable("entityName") String entityName,HttpServletRequest request) {
+		try {
+			Map<String, Object>  parameters = HttpRequestLocal.getAllParameters(request);
+			String tableName = StrUtil.toUnderlineCase(entityName);
+			String id = MapUtil.getStr(parameters,"id");
+			if(StrUtil.isEmpty(id)){
+				throw new BusinessException("接口必须含参数id,可选参数primaryKey，有多列，均使用英文逗号分隔");
+			}
+			String primaryKey = MapUtil.getStr(parameters,"primaryKey");
+			Result fail = check(tableName);
+			if (fail != null) return fail;
+			Boolean flag = false;
+			if(StrUtil.isEmpty(id)){
+				return Result.fail("删除主键id不能为空！");
+			}
+			if(StrUtil.isEmpty(primaryKey)){
+				primaryKey = "id";
+			}
+			if(StrUtil.isEmpty(primaryKey)){
+				flag = Db.use(master).deleteById(tableName,id);
+			}else if(StrUtil.isNotEmpty(primaryKey) && !primaryKey.contains(",")){
+				flag = Db.use(master).deleteById(tableName,primaryKey,id);
+			}else if(primaryKey.contains(",")){
+				String[] ids = id.split(",");
+				flag = Db.use(master).deleteByIds(tableName,primaryKey,ids);
+			}
+			if(flag){
+				return Result.success("删除成功！");
+			}else{
+				return Result.fail("删除失败！");
+			}
+		} catch (Exception e) {
+			String message = ExceptionUtils.getMessage(e);
+			if(message.contains("Unknown column")){
+				throw new BusinessException("接口必须参数id,可选参数primaryKey，其中primaryKey中的列在数据库不存在");
+			}
+			if(message.contains("number must equals id value number")){
+				throw new BusinessException("接口必须参数id,可选参数primaryKey，有多列，均使用逗号分隔，当前参数个数与值的个数不一致");
+			}
+			log.error(message, e);
+			return Result.error(message);
+		}
+	}
+
+
+	private static Result check(String tableName) {
+		Table table = MetaUtil.getTableMeta(Db.use(master).getConfig().getDataSource(), tableName);
+		if(CollectionUtils.isEmpty(table.getColumns())){
+			return Result.fail("实体对应的表不存在！");
+		}
+		return null;
+	}
+
+
 	@PostMapping(path = "/save", produces = "application/json")
 	//@ApiOperation(value = "新增实体数据", notes = "{\"name\":\"tom\",\"args\":1}")
 	public Result create(@PathVariable("entityName") String entityName, HttpServletRequest request) {
@@ -175,7 +205,7 @@ public class RestController {
 			String tableName = StrUtil.toUnderlineCase(entityName);
 			Result fail = check(tableName);
 			if (fail != null) return fail;
-			Map<String, Object> params = RequestLocal.getAllParameters(request);
+			Map<String, Object> params = HttpRequestLocal.getAllParameters(request);
 			Table talbe = MetaUtil.getTableMeta(Db.use(master).getConfig().getDataSource(),tableName);
 			Collection<Column> columns =  talbe.getColumns();
 			for(Column column : columns){
@@ -233,7 +263,7 @@ public class RestController {
 			String tableName = StrUtil.toUnderlineCase(entityName);
 			Result fail = check(tableName);
 			if (fail != null) return fail;
-			Map<String, Object> params = RequestLocal.getAllParameters(request);
+			Map<String, Object> params = HttpRequestLocal.getAllParameters(request);
 			Table talbe = MetaUtil.getTableMeta(Db.use(master).getConfig().getDataSource(),tableName);
 			Collection<Column> columns =  talbe.getColumns();
 			for(Column column : columns){
@@ -302,74 +332,5 @@ public class RestController {
 		}
 	}
 
-	@DeleteMapping(path = "/remove", produces = "application/json")
-	//@ApiOperation(value = "根据id删除实体数据" )
-	public Result delete(@PathVariable("entityName") String entityName,
-						 HttpServletRequest request) {
-		try {
-			Map<String, Object>  parameters = RequestLocal.getAllParameters(request);
-			String tableName = StrUtil.toUnderlineCase(entityName);
-			String id = MapUtil.getStr(parameters,"id");
-			if(StrUtil.isEmpty(id)){
-				throw new BusinessException("接口必须参数id,可选参数primaryKey");
-			}
-			String primaryKey = MapUtil.getStr(parameters,"primaryKey");
-			Result fail = check(tableName);
-			if (fail != null) return fail;
-			Boolean flag = false;
-			if(StrUtil.isEmpty(id)){
-				return Result.fail("删除主键id不能为空！");
-			}
-			if(StrUtil.isEmpty(primaryKey)){
-				primaryKey = "id";
-			}
-			if(StrUtil.isEmpty(primaryKey)){
-				flag = Db.use(master).deleteById(tableName,id);
-			}else if(StrUtil.isNotEmpty(primaryKey) && !primaryKey.contains(",")){
-				flag = Db.use(master).deleteById(tableName,primaryKey,id);
-			}else if(primaryKey.contains(",")){
-				flag = Db.use(master).deleteById(tableName,primaryKey,id.split(","));
-			}
-			if(flag){
-				return Result.success("删除成功！");
-			}else{
-				return Result.fail("删除失败！");
-			}
-		} catch (Exception e) {
-			String message = ExceptionUtils.getMessage(e);
-			log.error(message, e);
-			return Result.error(message);
-		}
-	}
-
-	//
-//	@GetMapping(path = "/enum/{fieldName}/list", produces = "application/json")
-//	public Result enumList(@PathVariable("entityName") String entityName, @PathVariable("fieldName") String fieldName)
-//			throws Exception {
-//		try {
-//			Result result = check(entityName, "GET");
-//			if (!result.isSuccess())
-//				return result;
-//			return restService.enumList(entityName, fieldName);
-//		} catch (Exception e) {
-//			String message = ExceptionUtils.getMappingMessage(e);
-//			LogUtils.error(message, e);
-//			return Result.error(message);
-//		}
-//	}
-//
-//	@GetMapping(path = "/fields", produces = "application/json")
-//	public Result fields(@PathVariable("entityName") String entityName) {
-//		try {
-//			Result result = check(entityName, "GET");
-//			if (!result.isSuccess())
-//				return result;
-//			return restService.fields(entityName);
-//		} catch (Exception e) {
-//			String message = ExceptionUtils.getMappingMessage(e);
-//			LogUtils.error(message, e);
-//			return Result.error(message);
-//		}
-//	}
 
 }

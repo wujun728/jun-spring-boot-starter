@@ -20,7 +20,6 @@ import java.util.List;
 /**
  * 实体对象操作工具
  *
- * @author 小懒虫
  * @date 2018/10/15
  */
 public class EntityBeanUtil {

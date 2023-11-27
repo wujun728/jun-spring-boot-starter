@@ -19,7 +19,6 @@ import java.util.Set;
  * <p>
  * 搜集到的接口会被缓存，用于请求时判断请求的接口是否存在
  *
- * @author xuyuxiang
  * @date 2020/3/19 17:33
  */
 @Component

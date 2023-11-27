@@ -9,7 +9,6 @@ import java.io.*;
 
 /**
  * Serializable工具(JDK)(也可以使用Protobuf自行百度)
- * @author dolyw.com
  * @date 2018/9/4 15:13
  */
 public class SerializableUtil {
@@ -25,7 +24,6 @@ public class SerializableUtil {
      * 序列化
      * @param object
      * @return byte[]
-     * @author dolyw.com
      * @date 2018/9/4 15:14
      */
     public static byte[] serializable(Object object) {
@@ -58,7 +56,6 @@ public class SerializableUtil {
      * 反序列化
      * @param bytes
      * @return java.lang.Object
-     * @author dolyw.com
      * @date 2018/9/4 15:14
      */
     public static Object unserializable(byte[] bytes) {

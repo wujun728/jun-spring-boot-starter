@@ -6,7 +6,6 @@ import net.sf.ehcache.CacheManager;
 
 /**
  * EhCache缓存操作工具
- * @author wujun
  * @date 2018/11/7
  */
 public class EhCacheUtil {

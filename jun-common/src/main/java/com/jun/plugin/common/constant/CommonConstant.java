@@ -3,7 +3,6 @@ package com.jun.plugin.common.constant;
 /**
  * 通用常量
  *
- * @author xuyuxiang yubaoshan
  * @date 2020/3/11 16:51
  */
 public interface CommonConstant {

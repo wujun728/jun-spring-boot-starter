@@ -5,7 +5,6 @@ import java.util.Map;
 /**
  * 上下文 当前用户基本信息
  *
- * @author yuqf
  */
 public class UserThreadLocal {
 

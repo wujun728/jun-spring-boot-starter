@@ -15,7 +15,6 @@ import org.springframework.util.Base64Utils;
 /**
  * AES算法进行加密
  *
- * @author CodeGeek
  * @create 2018-01-23 上午11:00
  **/
 public class EncryptUtils {

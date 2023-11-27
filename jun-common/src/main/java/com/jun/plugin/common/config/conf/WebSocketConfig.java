@@ -7,7 +7,6 @@
 ///**
 // * WebSocket配置
 // *
-// * @author xuyuxiang
 // * @date 2021/1/21 11:15
 // */
 //@Configuration

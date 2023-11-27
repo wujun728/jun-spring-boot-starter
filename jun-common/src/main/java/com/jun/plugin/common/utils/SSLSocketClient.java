@@ -6,7 +6,6 @@ import java.security.cert.X509Certificate;
 
 /**
  * SSLSocketClient
- * @author wenbin.li
  */
 public class SSLSocketClient {
     //获取这个SSLSocketFactory

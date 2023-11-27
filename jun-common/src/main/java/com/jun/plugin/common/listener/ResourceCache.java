@@ -10,7 +10,6 @@ import java.util.Set;
  * <p>
  * 一般用在过滤器检测请求是否是项目没有的url
  *
- * @author yubaoshan
  * @date 2020/7/9 11:03
  */
 @Component
@@ -21,7 +20,6 @@ public class ResourceCache {
     /**
      * 获取所有缓存资源
      *
-     * @author yubaoshan
      * @date 2020/7/9 13:52
      */
     public Set<String> getAllResources() {
@@ -31,7 +29,6 @@ public class ResourceCache {
     /**
      * 直接缓存所有资源
      *
-     * @author yubaoshan
      * @date 2020/7/9 13:52
      */
     public void putAllResources(Set<String> resources) {

@@ -11,7 +11,6 @@
 ///**
 // * Jwt工具类
 // *
-// * @author yuqf
 // */
 //public class JwtUtil {
 //    private static String header = "Authorization";

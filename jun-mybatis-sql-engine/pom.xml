@@ -6,7 +6,7 @@
 
     <groupId>io.github.wujun728</groupId>
     <artifactId>jun-mybatis-sql-engine</artifactId>
-    <version>1.0.0-RELEASE</version>
+    <version>1.0.8-RELEASE</version>
     <name>jun-mybatis-sql-engine</name>
     <description>dynamic sql engine tool</description>
     <url>https://github.com/wujun728/jun-mybatis-sql-engine</url>
@@ -91,7 +91,7 @@
             </plugin>
 
 
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.0</version>
@@ -104,7 +104,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
 
         </plugins>
     </build>

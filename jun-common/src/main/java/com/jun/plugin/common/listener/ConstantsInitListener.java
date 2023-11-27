@@ -23,7 +23,6 @@ import java.util.List;
  * <p>
  * 当spring装配好配置后，就去数据库读constants
  *
- * @author yubaoshan
  * @date 2020/6/6 23:39
  */
 public class ConstantsInitListener implements ApplicationListener<ApplicationContextInitializedEvent>, Ordered {

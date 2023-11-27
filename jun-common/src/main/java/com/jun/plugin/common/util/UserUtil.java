@@ -7,7 +7,6 @@
 ///**
 // * 获取当前登录用户工具类
 // *
-// * @author wliduo[i@dolyw.com]
 // * @date 2019/3/15 11:45
 // */
 //@Component
@@ -25,7 +24,6 @@
 //     *
 //     * @param
 //     * @return com.wang.model.UserDto
-//     * @author wliduo[i@dolyw.com]
 //     * @date 2019/3/15 11:48
 //     */
 //    public UserDto getUser() {
@@ -47,7 +45,6 @@
 //     *
 //     * @param
 //     * @return com.wang.model.UserDto
-//     * @author wliduo[i@dolyw.com]
 //     * @date 2019/3/15 11:48
 //     */
 //    public Integer getUserId() {
@@ -59,7 +56,6 @@
 //     *
 //     * @param
 //     * @return com.wang.model.UserDto
-//     * @author wliduo[i@dolyw.com]
 //     * @date 2019/3/15 11:48
 //     */
 //    public String getToken() {
@@ -71,7 +67,6 @@
 //     *
 //     * @param
 //     * @return com.wang.model.UserDto
-//     * @author wliduo[i@dolyw.com]
 //     * @date 2019/3/15 11:48
 //     */
 //    public String getAccount() {

@@ -2,7 +2,6 @@ package com.jun.plugin.common.util;
 
 /**
  * 进制转换工具
- * @author dolyw.com
  * @date 2018/8/31 17:23
  */
 public class HexConvertUtil {
@@ -23,7 +22,6 @@ public class HexConvertUtil {
      * 将二进制转换成16进制
      * @param bytes
      * @return java.lang.String
-     * @author dolyw.com
      * @date 2018/8/31 17:20
      */
     public static String parseByte2HexStr(byte[] bytes) {
@@ -42,7 +40,6 @@ public class HexConvertUtil {
      * 将16进制转换为二进制
      * @param hexStr
      * @return byte[]
-     * @author dolyw.com
      * @date 2018/8/31 17:21
      */
     public static byte[] parseHexStr2Byte(String hexStr) {

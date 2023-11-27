@@ -27,7 +27,6 @@ public class ConstantContextHolder {
     /**
      * 获取验证码功能是否开启
      *
-     * @author xuyuxiang
      * @date 2020/9/3
      */
     public static Boolean getCaptchaFlag() {
@@ -37,14 +36,12 @@ public class ConstantContextHolder {
     /**
      * 获取放开xss过滤的接口
      *
-     * @author yubaoshan
      * @date 2020/6/20 22:13
      */
 
     /**
      * 获取演示环境开关是否开启，默认为false
      *
-     * @author yubaoshan
      * @date 2020/6/20 22:13
      */
     public static Boolean getDemoEnvFlag() {
@@ -54,7 +51,6 @@ public class ConstantContextHolder {
     /**
      * 邮件的配置
      *
-     * @author yubaoshan
      * @date 2020/6/19 18:08
      */
 //    public static EmailConfigs getEmailConfigs() {
@@ -78,7 +74,6 @@ public class ConstantContextHolder {
     /**
      * 获取腾讯云短信的配置
      *
-     * @author yubaoshan
      * @date 2020/6/19 18:08
      */
 //    public static TencentSmsConfigs getTencentSmsConfigs() {
@@ -98,7 +93,6 @@ public class ConstantContextHolder {
     /**
      * 获取Druid默认用户名密码
      *
-     * @author yubaoshan
      * @date 2022/5/16
      */
 //    public static DruidProperties getDruidLoginConfigs() {
@@ -114,7 +108,6 @@ public class ConstantContextHolder {
     /**
      * 获取阿里云短信的配置
      *
-     * @author yubaoshan
      * @date 2020/6/19 18:08
      */
 //    public static AliyunSmsConfigs getAliyunSmsConfigs() {
@@ -136,7 +129,6 @@ public class ConstantContextHolder {
     /**
      * 获取jwt密钥，默认是32位随机字符串
      *
-     * @author yubaoshan
      * @date 2020/6/19 18:08
      */
     public static String getJwtSecret() {
@@ -146,7 +138,6 @@ public class ConstantContextHolder {
     /**
      * 获取默认密码
      *
-     * @author yubaoshan
      * @date 2020/6/19 18:08
      */
 //    public static String getDefaultPassWord() {
@@ -156,7 +147,6 @@ public class ConstantContextHolder {
     /**
      * 获取会话过期时间，默认2小时
      *
-     * @author yubaoshan
      * @date 2020/7/9 16:18
      */
     public static Long getSessionTokenExpireSec() {
@@ -168,7 +158,6 @@ public class ConstantContextHolder {
      * <p>
      * 默认时间1天
      *
-     * @author xuyuxiang
      * @date 2020/6/19 18:08
      */
     public static Long getTokenExpireSec() {
@@ -178,7 +167,6 @@ public class ConstantContextHolder {
     /**
      * 获取自定义的windows环境本地文件上传路径
      *
-     * @author xuyuxiang
      * @date 2020/6/19 18:09
      */
     public static String getDefaultFileUploadPathForWindows() {
@@ -188,7 +176,6 @@ public class ConstantContextHolder {
     /**
      * 获取自定义的linux环境本地文件上传路径
      *
-     * @author xuyuxiang
      * @date 2020/6/19 18:09
      */
     public static String getDefaultFileUploadPathForLinux() {
@@ -198,7 +185,6 @@ public class ConstantContextHolder {
     /**
      * 获取是否允许单用户登陆的开关， 默认为false
      *
-     * @author xuyuxiang
      * @date 2020/6/19 18:09
      */
     public static Boolean getEnableSingleLogin() {
@@ -208,7 +194,6 @@ public class ConstantContextHolder {
     /**
      * 获取阿里云定位接口
      *
-     * @author xuyuxiang
      * @date 2020/7/20 9:20
      **/
     public static String getIpGeoApi() {
@@ -218,7 +203,6 @@ public class ConstantContextHolder {
     /**
      * 获取阿里云定位appCode
      *
-     * @author xuyuxiang
      * @date 2020/7/20 10:33
      **/
     public static String getIpGeoAppCode() {
@@ -228,7 +212,6 @@ public class ConstantContextHolder {
     /**
      * 获取Oauth码云第三方登录的配置
      *
-     * @author xuyuxiang
      * @date 2020/7/28 17:16
      **/
 //    public static OauthConfigs getGiteeOauthConfigs() {
@@ -246,7 +229,6 @@ public class ConstantContextHolder {
     /**
      * 获取OauthGithub第三方登录的配置
      *
-     * @author xuyuxiang
      * @date 2020/7/28 17:16
      **/
 //    public static OauthConfigs getGithubOauthConfigs() {
@@ -264,7 +246,6 @@ public class ConstantContextHolder {
     /**
      * 获取是否允许Oauth用户登陆的开关， 默认为false
      *
-     * @author xuyuxiang
      * @date 2020/7/28 16:37
      **/
     public static Boolean getEnableOauthLogin() {
@@ -274,7 +255,6 @@ public class ConstantContextHolder {
     /**
      * 获取前端项目的地址
      *
-     * @author xuyuxiang
      * @date 2020/7/29 14:08
      **/
     public static String getWebUrl() {
@@ -284,7 +264,6 @@ public class ConstantContextHolder {
     /**
      * 获取支付宝支付成功转发地址
      *
-     * @author xuyuxiang
      * @date 2020/7/29 14:08
      **/
     public static String getAlipayReturnUrl() {
@@ -295,7 +274,6 @@ public class ConstantContextHolder {
     /**
      * 获取OnlyOffice地址
      *
-     * @author xuyuxiang
      * @date 2020/7/29 14:08
      **/
     public static String getOnlyOfficeUrl() {
@@ -308,7 +286,6 @@ public class ConstantContextHolder {
      * @param configCode   变量名称，对应sys_config表中的code
      * @param clazz        返回变量值的类型
      * @param defaultValue 如果结果为空返回此默认值
-     * @author yubaoshan
      * @date 2020/6/20 22:03
      */
     public static <T> T getSysConfigWithDefault(String configCode, Class<T> clazz, T defaultValue) {
@@ -333,7 +310,6 @@ public class ConstantContextHolder {
      * @param configCode   变量名称，对应sys_config表中的code
      * @param clazz        返回变量值的类型
      * @param nullThrowExp 若为空是否抛出异常
-     * @author yubaoshan
      * @date 2020/6/20 22:03
      */
     public static <T> T getSysConfig(String configCode, Class<T> clazz, Boolean nullThrowExp) {

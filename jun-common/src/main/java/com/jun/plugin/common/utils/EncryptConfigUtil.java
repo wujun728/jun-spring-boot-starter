@@ -3,7 +3,6 @@ package com.jun.plugin.common.utils;
 import org.jasypt.util.text.BasicTextEncryptor;
 
 /**
- * @author wujun
  */
 public class EncryptConfigUtil {
 

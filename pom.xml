@@ -4,8 +4,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.wujun728</groupId>
-	<artifactId>jun_jar_publish</artifactId>
-	<version>1.0</version>
+	<artifactId>jun-spring-boot-starter</artifactId>
+	<version>1.0.8</version>
 	<packaging>pom</packaging>
 
 	<properties>
@@ -16,9 +16,13 @@
 
 	<modules> 
 		<module>jun-common</module>
+		<module>jun-framework</module>
 		<module>jun-groovy-api-spring-boot-starter</module>
-		<module>jun-mybatis-sql-engine</module> 
-
+		<module>jun-hotcompile-spring-boot-starter</module>
+		<module>jun-mybatis-sql-engine</module>
+		<module>jun-springjdbc-spring-boot-starter</module>
+		<module>jun-security-spring-boot-starter</module>
+		<module>jun-uidgenerator-spring-boot-starter</module>
 	</modules>
 
 	<dependencies>

@@ -52,7 +52,6 @@
 //     * 校验token是否正确
 //     * @param token Token
 //     * @return boolean 是否正确
-//     * @author Wang926454
 //     * @date 2018/8/31 9:05
 //     */
 //    public static boolean verify(String token) throws BusinessException {
@@ -80,7 +79,6 @@
 //     * @param token
 //     * @param claim
 //     * @return java.lang.String
-//     * @author Wang926454
 //     * @date 2018/9/7 16:54
 //     */
 //    public static String getClaim(String token, String claim) {
@@ -98,7 +96,6 @@
 //     * 生成签名
 //     * @param account 帐号
 //     * @return java.lang.String 返回加密的Token
-//     * @author Wang926454
 //     * @date 2018/8/31 9:07
 //     */
 //    public static String sign(String account, String currentTimeMillis) {
@@ -123,7 +120,6 @@
 //     * 生成签名
 //     * @param account 帐号
 //     * @return java.lang.String 返回加密的Token
-//     * @author Wang926454
 //     * @date 2018/8/31 9:07
 //     */
 //    public static String sign(String account) {
