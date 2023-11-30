@@ -6,7 +6,7 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-common</artifactId>
-	<version>1.0.8</version>
+	<version>1.0.8.2</version>
 	<name>jun-common公共模块，基础功能及工具类</name>
 	<description>jun-common</description>
     <url>https://github.com/wujun728/jun-spring-boot-starter/jun-common</url>
@@ -53,7 +53,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
-
         <!--测试test-->
         <!--<dependency>
             <groupId>org.springframework.boot</groupId>
@@ -66,18 +65,10 @@
             <scope>test</scope>
         </dependency>-->
         <!-- thymeleaf ThymeleafConfigration 配置類  -->
-        <dependency>
+        <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-
-        <!--lombok语法糖-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.26</version>
-            <optional>true</optional>
-        </dependency>
+        </dependency>-->
 
         <!--ehcache缓存框架-->
         <dependency>
@@ -279,7 +270,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- GPG --><!--
+			<!-- GPG --><!--  -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
@@ -292,7 +283,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>  -->
+			</plugin>
 
 			<!--Compiler -->
 			<plugin>

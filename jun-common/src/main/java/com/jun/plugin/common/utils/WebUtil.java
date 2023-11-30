@@ -3,7 +3,7 @@ package com.jun.plugin.common.utils;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.jun.plugin.common.util.StringUtil;
+import com.jun.plugin.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.Charsets;
 import org.springframework.http.MediaType;

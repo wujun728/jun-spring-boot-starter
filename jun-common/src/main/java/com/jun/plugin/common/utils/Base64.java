@@ -1,4 +1,4 @@
-package com.jun.plugin.common.util;
+package com.jun.plugin.common.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

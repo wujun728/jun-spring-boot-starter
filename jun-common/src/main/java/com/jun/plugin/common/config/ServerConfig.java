@@ -1,5 +1,6 @@
 package com.jun.plugin.common.config;
 
+import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationListener;
@@ -27,16 +28,16 @@ public class ServerConfig implements ApplicationListener<WebServerInitializedEve
             log.info("项目启动成功！访问地址: http://{}:{}{}", hostAddress, serverPort, serverPath);
             log.info("本机地址: http://localhost:{}{}", serverPort, serverPath);
             
-//        	Environment env = application.getEnvironment();
-//          log.info("\n----------------------------------------------------------\n\t" +
-//                          "SpringbootApplication '{}' is running! Access URLs:\n\t" +
-//                          "Login: \thttp://{}:{}/\n\t" +
-//                          "----------------------------------------------------------",
-//                  env.getProperty("spring.application.name"),
-//                  InetAddress.getLocalHost().getHostAddress(),
-//                  env.getProperty("server.port"),
-//                  InetAddress.getLocalHost().getHostAddress(),
-//                  env.getProperty("server.port"));
+        	Environment env = SpringUtil.getApplicationContext().getEnvironment();
+            log.info("\n----------------------------------------------------------\n\t" +
+                          "SpringbootApplication '{}' is running! Access URLs:\n\t" +
+                          "Login: \thttp://{}:{}/\n\t" +
+                          "----------------------------------------------------------",
+                  env.getProperty("spring.application.name"),
+                  InetAddress.getLocalHost().getHostAddress(),
+                  env.getProperty("server.port"),
+                  InetAddress.getLocalHost().getHostAddress(),
+                  env.getProperty("server.port"));
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }

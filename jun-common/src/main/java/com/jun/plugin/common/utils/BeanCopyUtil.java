@@ -1,4 +1,4 @@
-package com.jun.plugin.common.util;
+package com.jun.plugin.common.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cglib.beans.BeanCopier;

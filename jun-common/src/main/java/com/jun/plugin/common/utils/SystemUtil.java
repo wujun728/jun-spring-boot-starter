@@ -1,6 +1,6 @@
 package com.jun.plugin.common.utils;
 
-import com.jun.plugin.common.util.StringUtil;
+import com.jun.plugin.common.utils.StringUtil;
 import org.springframework.lang.Nullable;
 
 import java.util.Objects;

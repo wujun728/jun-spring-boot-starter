@@ -1,6 +1,6 @@
 package com.jun.plugin.common.utils;
 
-import com.jun.plugin.common.util.SpringContextUtil;
+import com.jun.plugin.common.utils.SpringContextUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 

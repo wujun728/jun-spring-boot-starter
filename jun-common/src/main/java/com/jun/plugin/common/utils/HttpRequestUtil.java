@@ -1,4 +1,4 @@
-package com.jun.plugin.common.util;
+package com.jun.plugin.common.utils;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 @Component
-public class HttpRequestLocal {
+public class HttpRequestUtil {
 
 	private static final ThreadLocal<HttpServletRequest> requests = new ThreadLocal<HttpServletRequest>() {
 		@Override
@@ -55,7 +55,7 @@ public class HttpRequestLocal {
 
 
 	public static Map<String, Object> getAllParameters(HttpServletRequest request) {
-		HttpRequestLocal.setRequest(request);
+		HttpRequestUtil.setRequest(request);
 		String unParseContentType = request.getContentType();
 
 		// 如果是浏览器get请求过来，取出来的contentType是null
@@ -73,13 +73,13 @@ public class HttpRequestLocal {
 			params = getHttpJsonParams(request);
 		}
 		String uri = request.getRequestURI();
-		Map<String, String> header = HttpRequestLocal.buildHeaderParams(request);
-		Map<String, Object> session = HttpRequestLocal.buildSessionParams(request);
-		Map<String, Object> urivar = HttpRequestLocal.getParam(request);
-		String pattern = HttpRequestLocal.buildPattern(request);
-		Map<String, String> pathvar = HttpRequestLocal.getPathVar(pattern, uri);
-		Map<String, Object> params1 = HttpRequestLocal.getFromParams(request);
-		String ip = HttpRequestLocal.getIp(request);
+		Map<String, String> header = HttpRequestUtil.buildHeaderParams(request);
+		Map<String, Object> session = HttpRequestUtil.buildSessionParams(request);
+		Map<String, Object> urivar = HttpRequestUtil.getParam(request);
+		String pattern = HttpRequestUtil.buildPattern(request);
+		Map<String, String> pathvar = HttpRequestUtil.getPathVar(pattern, uri);
+		Map<String, Object> params1 = HttpRequestUtil.getFromParams(request);
+		String ip = HttpRequestUtil.getIp(request);
 		if (!CollectionUtils.isEmpty(session)) {
 			params.putAll(session);
 		}

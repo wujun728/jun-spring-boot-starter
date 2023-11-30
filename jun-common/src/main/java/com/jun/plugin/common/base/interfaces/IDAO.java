@@ -1,4 +1,4 @@
-package com.jun.plugin.common.base;
+package com.jun.plugin.common.base.interfaces;
 
 import org.json.JSONObject;
 

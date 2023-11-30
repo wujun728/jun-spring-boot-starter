@@ -1,4 +1,4 @@
-package com.jun.plugin.common.util;
+package com.jun.plugin.common.utils;
 
 import com.jun.plugin.common.exception.BusinessException;
 import org.slf4j.Logger;

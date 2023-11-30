@@ -1,4 +1,4 @@
-package com.jun.plugin.common.util;
+package com.jun.plugin.common.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -56,12 +56,17 @@ public class DataSourcePool {
             }
         }
     }
-    public static Boolean exitst(String dsname) {
-        if (map.containsKey(dsname)) {
-            return true;
-        } else {
-            return false;
-        }
+    public static void add(String dsname,DataSource dataSource) {
+            lock.lock();
+            try {
+                log.info(Thread.currentThread().getName() + "获取锁");
+                map.put(dsname, dataSource);
+                log.info("添加连接池成功：{}", dsname);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                lock.unlock();
+            }
     }
     public static DataSource get(String dsname) {
         if (map.containsKey(dsname)) {
@@ -88,7 +93,6 @@ public class DataSourcePool {
         } finally {
             deleteLock.unlock();
         }
-
     }
 
     public static Connection getConnection(String dsname) throws SQLException {
@@ -104,48 +108,45 @@ public class DataSourcePool {
         }
     }
 
-    public static String master = "_main";
+    public static String main = "main";
 
-    public static void initDefaultActiveRecordPlugin() {
-        String url = SpringUtil.getProperty("project.groovy-api.datasource.url");
-        String username = SpringUtil.getProperty("project.groovy-api.datasource.username");
-        String password = SpringUtil.getProperty("project.groovy-api.datasource.password");
-        String driver = SpringUtil.getProperty("project.groovy-api.datasource.driver");
-        Console.log("project.groovy-api.datasource.url:{}",url);
-        if(StringUtils.isEmpty(url)) {
-            Console.log("project.datasource.url:{}", SpringUtil.getProperty("project.datasource.url"));
-            url = SpringUtil.getProperty("project.datasource.url");
-            username = SpringUtil.getProperty("project.datasource.username");
-            password = SpringUtil.getProperty("project.datasource.password");
-            driver = SpringUtil.getProperty("project.datasource.driver");
+    public static void initDefaultDataSource() {
+        String url = SpringUtil.getProperty("spring.datasource.url");
+        String username = SpringUtil.getProperty("spring.datasource.username");
+        String password = SpringUtil.getProperty("spring.datasource.password");
+        String driver = SpringUtil.getProperty("spring.datasource.driver-class-name");
+        Console.log("initDefaultDataSource info  spring.datasource.url:{}",url);
+        if(!StringUtils.isEmpty(url)) {
+            init(main,url,username,password,driver);
         }
-        initActiveRecordPlugin(master,url,username,password,driver);
     }
-    public static void initActiveRecordPlugin(String dsname,String url,String username,String password,String driver) {
-        if (configmaps.containsKey(dsname)) {
-            //return configmaps.get(dsname);
-            log.warn("Config have bean created by configName: {}",dsname);
+
+    public static ActiveRecordPlugin initActiveRecordPlugin(String configName,DataSource dataSource) {
+        if (configmaps.containsKey(configName)) {
+            log.warn("Config have bean created by configName: {}",configName);
+            return configmaps.get(configName);
         } else {
             lock.lock();
             try {
                 log.info(Thread.currentThread().getName() + "获取锁");
-                if (!configmaps.containsKey(dsname)) {
-                    DataSource ds = DataSourcePool.init(dsname,url,username,password,driver);
+                if (!configmaps.containsKey(configName)) {
+                    //DataSource ds = DataSourcePool.get(configName);
                     //DruidPlugin dp = new DruidPlugin(url, username, password);
-                    ActiveRecordPlugin arp = new ActiveRecordPlugin(dsname, ds);
+                    ActiveRecordPlugin arp = new ActiveRecordPlugin(configName, dataSource);
                     arp.setDevMode(true);
                     arp.setShowSql(true);
                     //dp.start();
                     arp.start();
-                    log.warn("Config have bean created by configName: {}",dsname);
-                    configmaps.put(dsname, arp);
-                    log.info("创建Druid连接池成功：{}", dsname);
+                    log.warn("Config have bean created by configName: {}",configName);
+                    configmaps.put(configName, arp);
+                    log.info("创建Druid连接池成功：{}", configName);
                 }
             } catch (Exception e) {
-                //return null;
+                return null;
             } finally {
                 lock.unlock();
             }
         }
+        return configmaps.get(configName);
     }
 }
