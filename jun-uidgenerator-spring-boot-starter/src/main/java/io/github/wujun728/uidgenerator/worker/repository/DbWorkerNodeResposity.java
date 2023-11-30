@@ -13,8 +13,8 @@ import java.util.Objects;
 
 @Repository
 public class DbWorkerNodeResposity implements WorkerNodeResposity {
-    private static final String GET_WORKER_NODE_BY_HOST_PORT_SQL = "SELECT ID,HOST_NAME,PORT,TYPE,LAUNCH_DATE,MODIFIED,CREATED FROM WORKER_NODE WHERE HOST_NAME = ? AND PORT = ?";
-    private static final String ADD_WORKER_NODE_SQL = "INSERT INTO WORKER_NODE (HOST_NAME,PORT,TYPE,LAUNCH_DATE,MODIFIED,CREATED) VALUES (?,?,?,?,NOW(),NOW())";
+    private static final String GET_WORKER_NODE_BY_HOST_PORT_SQL = "SELECT ID,HOST_NAME,PORT,TYPE,LAUNCH_DATE,MODIFIED,CREATED FROM worker_node WHERE HOST_NAME = ? AND PORT = ?";
+    private static final String ADD_WORKER_NODE_SQL = "INSERT INTO worker_node (HOST_NAME,PORT,TYPE,LAUNCH_DATE,MODIFIED,CREATED) VALUES (?,?,?,?,NOW(),NOW())";
 
     private final JdbcTemplate jdbcTemplate;
 

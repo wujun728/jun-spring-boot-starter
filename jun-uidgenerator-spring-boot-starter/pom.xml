@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <groupId>io.github.wujun728</groupId>
     <artifactId>jun-uidgenerator-spring-boot-starter</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.8.1</version>
     <name>jun-uidgenerator-spring-boot-starter</name>
     <description>百度uidgenerator升级修改版，自用，具体见readme</description>
     <url>https://github.com/wujun728/jun-spring-boot-starter/jun-uidgenerator-spring-boot-starter</url>
@@ -165,7 +165,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- GPG --><!--
+            <!-- GPG -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
@@ -178,7 +178,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>  -->
+            </plugin> <!--  -->
 
             <!--Compiler -->
             <plugin>
