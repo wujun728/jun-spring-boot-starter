@@ -6,10 +6,10 @@
 
     <groupId>io.github.wujun728</groupId>
     <artifactId>jun-mybatis-sql-engine</artifactId>
-    <version>1.0.8-RELEASE</version>
+    <version>1.0.8</version>
     <name>jun-mybatis-sql-engine</name>
     <description>dynamic sql engine tool</description>
-    <url>https://github.com/wujun728/jun-mybatis-sql-engine</url>
+    <url>https://github.com/wujun728/jun-spring-boot-starter/jun-mybatis-sql-engine</url>
     
     
    	<properties>
@@ -21,14 +21,14 @@
 		<developer>
 			<name>wujun728</name>
 			<email>wujun728@163.com</email>
-			<url>https://github.com/wujun728/jun-groovy-api-spring-boot-starter</url>
+			<url>https://github.com/wujun728/jun-spring-boot-starter/jun-mybatis-sql-engine</url>
 		</developer>
 	</developers>
 
 	<scm>
-		<url>https://github.com/wujun728/jun-groovy-api-spring-boot-starter.git</url>
-		<connection>scm:git:https://github.com/wujun728/jun-groovy-api-spring-boot-starter.git</connection>
-		<developerConnection>scm:git:https://github.com/wujun728/jun-groovy-api-spring-boot-starter.git</developerConnection>
+		<url>https://github.com/wujun728/jun-spring-boot-starter/jun-mybatis-sql-engine.git</url>
+		<connection>scm:git:github.com/wujun728/jun-spring-boot-starter/jun-mybatis-sql-engine.git</connection>
+		<developerConnection>scm:git:github.com/wujun728/jun-spring-boot-starter/jun-mybatis-sql-engine.git</developerConnection>
 	</scm>
 
 	<licenses>
@@ -90,8 +90,7 @@
                 </executions>
             </plugin>
 
-
-            <!--<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.0</version>
@@ -104,7 +103,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin><!--  -->
 
         </plugins>
     </build>
