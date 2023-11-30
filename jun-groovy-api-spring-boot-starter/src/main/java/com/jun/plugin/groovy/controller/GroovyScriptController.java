@@ -1,7 +1,7 @@
 package com.jun.plugin.groovy.controller;
 
 import com.jun.plugin.common.Result;
-import com.jun.plugin.common.util.SpringContextUtil;
+import com.jun.plugin.common.utils.SpringContextUtil;
 import com.jun.plugin.groovy.groovy.GroovyDynamicLoader;
 import groovy.lang.GroovyClassLoader;
 import org.springframework.beans.factory.annotation.Autowired;

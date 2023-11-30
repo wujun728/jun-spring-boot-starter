@@ -12,14 +12,13 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.alibaba.druid.pool.DruidPooledConnection;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.jun.plugin.groovy.common.model.ApiDataSource;
 import com.gitthub.wujun728.mybatis.sql.engine.DynamicSqlEngine;
 
 import com.jun.plugin.common.Result;
-import com.jun.plugin.common.util.DataSourcePool;
+import com.jun.plugin.common.db.DataSourcePool;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

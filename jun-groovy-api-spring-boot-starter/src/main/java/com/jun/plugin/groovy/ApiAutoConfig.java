@@ -41,6 +41,10 @@ public class ApiAutoConfig implements InitializingBean {
 	List<Class> annotationClasss = Arrays.asList(Configuration.class,Mapper.class, Service.class, Component.class, Repository.class, Controller.class);
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		initBeans();
+	}
+
+	private void initBeans() {
 		annotationClasss.forEach(clazz->{
 			Set<Class<?>> mappers = ClassScanner.scanPackageByAnnotation("com.jun.plugin.groovy", clazz);
 			mappers.forEach(c->{

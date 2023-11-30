@@ -2,7 +2,6 @@ package com.jun.plugin.groovy.service;
 
 import cn.hutool.core.lang.Console;
 import com.alibaba.fastjson2.JSON;
-import com.jun.plugin.common.util.DataSourcePool;
 import com.jun.plugin.groovy.common.model.ApiConfig;
 import com.jun.plugin.groovy.common.model.ApiDataSource;
 import com.jun.plugin.groovy.common.model.ApiSql;
@@ -10,7 +9,7 @@ import com.google.common.collect.Lists;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
 import com.jfinal.plugin.activerecord.Record;
-import com.jun.plugin.common.util.RecordUtil;
+import com.jun.plugin.common.db.RecordUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.jun.plugin.common.util.DataSourcePool.master;
+import static com.jun.plugin.common.db.DataSourcePool.main;
 
 @Service
 @Slf4j
@@ -33,11 +32,10 @@ public class ApiService {
 	
 	@PostConstruct
 	public void init(){
-		DataSourcePool.initDefaultActiveRecordPlugin();
 	}
 	@SuppressWarnings("unchecked")
 	public List<ApiConfig> queryApiConfigList() {
-		List<Record> lists = Db.use(master).find("select * from "+tablename+" where status = 'ENABLE' ");
+		List<Record> lists = Db.use(main).find("select * from "+tablename+" where status = 'ENABLE' ");
 		//log.info(JSON.toJSONString(lists));
 		// List<Map<String, Object>> lists = jdbcTemplate.queryForList("select * from  "+tablename+"  where status = 'ENABLE' ");
 		List<ApiConfig> datas = RecordUtil.recordToListBean(lists,ApiConfig.class);
@@ -56,13 +54,13 @@ public class ApiService {
 
 	public Integer queryCountSql() {
 		//Long aLong = jdbcTemplate.queryForObject("select count(*) from test ", Long.class);
-		Integer count = Db.use(master).queryInt("select count(*) from  "+tablename+"  ");
+		Integer count = Db.use(main).queryInt("select count(*) from  "+tablename+"  ");
 		return count;
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<ApiDataSource> queryDatasourceList() {
-		Page<Record> lists = Db.use(master).paginate(1,2,"select * "," from  "+tablename+"  where id <> ? ",1);
+		Page<Record> lists = Db.use(main).paginate(1,2,"select * "," from  "+tablename+"  where id <> ? ",1);
 		//Console.log(JSON.toJSONString(lists));
 		Console.log(JSON.toJSONString(RecordUtil.pageRecordToPage(lists)));
 
@@ -76,7 +74,7 @@ public class ApiService {
 	
 	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> querySQLList(String apiId) {
-		List<Record> lists = Db.use(master).find("select * from  "+tablename+"  ");
+		List<Record> lists = Db.use(main).find("select * from  "+tablename+"  ");
 		// List<Map<String, Object>> lists = jdbcTemplate.queryForList("select * from api_sql where api_id = "+apiId);
 		List<ApiSql> datas = RecordUtil.recordToListBean(lists,ApiSql.class);
 		List<Map<String, Object>>  datas2 = RecordUtil.recordToMaps(lists);
@@ -89,7 +87,7 @@ public class ApiService {
 	@SuppressWarnings("unchecked")
 	public ApiDataSource getDatasource(String id) {
 		ApiDataSource info = new ApiDataSource();
-		Record record= Db.use(master).findById( tablename , id);
+		Record record= Db.use(main).findById( tablename , id);
 		//List<ApiDataSource> lists = jdbcTemplate.query("select * from api_datasource ",new BeanPropertyRowMapper(ApiDataSource.class));
 		//info = BeanMapUtil.columnsMapToBean(record.getColumns(), ApiDataSource.class);
 		return RecordUtil.recordToBean(record,ApiDataSource.class);

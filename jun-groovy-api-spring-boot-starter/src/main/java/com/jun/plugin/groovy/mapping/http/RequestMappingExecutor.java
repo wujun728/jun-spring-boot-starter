@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.CharsetUtil;
-import com.jun.plugin.common.util.DataSourcePool;
-import com.jun.plugin.common.util.HttpRequestLocal;
+import com.jun.plugin.common.db.DataSourcePool;
+import com.jun.plugin.common.utils.HttpRequestUtil;
 import com.jun.plugin.groovy.common.model.ApiConfig;
 import com.jun.plugin.groovy.common.model.ApiDataSource;
 import com.jun.plugin.groovy.common.model.ApiSql;
@@ -34,7 +34,7 @@ import com.jun.plugin.groovy.cache.IApiConfigCache;
 import com.jun.plugin.groovy.service.ApiService;
 import com.jun.plugin.common.Result;
 import com.jun.plugin.common.exception.BusinessException;
-import com.jun.plugin.common.util.RequestWrapper;
+import com.jun.plugin.common.utils.RequestWrapper;
 import com.jun.plugin.groovy.plugin.CachePlugin;
 import com.jun.plugin.groovy.plugin.PluginManager;
 import com.jun.plugin.groovy.plugin.TransformPlugin;
@@ -199,7 +199,7 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 		Map<String, Object> params = null;
 		// 如果是application/json请求，不管接口规定的content-type是什么，接口都可以访问，且请求参数都以json body 为准
 		if (contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
-			JSONObject jo = HttpRequestLocal.getHttpJsonBody(request);
+			JSONObject jo = HttpRequestUtil.getHttpJsonBody(request);
 			if (!ObjectUtils.isEmpty(jo)) {
 				params = JSONObject.parseObject(jo.toJSONString(), new TypeReference<Map<String, Object>>() {
 				});
@@ -226,12 +226,12 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 			throw new RuntimeException("content-type not supported: " + contentType);
 		}
 		String uri = request.getRequestURI();
-		Map<String, String> header = HttpRequestLocal.buildHeaderParams(request);
-		Map<String, Object> session = HttpRequestLocal.buildSessionParams(request);
-		Map<String, Object> urivar = HttpRequestLocal.getParam(request);
-		String pattern = HttpRequestLocal.buildPattern(request);
-		Map<String, String> pathvar = HttpRequestLocal.getPathVar(pattern, uri);
-		Map<String, Object> params1 = HttpRequestLocal.getFromParams(request);
+		Map<String, String> header = HttpRequestUtil.buildHeaderParams(request);
+		Map<String, Object> session = HttpRequestUtil.buildSessionParams(request);
+		Map<String, Object> urivar = HttpRequestUtil.getParam(request);
+		String pattern = HttpRequestUtil.buildPattern(request);
+		Map<String, String> pathvar = HttpRequestUtil.getPathVar(pattern, uri);
+		Map<String, Object> params1 = HttpRequestUtil.getFromParams(request);
 		if (!CollectionUtils.isEmpty(session)) {
 			params.putAll(session);
 		}
