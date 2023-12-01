@@ -3,12 +3,14 @@ package com.jun.plugin.common.config;
 import cn.hutool.core.lang.ClassScanner;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.text.NamingCase;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.template.source.ClassPathSourceFactory;
 import com.jun.plugin.common.db.DataSourcePool;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,29 +37,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import static com.jun.plugin.common.db.DataSourcePool.main;
+
 /**
  * @author wujun
  * @date 2021/3/19
  */
 @Slf4j
 @Configuration
-@ComponentScan(basePackages = "com.jun.plugin.common")
 public class CommonAutoConfig implements ApplicationContextAware, InitializingBean {
 	private ConfigurableApplicationContext applicationContext;
 	private BeanDefinitionRegistry registry;
 	private String packages[] = {"com.jun.plugin.common","com.jun.plugin.rest"};
 
+	private List<Class> annotationClasss = Arrays.asList(Configuration.class,/*Mapper.class,*/ Service.class, Component.class,
+			Repository.class, Controller.class,ConfigurationProperties.class);
+
 	@Resource
 	private DataSource dataSource;
 
-	/**
-	 * 以下五个的结果都是为spring容器为这个类创建Bean.
-	 * @Bean 注解告诉Spring这个方法将会返回一个对象，这个对象要注册为Spring应用上下文中的bean。 通常方法体中包含了最终产生bean实例的逻辑
-	 * @Component 注解表明一个类会作为组件类，并告知Spring要为这个类创建bean
-	 * @return
-	 */
-	List<Class> annotationClasss = Arrays.asList(Configuration.class,/*Mapper.class,*/ Service.class, Component.class,
-			Repository.class, Controller.class,ConfigurationProperties.class);
+
 	@Override
 	public void afterPropertiesSet() {
 		initBeans();
@@ -66,7 +65,9 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 	}
 
 	private void initBeans() {
-		for(String p : packages){
+		String url = SpringUtil.getProperty("project.config.packages");
+		String [] pks =  ArrayUtil.addAll(packages,url.split(","));
+		for(String p : pks){
 			annotationClasss.forEach(clazz->{
 				Set<Class<?>> classes = ClassScanner.scanPackageByAnnotation(p, clazz);
 				classes.forEach(c->{
@@ -102,15 +103,16 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 		if(dataSource == null){
 			dataSource = SpringUtil.getBean(DataSource.class);
 			if(dataSource == null){
-				DataSourcePool.initDefaultDataSource();
+				initDefaultDataSourceV1();
+				dataSource = SpringUtil.getBean(DataSource.class);
 				if(dataSource == null){
 					Console.log("initDefaultDataSource 数据源为空，需要手动初始化DataSource");
-//					String url = SpringUtil.getProperty("spring.datasource.url");
-//					String username = SpringUtil.getProperty("spring.datasource.username");
-//					String password = SpringUtil.getProperty("spring.datasource.password");
-//					String driver = SpringUtil.getProperty("spring.datasource.driver-class-name");
-//					DataSource masterDataSource = DataSourcePool.init("master",url,username,password,driver);
-//					DataSourcePool.initActiveRecordPlugin("master",masterDataSource);
+					String url = SpringUtil.getProperty("project.datasource.url");
+					String username = SpringUtil.getProperty("project.datasource.username");
+					String password = SpringUtil.getProperty("project.datasource.password");
+					String driver = SpringUtil.getProperty("project.datasource.driver-class-name");
+					DataSource masterDataSource = DataSourcePool.init("master",url,username,password,driver);
+					DataSourcePool.initActiveRecordPlugin("master",masterDataSource);
 				}else {
 					log.info("datasource autowried init step2 ");
 				}
@@ -120,10 +122,21 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 		}else{
 			log.info("datasource autowried init step0 ");
 		}
-
-
 		return dataSource;
 	}
+
+	public static void initDefaultDataSourceV1() {
+		String url = SpringUtil.getProperty("spring.datasource.url");
+		String username = SpringUtil.getProperty("spring.datasource.username");
+		String password = SpringUtil.getProperty("spring.datasource.password");
+		String driver = SpringUtil.getProperty("spring.datasource.driver-class-name");
+		Console.log("initDefaultDataSource info  spring.datasource.url:{}",url);
+		if(!StringUtils.isEmpty(url)) {
+			DataSourcePool.init(main,url,username,password,driver);
+		}
+	}
+
+
 	public ActiveRecordPlugin initActiveRecordPlugin() {
 		if(dataSource == null){
 			dataSource = SpringUtil.getBean(DataSource.class);

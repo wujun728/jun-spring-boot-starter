@@ -101,8 +101,14 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 		}
 		for (ApiConfig groovyInfo : groovyInfos) {
 			try {
-				Class clazz = groovyClassLoader.parseClass(groovyInfo.getScriptContent());
-				registerBean(groovyInfo.getBeanName(), clazz);
+				if(groovyInfo.getScriptType().equalsIgnoreCase("Class")){
+					Class clazz = groovyClassLoader.parseClass(groovyInfo.getScriptContent());
+					registerBean(groovyInfo.getBeanName(), clazz);
+				}else if(groovyInfo.getScriptType().equalsIgnoreCase("SQL")){
+					log.info("当前Groovy脚本类型SQL类型脚本："+JSON.toJSONString(groovyInfo));
+				}else {
+					log.error("当前Groovy脚本类型不支持："+JSON.toJSONString(groovyInfo));
+				}
 			} catch (BeanDefinitionStoreException e) {
 				log.error("当前Groovy脚本执行失败："+JSON.toJSONString(groovyInfo));
 				e.printStackTrace();
@@ -112,7 +118,7 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 			}catch (Exception e) {
 				log.error("当前Groovy脚本执行失败："+JSON.toJSONString(groovyInfo));
 			}
-			log.info("当前groovyInfo加载完成,className-{},path-{},beanName-{},BeanType-{}：",groovyInfo.getBeanName(),groovyInfo.getPath(),groovyInfo.getBeanName(),groovyInfo.getScriptType());
+			log.info("当前groovyInfo加载成功,className-{},path-{},beanName-{},BeanType-{}：",groovyInfo.getBeanName(),groovyInfo.getPath(),groovyInfo.getBeanName(),groovyInfo.getScriptType());
 		}
 		ApiConfigCache.put2map(groovyInfos);
 	}

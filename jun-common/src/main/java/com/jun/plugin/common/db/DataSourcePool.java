@@ -110,17 +110,6 @@ public class DataSourcePool {
 
     public static String main = "main";
 
-    public static void initDefaultDataSource() {
-        String url = SpringUtil.getProperty("spring.datasource.url");
-        String username = SpringUtil.getProperty("spring.datasource.username");
-        String password = SpringUtil.getProperty("spring.datasource.password");
-        String driver = SpringUtil.getProperty("spring.datasource.driver-class-name");
-        Console.log("initDefaultDataSource info  spring.datasource.url:{}",url);
-        if(!StringUtils.isEmpty(url)) {
-            init(main,url,username,password,driver);
-        }
-    }
-
     public static ActiveRecordPlugin initActiveRecordPlugin(String configName,DataSource dataSource) {
         if (configmaps.containsKey(configName)) {
             log.warn("Config have bean created by configName: {}",configName);

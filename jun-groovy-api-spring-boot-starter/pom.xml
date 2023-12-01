@@ -6,7 +6,7 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-groovy-api-spring-boot-starter</artifactId>
-	<version>1.0.8.2</version>
+	<version>1.0.8.3</version>
 	<name>jun-groovy-api 动态API在线开发,可动态生成API并执行,动态编译加载映射并执行</name>
 	<description>jun-groovy-api 动态API生成开发，可动态生成API并执行API</description>
 	<url>https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter</url>
@@ -124,9 +124,8 @@
 		<dependency>
 			<groupId>io.github.wujun728</groupId>
 			<artifactId>jun-common</artifactId>
-			<version>1.0.8.1</version>
+			<version>1.0.8.3</version>
 		</dependency>
-        
 	</dependencies>
 	
 	<!-- 依赖声明 -->
@@ -215,7 +214,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- GPG -->
+			<!-- GPG --><!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
@@ -228,7 +227,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin><!--   -->
+			</plugin>  -->
 
 			<!--Compiler -->
 			<plugin>
