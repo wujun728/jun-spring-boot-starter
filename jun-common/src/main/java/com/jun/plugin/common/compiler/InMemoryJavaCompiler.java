@@ -1,7 +1,7 @@
 
 package com.jun.plugin.common.compiler;
 
-import com.jun.plugin.common.utils.CharPool;
+import com.jun.plugin.common.util.CharPool;
 import org.springframework.util.FastByteArrayOutputStream;
 
 import javax.tools.*;

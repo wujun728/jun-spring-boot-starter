@@ -60,8 +60,8 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 	@Override
 	public void afterPropertiesSet() {
 		initBeans();
-//		initDefaultDataSource();
-//		initActiveRecordPlugin();
+		initDefaultDataSource();
+		initActiveRecordPlugin();
 	}
 
 	private void initBeans() {
