@@ -76,7 +76,6 @@ public class Log extends PrintStream {
 	}
 
 	public static void main(String[] args) {
-		Log.log(true).print("11111111111bacd");
 		Log.log.info("1111111111111111111");
 		Log.log.error("fdafdcdee``````````````````");
 	}
