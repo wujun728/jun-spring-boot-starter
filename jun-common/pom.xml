@@ -6,7 +6,7 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-common</artifactId>
-	<version>1.0.8.3</version>
+	<version>1.0.8.5</version>
 	<name>jun-common公共模块，基础功能及工具类</name>
 	<description>jun-common</description>
     <url>https://github.com/wujun728/jun-spring-boot-starter/jun-common</url>
