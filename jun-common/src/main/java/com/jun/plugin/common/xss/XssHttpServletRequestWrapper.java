@@ -1,9 +1,10 @@
 package com.jun.plugin.common.xss;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
  * XSS过滤处理
