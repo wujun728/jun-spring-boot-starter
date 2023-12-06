@@ -63,35 +63,57 @@ public class RestController {
 			Result fail = check(tableName);
 			if (fail != null) return fail;
 			String id = MapUtil.getStr(parameters,"id");
+			String eq = MapUtil.getStr(parameters,"eq");
+			String like = MapUtil.getStr(parameters,"like");
+			Boolean isLayui = MapUtil.getBool(parameters,"layui",false);
+			StringBuffer sql = new StringBuffer();
+			sql.append("select * from "+ tableName +" ");
+			if(StrUtil.isNotEmpty(eq)){
+				eq = eq.replace(":","=").replace(",","AND");
+				sql.append("WHERE ");
+				sql.append("" + eq);
+			}
+//			Db.use().c
+			List<Record> lists = Db.use(main).find(sql.toString());
+			List<Map<String, Object>> datas = RecordUtil.recordToMaps(lists);
+			return Result.success(datas);
+		} catch (Exception e) {
+			String message = ExceptionUtils.getMessage(e);
+			log.error(message, e);
+			return Result.error(message);
+		}
+	}
+
+	@GetMapping(path = "/page", produces = "application/json")
+	//@ApiOperation(value = "返回实体数据列表", notes = "page与size同时大于零时返回分页实体数据列表,否则返回全部数据列表;
+	public Result page(@PathVariable("entityName") String entityName,HttpServletRequest request) throws Exception {
+		try {
+			Map<String, Object>  parameters = HttpRequestUtil.getAllParameters(request);
+			String tableName = StrUtil.toUnderlineCase(entityName);
+			Result fail = check(tableName);
+			if (fail != null) return fail;
+			String id = MapUtil.getStr(parameters,"id");
 			String like = MapUtil.getStr(parameters,"like");
 			Integer page = MapUtil.getInt(parameters,"page");
 			Integer limit = MapUtil.getInt(parameters,"limit");
 			Boolean isLayui = MapUtil.getBool(parameters,"layui",false);
-			Boolean isPageQuery = true;
 			if( (page==null || page ==0) || (limit==null || limit ==0) ){
 				page = 1;
 				limit = 10;
-				isPageQuery = false;
 			}
-			if(isPageQuery){
-				Page page1 = new Page<>();
-				if(page !=null && limit != null ){
-					String select = "select *";
-					String from = " from "+ tableName;
-					List<Map> likes = JSON.parseArray(like, Map.class);
-					Page<Record> pages = Db.use(main).paginate(page, limit, select, from);
-					Page datas = RecordUtil.pageRecordToPage(pages);
-					page1 =  datas;
-				}
-				if(isLayui){
-					return Result.success().put("count",page1.getTotalRow()).put("data",page1.getList()).put("limit",page1.getPageSize()).put("page",page1.getPageNumber());
-				}else{
-					return Result.success(page1);
-				}
+			Page page1 = new Page<>();
+			if(page !=null && limit != null ){
+				String select = "select *";
+				String from = " from "+ tableName;
+				List<Map> likes = JSON.parseArray(like, Map.class);
+				Page<Record> pages = Db.use(main).paginate(page, limit, select, from);
+				Page datas = RecordUtil.pageRecordToPage(pages);
+				page1 =  datas;
+			}
+			if(isLayui){
+				return Result.success().put("count",page1.getTotalRow()).put("data",page1.getList()).put("limit",page1.getPageSize()).put("page",page1.getPageNumber());
 			}else{
-				List<Record> lists = Db.use(main).find("select * from "+ tableName +" ");
-				List<Map<String, Object>> datas = RecordUtil.recordToMaps(lists);
-				return Result.success(datas);
+				return Result.success(page1);
 			}
 		} catch (Exception e) {
 			String message = ExceptionUtils.getMessage(e);
@@ -101,7 +123,7 @@ public class RestController {
 	}
 
 
-	@GetMapping(path = "/find", produces = "application/json")
+	@GetMapping(path = "/query", produces = "application/json")
 	//@ApiOperation(value = "根据ID返回单个实体数据")
 	public Result get(@PathVariable("entityName") String entityName,HttpServletRequest request) {
 		try {
@@ -142,7 +164,7 @@ public class RestController {
 		return Result.success();
 	}
 
-	@DeleteMapping(path = "/remove", produces = "application/json")
+	@DeleteMapping(path = "/delete", produces = "application/json")
 	//@ApiOperation(value = "根据id删除实体数据" )
 	public Result delete(@PathVariable("entityName") String entityName,HttpServletRequest request) {
 		try {

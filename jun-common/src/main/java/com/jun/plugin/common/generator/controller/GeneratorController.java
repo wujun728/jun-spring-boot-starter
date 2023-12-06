@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class GenController {
-    private static final Logger logger = LoggerFactory.getLogger(GenController.class);
+public class GeneratorController {
+    private static final Logger logger = LoggerFactory.getLogger(GeneratorController.class);
 
     @Resource
     private FreemarkerTool freemarkerTool;

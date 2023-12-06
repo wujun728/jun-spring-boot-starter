@@ -60,13 +60,16 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 	@Override
 	public void afterPropertiesSet() {
 		initBeans();
-		initDefaultDataSource();
-		initActiveRecordPlugin();
+//		initDefaultDataSource();
+//		initActiveRecordPlugin();
 	}
 
 	private void initBeans() {
 		String url = SpringUtil.getProperty("project.config.packages");
-		String [] pks =  ArrayUtil.addAll(packages,url.split(","));
+		String [] pks =  packages;
+		if(StringUtils.isNotEmpty(url)){
+			pks =  ArrayUtil.addAll(packages,url.split(","));
+		}
 		for(String p : pks){
 			annotationClasss.forEach(clazz->{
 				Set<Class<?>> classes = ClassScanner.scanPackageByAnnotation(p, clazz);
