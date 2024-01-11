@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <groupId>io.github.wujun728</groupId>
     <artifactId>jun-uidgenerator-spring-boot-starter</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.9</version>
     <name>jun-uidgenerator-spring-boot-starter</name>
     <description>百度uidgenerator升级修改版，自用，具体见readme</description>
     <url>https://github.com/wujun728/jun-spring-boot-starter/jun-uidgenerator-spring-boot-starter</url>
@@ -76,6 +76,11 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.20</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.github.wujun728</groupId>
+            <artifactId>jun-common</artifactId>
+            <version>1.0.9</version>
         </dependency>
     </dependencies>
 

@@ -10,6 +10,7 @@ import cn.hutool.db.meta.MetaUtil;
 import cn.hutool.db.meta.Table;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
+import com.google.common.collect.Maps;
 import com.jun.plugin.common.util.HttpRequestUtil;
 import com.jfinal.plugin.activerecord.Db;
 import com.jfinal.plugin.activerecord.Page;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.jun.plugin.common.db.DataSourcePool.main;
 
@@ -36,6 +38,12 @@ import static com.jun.plugin.common.db.DataSourcePool.main;
 //@Api(value = "实体公共增删改查接口")
 public class RestController {
 
+	static AtomicReference<Map> tableCache = new AtomicReference<>();
+	static AtomicReference<Map> primaryKeyCache = new AtomicReference<>();
+
+	static {
+		tableCache.set(Maps.newHashMap());
+	}
 
 	static Object getDefaultValue(String fieldname){
 		if("createTime".equals(fieldname)){
@@ -49,6 +57,19 @@ public class RestController {
 		}
 		if("creator".equals(fieldname)){
 			return "admin";
+		}
+		return null;
+	}
+
+	private static Result check(String tableName) {
+		Map map = tableCache.get();
+		if(!map.containsKey(tableName)){
+			Table table = MetaUtil.getTableMeta(Db.use(main).getConfig().getDataSource(), tableName);
+			map.put(tableName,table);
+			tableCache.set(map);
+			if(CollectionUtils.isEmpty(table.getColumns())){
+				return Result.fail("实体对应的表不存在！");
+			}
 		}
 		return null;
 	}
@@ -123,7 +144,7 @@ public class RestController {
 	}
 
 
-	@GetMapping(path = "/query", produces = "application/json")
+	@RequestMapping(path = "/query", produces = "application/json")
 	//@ApiOperation(value = "根据ID返回单个实体数据")
 	public Result get(@PathVariable("entityName") String entityName,HttpServletRequest request) {
 		try {
@@ -164,7 +185,7 @@ public class RestController {
 		return Result.success();
 	}
 
-	@DeleteMapping(path = "/delete", produces = "application/json")
+	@RequestMapping(path = "/delete", produces = "application/json")
 	//@ApiOperation(value = "根据id删除实体数据" )
 	public Result delete(@PathVariable("entityName") String entityName,HttpServletRequest request) {
 		try {
@@ -185,7 +206,20 @@ public class RestController {
 				primaryKey = "id";
 			}
 			if(StrUtil.isEmpty(primaryKey)){
-				flag = Db.use(main).deleteById(tableName,id);
+				if(id.contains(",")){
+					String[] ids = id.split(",");
+					Boolean flagTmp = true;
+					for(String _id : ids){
+						flagTmp = Db.use(main).deleteById(tableName,_id);
+						if (flagTmp==false){
+							flag = false;
+						}else{
+							flag = true;
+						}
+					}
+				}else{
+					flag = Db.use(main).deleteById(tableName,id);
+				}
 			}else if(StrUtil.isNotEmpty(primaryKey) && !primaryKey.contains(",")){
 				flag = Db.use(main).deleteById(tableName,primaryKey,id);
 			}else if(primaryKey.contains(",")){
@@ -211,16 +245,7 @@ public class RestController {
 	}
 
 
-	private static Result check(String tableName) {
-		Table table = MetaUtil.getTableMeta(Db.use(main).getConfig().getDataSource(), tableName);
-		if(CollectionUtils.isEmpty(table.getColumns())){
-			return Result.fail("实体对应的表不存在！");
-		}
-		return null;
-	}
-
-
-	@PostMapping(path = "/save", produces = "application/json")
+	@RequestMapping(path = "/save", produces = "application/json")
 	//@ApiOperation(value = "新增实体数据", notes = "{\"name\":\"tom\",\"args\":1}")
 	public Result create(@PathVariable("entityName") String entityName, HttpServletRequest request) {
 		try {
@@ -278,7 +303,7 @@ public class RestController {
 		}
 	}
 
-	@PutMapping(path = "/update", produces = "application/json")
+	@RequestMapping(path = "/update", produces = "application/json")
 	//@ApiOperation(value = "更新实体数据", notes = "不需要更新的字段不设置或设置为空,{\"name\":\"tom\",\"args\":1}")
 	public Result update(@PathVariable("entityName") String entityName, HttpServletRequest request) {
 		try {

@@ -6,7 +6,7 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-groovy-api-spring-boot-starter</artifactId>
-	<version>1.0.8.3</version>
+	<version>1.0.9</version>
 	<name>jun-groovy-api 动态API在线开发,可动态生成API并执行,动态编译加载映射并执行</name>
 	<description>jun-groovy-api 动态API生成开发，可动态生成API并执行API</description>
 	<url>https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter</url>
@@ -124,7 +124,7 @@
 		<dependency>
 			<groupId>io.github.wujun728</groupId>
 			<artifactId>jun-common</artifactId>
-			<version>1.0.8.3</version>
+			<version>1.0.9</version>
 		</dependency>
 	</dependencies>
 	

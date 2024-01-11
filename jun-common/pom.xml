@@ -6,7 +6,7 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-common</artifactId>
-	<version>1.0.8.5</version>
+	<version>1.0.9</version>
 	<name>jun-common公共模块，基础功能及工具类</name>
 	<description>jun-common</description>
     <url>https://github.com/wujun728/jun-spring-boot-starter/jun-common</url>
@@ -231,7 +231,7 @@
 		</license>
 	</licenses>
 
-	<distributionManagement>
+	<!--<distributionManagement>
 		<snapshotRepository>
 			<id>oss</id>
 			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
@@ -240,7 +240,17 @@
 			<id>oss</id>
 			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
-	</distributionManagement>
+	</distributionManagement>-->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>nexus-releases</id>
+            <url>https://nexus.billjc.com/repository/maven-releases/</url>
+        </snapshotRepository>
+        <repository>
+            <id>nexus-releases</id>
+            <url>https://nexus.billjc.com/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
 
 	<build>
 		<plugins>
