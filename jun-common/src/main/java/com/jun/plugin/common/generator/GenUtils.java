@@ -2,15 +2,16 @@ package com.jun.plugin.common.generator;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.file.FileNameUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.db.meta.Column;
 import cn.hutool.db.meta.MetaUtil;
 import cn.hutool.db.meta.Table;
-import cn.hutool.setting.dialect.Props;
-import cn.hutool.setting.dialect.PropsUtil;
+import cn.hutool.log.StaticLog;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.google.common.collect.Lists;
+import com.jun.plugin.common.util.PropertiesUtil;
 import freemarker.cache.StringTemplateLoader;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -21,11 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
+import javax.sql.DataSource;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -40,15 +39,22 @@ public class GenUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(GenUtils.class);
 
-	public static Props props; // 配置文件
+	private static DataSource dataSource;
+//	public static Properties props; // 配置文件
+	public static Map props; // 配置文件
 	public static List<String> templates; // 模板文件f
 	public static List<String> filePaths; // 生成文件名
 
-    public static String getProp(String key) {
-		if(ObjectUtil.isEmpty(props)){
-			props = PropsUtil.get("config");
+    public static void init() {
+		if(CollectionUtils.isEmpty(props)){
+			PropertiesUtil.loadProps("config-v1.properties");
+			props = new HashMap<>();
+			props.putAll(PropertiesUtil.getAllProperty());
 		}
-		return props.getProperty(key);
+	}
+    public static String getProp(String key) {
+		String val = MapUtil.getStr(props,key);
+		return val;
 	}
     public static List<String> getFilePaths(List<String> templates, ClassInfo classInfo) {
         List<String> filePaths = new ArrayList<>();
@@ -246,7 +252,11 @@ public class GenUtils {
 	private static freemarker.template.Configuration getConfiguration() throws IOException {
 		freemarker.template.Configuration cfg = new freemarker.template.Configuration(
 				freemarker.template.Configuration.VERSION_2_3_23);
-		cfg.setDirectoryForTemplateLoading(new File(getProp("project_path") +File.separator+  getProp("template_path")));
+		if(getProp("userDefaultTemplate").equalsIgnoreCase("false")){
+			cfg.setDirectoryForTemplateLoading(new File(getProp("project_path") +File.separator+  getProp("template_path")));
+		}else{
+			cfg.setClassForTemplateLoading(GenUtils.class,"/");
+		}
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setNumberFormat("#");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.IGNORE_HANDLER);
@@ -321,7 +331,7 @@ public class GenUtils {
 			templates = GenUtils.templates;
 			if(CollectionUtils.isEmpty(templates)){
 				templates = GenUtils.templates;
-				logger.info("代码生成模板未初始化，请初始化【templates】");
+				logger.error("代码生成模板未初始化，请初始化【templates】");
 			}
 		}
 		List<String> finalTemplates = templates;
@@ -371,38 +381,98 @@ public class GenUtils {
 
 
 	public static List<ClassInfo> getClassInfos(List<String> tableNames) {
-		DruidDataSource ds = getDruidDataSource();
+		DataSource ds = getDruidDataSource();
 		List<ClassInfo> classInfos = Lists.newArrayList();
 		tableNames.stream().forEach(t -> {
 			Table table = MetaUtil.getTableMeta(ds, t);
 			if(table.getPkNames().size()>0){//没有主键是不生成的
 				classInfos.add(GenUtils.getClassInfo(table));
+			}else{
+				StaticLog.error("表"+table.getTableName()+"没有主键是不生成代码的，至少得一个主键");
 			}
 		});
 		return classInfos;
 	}
 
 
-	private static DruidDataSource getDruidDataSource() {
-		DruidDataSource ds = new DruidDataSource();
-		ds.setDriverClassName(getProp("jdbc.driver"));
-		ds.setUrl(getProp("jdbc.url"));
-		ds.setUsername(getProp("jdbc.username"));
-		ds.setPassword(getProp("jdbc.password"));
-		return ds;
+	private static DataSource getDruidDataSource() {
+		if(dataSource == null){
+			DruidDataSource ds = new DruidDataSource();
+			ds.setDriverClassName(getProp("jdbc.driver"));
+			ds.setUrl(getProp("jdbc.url"));
+			ds.setUsername(getProp("jdbc.username"));
+			ds.setPassword(getProp("jdbc.password"));
+			ds.setRemoveAbandoned(true);
+			ds.setRemoveAbandonedTimeout(600);
+			ds.setLogAbandoned(true);
+//			ds.setBreakAfterAcquireFailure(true);
+			ds.setTimeBetweenConnectErrorMillis(60000);//1分钟
+//			ds.setConnectionErrorRetryAttempts(0);
+			ds.setValidationQuery("SELECT 1");//用来检测连接是否有效
+//			ds.setTestOnBorrow(false);//借用连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+//			ds.setTestOnReturn(false);//归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能
+			//连接空闲时检测，如果连接空闲时间大于timeBetweenEvictionRunsMillis指定的毫秒，执行validationQuery指定的SQL来检测连接是否有效
+//			ds.setTestWhileIdle(true);//如果检测失败，则连接将被从池中去除
+			ds.setMaxActive(200);
+			ds.setInitialSize(5);
+			dataSource = ds;
+			return ds;
+		}
+		return dataSource;
 	}
 
 
+
+
+	public static DataSource getDataSource() {
+		return dataSource;
+	}
+
+	public static void setDataSource(DataSource dataSource) {
+		GenUtils.dataSource = dataSource;
+	}
+
+	public static List<String> getTemplates() {
+		return templates;
+	}
+
+	public static void setTemplates(List<String> templates) {
+		GenUtils.templates = templates;
+	}
+
+	public static Map getProps() {
+		return props;
+	}
+
+	public static void putProps(Map props) {
+		init();
+		GenUtils.props.putAll(props);
+	}
+
+	public static void genCode(String tableNames) throws Exception {
+		init();
+		if(getProp("userDefaultTemplate").equalsIgnoreCase("true")){
+			templates = Lists.newArrayList();
+			// ************************************************************************************
+			templates.add("/templates/mybatis-plus-single-v1/controller.java.ftl");
+			templates.add("/templates/mybatis-plus-single-v1/entity.java.ftl");
+			templates.add("/templates/mybatis-plus-single-v1/mapper.java.ftl");
+			templates.add("/templates/mybatis-plus-single-v1/service.java.ftl");
+			templates.add("/templates/mybatis-plus-single-v1/dto.java.ftl");
+			templates.add("/templates/mybatis-plus-single-v1/vo.java.ftl");
+			templates.add("/templates/mybatis-plus-single-v1/service.impl.java.ftl");
+		}
+		GenUtils.genCode(Arrays.asList(tableNames.split(",")),templates);
+	}
 	public static void genCode(List<String> tableNames, List<String> templates ) throws Exception {
+		init();
 		List<ClassInfo> classInfos = GenUtils.getClassInfos(tableNames);
 		GenUtils.genTables(classInfos, templates);
 	}
 	public static void genCode(List<String> tableNames) throws Exception {
+		init();
 		List<ClassInfo> classInfos = GenUtils.getClassInfos(tableNames);
 		GenUtils.genTables(classInfos, templates);
 	}
-
-
-
 
 }

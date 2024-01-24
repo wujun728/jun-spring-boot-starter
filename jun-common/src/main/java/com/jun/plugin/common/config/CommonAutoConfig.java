@@ -6,6 +6,7 @@ import cn.hutool.core.text.NamingCase;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.log.StaticLog;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.template.source.ClassPathSourceFactory;
 import com.jun.plugin.common.db.DataSourcePool;
@@ -53,14 +54,14 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 	private List<Class> annotationClasss = Arrays.asList(Configuration.class,/*Mapper.class,*/ Service.class, Component.class,
 			Repository.class, Controller.class,ConfigurationProperties.class);
 
-	@Resource
-	private DataSource dataSource;
+//	@Resource
+//	private DataSource dataSource;
 
 
 	@Override
 	public void afterPropertiesSet() {
-		initBeans();
 		initDefaultDataSource();
+		initBeans();
 		initActiveRecordPlugin();
 	}
 
@@ -96,51 +97,71 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 		registry.registerBeanDefinition(beanName, beanDefinition);
 	}
 
+
+
 	@Bean
 	@ConditionalOnMissingBean
 	public ScriptEngineManager scriptEngineManager() {
 		return new ScriptEngineManager();
 	}
 
+	@Bean
+	@ConditionalOnMissingBean
+	public DataSource initDataSource() {
+		return initDefaultDataSource();
+	}
+
 	public DataSource initDefaultDataSource() {
-		if(dataSource == null){
-			dataSource = SpringUtil.getBean(DataSource.class);
+		DataSource dataSource = null;
 			if(dataSource == null){
-				initDefaultDataSourceV1();
-				dataSource = SpringUtil.getBean(DataSource.class);
+				dataSource = initDefaultDataSourceV1();
 				if(dataSource == null){
 					Console.log("initDefaultDataSource 数据源为空，需要手动初始化DataSource");
-					String url = SpringUtil.getProperty("project.datasource.url");
-					String username = SpringUtil.getProperty("project.datasource.username");
-					String password = SpringUtil.getProperty("project.datasource.password");
-					String driver = SpringUtil.getProperty("project.datasource.driver-class-name");
-					DataSource masterDataSource = DataSourcePool.init("master",url,username,password,driver);
-					DataSourcePool.initActiveRecordPlugin("master",masterDataSource);
+					initActiveRecordPlusin();
 				}else {
 					log.info("datasource autowried init step2 ");
 				}
 			}else {
 				log.info("datasource autowried init step1 ");
 			}
-		}else{
-			log.info("datasource autowried init step0 ");
-		}
 		return dataSource;
 	}
 
-	public static void initDefaultDataSourceV1() {
+	private static DataSource initActiveRecordPlusin() {
+		String url = SpringUtil.getProperty("project.datasource.url");
+		String username = SpringUtil.getProperty("project.datasource.username");
+		String password = SpringUtil.getProperty("project.datasource.password");
+		String driver = SpringUtil.getProperty("project.datasource.driver-class-name");
+		StaticLog.info("project.datasource.url"+"="+url);
+		StaticLog.info("project.datasource.username"+"="+username);
+		StaticLog.info("project.datasource.password"+"="+password);
+		StaticLog.info("project.datasource.driver-class-name"+"="+driver);
+		StaticLog.info("current datasource is master ");
+		DataSource masterDataSource = DataSourcePool.init("master",url,username,password,driver);
+		DataSourcePool.initActiveRecordPlugin("master",masterDataSource);
+		return masterDataSource;
+	}
+
+	public static DataSource initDefaultDataSourceV1() {
 		String url = SpringUtil.getProperty("spring.datasource.url");
 		String username = SpringUtil.getProperty("spring.datasource.username");
 		String password = SpringUtil.getProperty("spring.datasource.password");
 		String driver = SpringUtil.getProperty("spring.datasource.driver-class-name");
 		Console.log("initDefaultDataSource info  spring.datasource.url:{}",url);
+		StaticLog.info("spring.datasource.url"+"="+url);
+		StaticLog.info("spring.datasource.username"+"="+username);
+		StaticLog.info("spring.datasource.password"+"="+password);
+		StaticLog.info("spring.datasource.driver-class-name"+"="+driver);
+		StaticLog.info("current datasource is default ");
 		if(!StringUtils.isEmpty(url)) {
-			DataSourcePool.init(main,url,username,password,driver);
+			return DataSourcePool.init(main,url,username,password,driver);
+		}else {
+			return null;
 		}
 	}
 
-
 	public ActiveRecordPlugin initActiveRecordPlugin() {
+		DataSource dataSource = null;
 		if(dataSource == null){
 			dataSource = SpringUtil.getBean(DataSource.class);
 		}
