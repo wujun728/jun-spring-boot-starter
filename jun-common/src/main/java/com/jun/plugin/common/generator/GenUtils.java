@@ -451,7 +451,10 @@ public class GenUtils {
 
 	public static void genCode(String tableNames) throws Exception {
 		init();
-		if(getProp("userDefaultTemplate").equalsIgnoreCase("true")){
+		if( CollectionUtils.isEmpty(templates)){
+			props.put("userDefaultTemplate","true");// 未设置模板，使用内置模板
+		}
+		if(getProp("userDefaultTemplate").equalsIgnoreCase("true")  ){
 			templates = Lists.newArrayList();
 			// ************************************************************************************
 			templates.add("/templates/mybatis-plus-single-v1/controller.java.ftl");

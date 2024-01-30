@@ -26,6 +26,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
@@ -97,19 +98,19 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 		registry.registerBeanDefinition(beanName, beanDefinition);
 	}
 
-
-
 	@Bean
 	@ConditionalOnMissingBean
 	public ScriptEngineManager scriptEngineManager() {
 		return new ScriptEngineManager();
 	}
 
-	@Bean
-	@ConditionalOnMissingBean
-	public DataSource initDataSource() {
-		return initDefaultDataSource();
-	}
+//	@Bean
+//	@Lazy
+//	@ConditionalOnMissingBean(DataSource.class)
+//	public DataSource initDataSource() {
+//		StaticLog.info("初始化jun-common的数据源1");
+//		return initDefaultDataSource();
+//	}
 
 	public DataSource initDefaultDataSource() {
 		DataSource dataSource = null;

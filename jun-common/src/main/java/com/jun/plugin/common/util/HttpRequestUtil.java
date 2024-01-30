@@ -1,5 +1,7 @@
 package com.jun.plugin.common.util;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -453,7 +455,7 @@ public class HttpRequestUtil {
 		Object jsonObject = JSON.parse(jsonString);
 		traverseJsonTree((JSONObject) jsonObject, "", params);
 //			traverseJsonArray((JSONArray) jsonObject,"",params);
-		System.out.println(JSON.toJSONString(params));
+		StaticLog.info(JSON.toJSONString(params));
 	}
 
 	public static void traverseJsonTree(JSONObject jsonObject, String parentKey, Map params) {
@@ -464,9 +466,14 @@ public class HttpRequestUtil {
 			} else if (object instanceof JSONArray) {
 				traverseJsonArray((JSONArray) object, parentKey + "." + key + "", params);
 			} else {
-				System.out.println(key + ":" + object);
-				System.out.println("---------  " + parentKey + "." + key + ":" + object);
-				String longKey = parentKey + "." + key;
+				StaticLog.info(key + ":" + object);
+				StaticLog.info("---------  " + parentKey + "." + key + ":" + object);
+				String longKey;
+				if(StrUtil.isEmpty(parentKey)){
+					longKey = key;
+				}else{
+					longKey = parentKey + "." + key;
+				}
 				if (Pattern.compile(".*[0-9].*").matcher(longKey).matches()) {
 					params.put(longKey, object);
 				} else {
@@ -484,8 +491,8 @@ public class HttpRequestUtil {
 			} else if (object instanceof JSONArray) {
 				traverseJsonArray((JSONArray) object, parentKey + "." + i + "", params);
 			} else {
-				//System.out.println(object);
-				System.out.println(parentKey + ":" + i + ":" + object);
+				//StaticLog.info(object);
+				StaticLog.info(parentKey + ":" + i + ":" + object);
 			}
 		}
 	}

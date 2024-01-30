@@ -103,7 +103,8 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 			try {
 				if(groovyInfo.getScriptType().equalsIgnoreCase("Class")){
 					Class clazz = groovyClassLoader.parseClass(groovyInfo.getScriptContent());
-					registerBean(groovyInfo.getBeanName(), clazz);
+					registerBean(groovyInfo.getBeanName()+groovyInfo.getId(), clazz);
+//					registerBean(groovyInfo.getPath()+groovyInfo.getBeanName(), clazz);
 				}else if(groovyInfo.getScriptType().equalsIgnoreCase("SQL")){
 					log.info("当前Groovy脚本类型SQL类型脚本："+JSON.toJSONString(groovyInfo));
 				}else {
