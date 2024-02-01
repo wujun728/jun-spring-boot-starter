@@ -1,6 +1,7 @@
 package com.jun.plugin.common.util;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -129,8 +130,6 @@ public class HttpRequestUtil {
 		try {
 			ServletRequest requestWrapper = new RequestWrapper((HttpServletRequest) request);
 			Map<String, Object> params = new HashMap<>();
-			JSONObject jsonObject = new JSONObject();
-			JSONArray jsonArray = new JSONArray();
 			InputStreamReader in = new InputStreamReader(requestWrapper.getInputStream(), "utf-8");
 			BufferedReader br = new BufferedReader(in);
 			StringBuilder sb = new StringBuilder();
@@ -139,13 +138,25 @@ public class HttpRequestUtil {
 				sb.append(line);
 			}
 			br.close();
+
+			JSONObject jsonObject = new JSONObject();
+			JSONArray jsonArray = new JSONArray();
+//			if(JSONUtil.isTypeJSON(sb.toString())){
+//				if(JSONUtil.isTypeJSONObject(sb.toString())){
+//					jsonObject = JSONObject.from(JSONUtil.parseObj(sb.toString()));
+//				}
+//				if(JSONUtil.isTypeJSONArray(sb.toString())){
+//					jsonArray = JSONArray.of(JSONUtil.parseArray(sb.toString()));
+//				}
+//			}else{
+//				StaticLog.error("非JSON格式数据，无法解析："+sb.toString());
+//			}
 			Object jsonObj = JSON.parse(sb.toString());
 			if (jsonObj instanceof JSONObject) {
 				jsonObject = (JSONObject) jsonObj;
 			} else if (jsonObj instanceof JSONArray) {
 				jsonArray = (JSONArray) jsonObj;
 			}
-
 			if (!ObjectUtils.isEmpty(jsonObject)) {
 				//params = JSONObject.parseObject(jsonObject.toJSONString(), new TypeReference<Map<String, Object>>() { });
 				traverseJsonTree(jsonObject, "", params);

@@ -24,6 +24,7 @@ import com.jun.plugin.common.Result;
 import com.jun.plugin.common.exception.BusinessException;
 import com.jun.plugin.common.util.FieldUtils;
 import com.jun.plugin.common.db.RecordUtil;
+import com.jun.plugin.common.util.IdGenerator;
 import com.jun.plugin.rest.util.RestUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -157,7 +158,7 @@ public class RestController {
             List args = RestUtil.getPrimaryKeyArgs(parameters, table);
             Boolean flag = Db.use(main).deleteByIds(tableName, primaryKey, args.toArray());
             if (flag) {
-                return Result.success("删除成功！");
+                return Result.success("删除成功！",flag);
             } else {
                 return Result.fail("删除失败！");
             }
@@ -272,7 +273,11 @@ public class RestController {
         }
         System.out.println("返回数据为：" + JSONUtil.toJsonStr(isSucess));
         if (isSucess) {
-            return Result.success(isSucess);
+            if (isSaveOrUpdate) {
+                return Result.success("保存成功！",isSucess);
+            }else{
+                return Result.success("修改成功！",isSucess);
+            }
         } else {
             return Result.fail("新增或者修改失败");
         }
@@ -297,7 +302,7 @@ public class RestController {
                 "TEXT".equalsIgnoreCase(column.getTypeName()) ||
                 "LONGTEXT".equalsIgnoreCase(column.getTypeName()) ||
                 "CLOB".equalsIgnoreCase(column.getTypeName())) {
-            String idStr = IdUtil.getSnowflakeNextIdStr();
+            String idStr = IdGenerator.generateIdStr();
             if (column.getSize() > idStr.length()) {
                 record.set(column.getName(), idStr);
             } else {
@@ -315,7 +320,7 @@ public class RestController {
                 "bit".equalsIgnoreCase(column.getTypeName()) ||
                 "integer".equalsIgnoreCase(column.getTypeName()) ||
                 "tinyint".equalsIgnoreCase(column.getTypeName())) {
-            long idStr = IdUtil.getSnowflakeNextId();
+            long idStr = IdGenerator.generateId();
             if (column.getSize() >= String.valueOf(idStr).length()) {
                 record.set(column.getName(), idStr);
             } else {

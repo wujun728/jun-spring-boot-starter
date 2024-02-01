@@ -116,6 +116,10 @@ public class Result extends HashMap<String, Object>
     {
         return new Result(0, msg, data);
     }
+    public static Result success(int code, String msg, Object data)
+    {
+        return new Result(code, msg, data);
+    }
 
     /**
      * 返回错误消息

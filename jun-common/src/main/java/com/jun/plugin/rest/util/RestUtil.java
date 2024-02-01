@@ -41,7 +41,10 @@ public class RestUtil {
         if("creator".equals(fieldname)){
             return "admin";
         }
-        if("updator".equals(fieldname)){
+        if("createUser".equals(fieldname)){
+            return "admin";
+        }
+        if("updateUser".equals(fieldname)){
             return "admin";
         }
         return null;
@@ -126,7 +129,7 @@ public class RestUtil {
                         String field = keys[0];
                         String ex = keys[1];
                         String val = RestUtil.getParamValue(parameters, key);
-                        sqlbuilder.append(" AND" + join(ex,field,val));
+                        sqlbuilder.append(" AND" + join(ex,column.getName(),val));
                     }else{
                         String val = RestUtil.getParamValue(parameters, key);
                         sqlbuilder.append(" AND" + join("eq",column.getName(),val));
@@ -139,52 +142,48 @@ public class RestUtil {
         return sqlbuilder.toString();
     }
 
-    private static String join(String ex,String fieldName,String value){
+    private static String join(String ex,String columnName,String value){
         StringBuffer sql = new StringBuffer();
         sql.append(" ");
         // 设置查询方式
         if ("eq".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" = '"+value+"'");
+            sql.append(columnName+" = '"+value+"'");
         }else if ("like".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" like '%"+value+"%'");
+            sql.append(columnName+" like '%"+value+"%'");
         }else if ("between".equalsIgnoreCase(ex)){
 //            sql.append((fieldName, ((Object[]) value)[0], ((Object[]) value)[1]);
         }else if ("le".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" <= "+ value);
+            sql.append(columnName+" <= "+ value);
         }else if ("lt".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" < "+ value);
+            sql.append(columnName+" < "+ value);
         }else if ("ge".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" >= "+ value);
+            sql.append(columnName+" >= "+ value);
         }else if ("gt".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" >= "+ value);
+            sql.append(columnName+" >= "+ value);
         }else if ("notEq".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" not like '%"+ value+"%'");
+            sql.append(columnName+" not like '%"+ value+"%'");
         }else if ("leftLike".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" like '%"+ value+"'");
+            sql.append(columnName+" like '%"+ value+"'");
         }else if ("rightLike".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" like '"+ value+"%'");
+            sql.append(columnName+" like '"+ value+"%'");
         }else if ("allLike".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" like '%"+ value+"%'");
+            sql.append(columnName+" like '%"+ value+"%'");
         }else if ("notLeftLike".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" not like '%"+ value+"%'");
+            sql.append(columnName+" not like '%"+ value+"%'");
         }else if ("notRightLike".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" not like '"+ value+"%'");
+            sql.append(columnName+" not like '"+ value+"%'");
         }else if ("notAllLike".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" not like '%"+ value+"%'");
+            sql.append(columnName+" not like '%"+ value+"%'");
         }else if ("isNull".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" is null ");
+            sql.append(columnName+" is null ");
         }else if ("notNull".equalsIgnoreCase(ex)){
-            sql.append(fieldName+" is not null ");
-        }else if ("isEmpty".equalsIgnoreCase(ex)){
-//            sql.append(fieldName);
-        }else if ("notEmpty".equalsIgnoreCase(ex)){
-//            sql.append(fieldName);
+            sql.append(columnName+" is not null ");
         }else if ("in".equalsIgnoreCase(ex)){
-//            sql.append(fieldName+" like %"+ (Object[]) value);
+            sql.append(columnName+" in ()"+ String.join(",",value.split(","))+" )");
         }else if ("notIn".equalsIgnoreCase(ex)) {
-//            sql.append(fieldName, (Object[]) value);
+            sql.append(columnName+" not in ( "+ String.join(",",value.split(","))+" )");
         }else {
-            sql.append(fieldName + " = " + value);
+            sql.append(columnName + " = " + value);
         }
         return sql.toString();
     }
