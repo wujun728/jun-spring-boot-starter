@@ -1,10 +1,8 @@
 package com.jun.plugin.rest.controller;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
@@ -13,17 +11,18 @@ import cn.hutool.db.meta.MetaUtil;
 import cn.hutool.db.meta.Table;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
-import com.alibaba.fastjson2.JSON;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jun.plugin.common.util.HttpRequestUtil;
-import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.activerecord.Page;
-import com.jfinal.plugin.activerecord.Record;
+//import com.jfinal.plugin.activerecord.Db;
+//import com.jfinal.plugin.activerecord.Page;
+//import com.jfinal.plugin.activerecord.Record;
 import com.jun.plugin.common.Result;
 import com.jun.plugin.common.exception.BusinessException;
 import com.jun.plugin.common.util.FieldUtils;
-import com.jun.plugin.common.db.RecordUtil;
+import com.jun.plugin.db.record.Db;
+import com.jun.plugin.db.record.Page;
+import com.jun.plugin.db.record.Record;
+import com.jun.plugin.db.record.RecordUtil;
 import com.jun.plugin.common.util.IdGenerator;
 import com.jun.plugin.rest.util.RestUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.jun.plugin.common.db.DataSourcePool.main;
+import static com.jun.plugin.db.DataSourcePool.main;
 
 @Slf4j
 @org.springframework.web.bind.annotation.RestController
@@ -102,7 +101,8 @@ public class RestController {
                 if(StrUtil.isNotEmpty(where)){
                     from = from + " where 1=1 "+ where;
                 }
-                Page<Record> pages = Db.use(main).paginate(page, limit, select, from);
+                Page<Record> pages = Db.use(main).paginate(page, limit, sql.toString(), null);
+//                Page<Record> pages = Db.use(main).paginate(page, limit, select, from);
                 List<Map<String, Object>> datas = RecordUtil.recordToMaps(pages.getList());
                 return Result.success(datas).put("count", pages.getTotalRow()).put("pageSize", pages.getPageSize()).put("totalPage", pages.getTotalPage()).put("pageNumber", pages.getPageNumber());
             } else {
@@ -131,7 +131,8 @@ public class RestController {
             Table table = tableCache.get().get(tableName);
             String primaryKey = RestUtil.getTablePrimaryKes(table);
             List args = RestUtil.getPrimaryKeyArgs(parameters, table);
-            Record record = Db.use(main).findByIds(tableName, primaryKey, args.toArray());
+//            Record record = Db.use(main).findByIds(tableName, primaryKey, args.toArray());
+            Record record = Db.use(main).findById(tableName,primaryKey, (Number) args.get(0));
             if (ObjectUtil.isNotNull(record)) {
                 Map data = RecordUtil.recordToMap(record);
                 return Result.success(data);
@@ -156,7 +157,8 @@ public class RestController {
             Table table = tableCache.get().get(tableName);
             String primaryKey = RestUtil.getTablePrimaryKes(table);
             List args = RestUtil.getPrimaryKeyArgs(parameters, table);
-            Boolean flag = Db.use(main).deleteByIds(tableName, primaryKey, args.toArray());
+//            Boolean flag = Db.use(main).deleteByIds(tableName, primaryKey, args.toArray());
+            Boolean flag = Db.use(main).deleteById(tableName,primaryKey, args.get(0));
             if (flag) {
                 return Result.success("删除成功！",flag);
             } else {
@@ -233,7 +235,9 @@ public class RestController {
         if (!isSaveOrUpdate) {
             String primaryKey = RestUtil.getTablePrimaryKes(table);
             List args = RestUtil.getPrimaryKeyArgs(parameters, table);
-            record = Db.use(main).findByIds(tableName, primaryKey, args.toArray());
+//            record = Db.use(main).findByIds(tableName, primaryKey, args.toArray());
+//            record = Db.use(main).findById(tableName, primaryKey, args.toArray());
+            record = Db.use(main).findById(tableName,primaryKey, (Number) args.get(0));
             if (ObjectUtil.isNull(record)) {
                 return Result.fail("修改失败，无此ID对应的记录！");
             }

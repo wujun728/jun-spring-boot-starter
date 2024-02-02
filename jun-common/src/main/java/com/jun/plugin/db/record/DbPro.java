@@ -46,6 +46,9 @@ public class DbPro {
 		if (this.config == null)
 			throw new IllegalArgumentException("Config not found by configName: " + configName);
 	}
+	public Config getConfig() {
+		return this.config;
+	}
 	
 	public static DbPro use(String configName) {
 		DbPro result = map.get(configName);
@@ -402,6 +405,26 @@ public class DbPro {
 		List<Record> result = find(sql, idValue);
 		return result.size() > 0 ? result.get(0) : null;
 	}
+
+
+//	public Record findById(String tableName, Object idValue) {
+//		return this.findByIds(tableName, this.config.dialect.getDefaultPrimaryKey(), idValue);
+//	}
+//
+//	public Record findById(String tableName, String primaryKey, Object idValue) {
+//		return this.findByIds(tableName, primaryKey, idValue);
+//	}
+
+//	public Record findByIds(String tableName, String primaryKey, Object... idValues) {
+//		String[] pKeys = primaryKey.split(",");
+//		if (pKeys.length != idValues.length) {
+//			throw new IllegalArgumentException("primary key number must equals id value number");
+//		} else {
+//			String sql = this.config.dialect.forDbFindById(tableName, pKeys);
+//			List<Record> result = this.find(sql, idValues);
+//			return result.size() > 0 ? (Record)result.get(0) : null;
+//		}
+//	}
 	
 	/**
 	 * Delete record by id.

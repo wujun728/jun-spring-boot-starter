@@ -1,7 +1,7 @@
 package com.jun.plugin.rest.handler;
 
 import cn.hutool.db.meta.Table;
-import com.jfinal.plugin.activerecord.Record;
+import com.jun.plugin.db.record.Record;
 
 public interface RecordFillHandler {
 

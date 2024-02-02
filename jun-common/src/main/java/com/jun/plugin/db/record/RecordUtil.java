@@ -1,9 +1,7 @@
-package com.jun.plugin.common.db;
+package com.jun.plugin.db.record;
 
 //import com.alibaba.fastjson2.JSONObject;
 //import com.google.common.collect.Lists;
-import com.jfinal.plugin.activerecord.Page;
-import com.jfinal.plugin.activerecord.Record;
 import com.jun.plugin.common.util.BeanMapUtil;
 import com.jun.plugin.common.util.FieldUtils;
 import org.springframework.util.CollectionUtils;

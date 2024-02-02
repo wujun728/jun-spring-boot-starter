@@ -1,4 +1,4 @@
-package com.jun.plugin.common.db;
+package com.jun.plugin.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -6,13 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import cn.hutool.core.lang.Console;
-import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.druid.pool.DruidDataSource;
 
-import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.sql.DataSource;
 
@@ -27,7 +23,7 @@ public class DataSourcePool {
     //所有数据源的连接池存在map里
     static ConcurrentHashMap<String, DataSource> map = new ConcurrentHashMap<>();
 
-    static ConcurrentHashMap<String, ActiveRecordPlugin> configmaps = new ConcurrentHashMap<>();
+//    static ConcurrentHashMap<String, ActiveRecordPlugin> configmaps = new ConcurrentHashMap<>();
 
     public static DataSource init(String dsname,String url,String username,String password,String driver) {
         if (map.containsKey(dsname)) {
@@ -47,6 +43,7 @@ public class DataSourcePool {
                     druidDataSource.setBreakAfterAcquireFailure(true);
                     map.put(dsname, druidDataSource);
                     log.info("创建Druid连接池成功：{}", dsname);
+
                 }
                 return map.get(dsname);
             } catch (Exception e) {
@@ -100,42 +97,42 @@ public class DataSourcePool {
     }
 
 
-    public static ActiveRecordPlugin getActiveRecordPlugin(String dsname) {
-        if (configmaps.containsKey(dsname)) {
-            return configmaps.get(dsname);
-        } else {
-            return null;
-        }
-    }
+//    public static ActiveRecordPlugin getActiveRecordPlugin(String dsname) {
+//        if (configmaps.containsKey(dsname)) {
+//            return configmaps.get(dsname);
+//        } else {
+//            return null;
+//        }
+//    }
 
     public static String main = "main";
 
-    public static ActiveRecordPlugin initActiveRecordPlugin(String configName,DataSource dataSource) {
-        if (configmaps.containsKey(configName)) {
-            log.warn("Config have bean created by configName: {}",configName);
-            return configmaps.get(configName);
-        } else {
-            lock.lock();
-            try {
-                log.info(Thread.currentThread().getName() + "获取锁");
-                if (!configmaps.containsKey(configName)) {
-                    //DataSource ds = DataSourcePool.get(configName);
-                    //DruidPlugin dp = new DruidPlugin(url, username, password);
-                    ActiveRecordPlugin arp = new ActiveRecordPlugin(configName, dataSource);
-                    arp.setDevMode(true);
-                    arp.setShowSql(true);
-                    //dp.start();
-                    arp.start();
-                    log.warn("Config have bean created by configName: {}",configName);
-                    configmaps.put(configName, arp);
-                    log.info("创建Druid连接池成功：{}", configName);
-                }
-            } catch (Exception e) {
-                return null;
-            } finally {
-                lock.unlock();
-            }
-        }
-        return configmaps.get(configName);
-    }
+//    public static ActiveRecordPlugin initActiveRecordPlugin(String configName,DataSource dataSource) {
+//        if (configmaps.containsKey(configName)) {
+//            log.warn("Config have bean created by configName: {}",configName);
+//            return configmaps.get(configName);
+//        } else {
+//            lock.lock();
+//            try {
+//                log.info(Thread.currentThread().getName() + "获取锁");
+//                if (!configmaps.containsKey(configName)) {
+//                    //DataSource ds = DataSourcePool.get(configName);
+//                    //DruidPlugin dp = new DruidPlugin(url, username, password);
+//                    ActiveRecordPlugin arp = new ActiveRecordPlugin(configName, dataSource);
+//                    arp.setDevMode(true);
+//                    arp.setShowSql(true);
+//                    //dp.start();
+//                    arp.start();
+//                    log.warn("Config have bean created by configName: {}",configName);
+//                    configmaps.put(configName, arp);
+//                    log.info("创建Druid连接池成功：{}", configName);
+//                }
+//            } catch (Exception e) {
+//                return null;
+//            } finally {
+//                lock.unlock();
+//            }
+//        }
+//        return configmaps.get(configName);
+//    }
 }

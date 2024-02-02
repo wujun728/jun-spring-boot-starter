@@ -4,11 +4,14 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.google.common.collect.Lists;
-import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
-import com.jfinal.plugin.activerecord.Page;
-import com.jfinal.plugin.activerecord.Record;
-import com.jfinal.plugin.druid.DruidPlugin;
+//import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+//import com.jfinal.plugin.activerecord.Page;
+//import com.jfinal.plugin.activerecord.Record;
+//import com.jfinal.plugin.druid.DruidPlugin;
 import com.jun.plugin.common.exception.BusinessException;
+import com.jun.plugin.db.record.Db;
+import com.jun.plugin.db.record.Page;
+import com.jun.plugin.db.record.Record;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletRequest;
@@ -55,12 +58,13 @@ public abstract class AbstractExecutor<T,P> {
 	public void initDb(String appNo, String url, String username, String password) {
 		Boolean isExtsis = false;
 		try {
-			DruidPlugin dp = new DruidPlugin(url, username, password);
-			ActiveRecordPlugin arp = new ActiveRecordPlugin(appNo, dp);
-			arp.setDevMode(true);
-			arp.setShowSql(true);
-			dp.start();
-			arp.start();
+			Db.init(url,username, password);
+//			DruidPlugin dp = new DruidPlugin(url, username, password);
+//			ActiveRecordPlugin arp = new ActiveRecordPlugin(appNo, dp);
+//			arp.setDevMode(true);
+//			arp.setShowSql(true);
+//			dp.start();
+//			arp.start();
 			log.warn("Config have bean created by configName: {}",appNo);
 			//Db.use(appNo);
 		} catch (IllegalArgumentException e) {
@@ -90,7 +94,6 @@ public abstract class AbstractExecutor<T,P> {
 	}
 
 	// protected FlowType flowType;
-
 //	public Map<String,Object> collectParams(Map<String,Object> params) {
 //		//序列化时过滤掉request和response
 //		Map<String, Object> collect = MapUtil.filter(params, map -> (!(map.getValue() instanceof HttpServletRequest) && !(map.getValue() instanceof HttpServletResponse)));

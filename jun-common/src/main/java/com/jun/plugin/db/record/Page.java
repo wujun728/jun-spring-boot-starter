@@ -16,12 +16,15 @@
 
 package com.jun.plugin.db.record;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.List;
 
 /**
  * Page is the result of Model.paginate(......) or Db.paginate(......)
  */
+@Data
 public class Page<T> implements Serializable {
 	
 	private static final long serialVersionUID = -5395997221963176643L;
@@ -46,6 +49,8 @@ public class Page<T> implements Serializable {
 		this.pageSize = pageSize;
 		this.totalPage = totalPage;
 		this.totalRow = totalRow;
+	}
+	public Page() {
 	}
 	
 	/**

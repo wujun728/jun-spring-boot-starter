@@ -7,14 +7,12 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.log.StaticLog;
-import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
-import com.jfinal.template.source.ClassPathSourceFactory;
-import com.jun.plugin.common.db.DataSourcePool;
+import com.jun.plugin.db.DataSourcePool;
+import com.jun.plugin.db.record.Db;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -24,22 +22,19 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import javax.script.ScriptEngineManager;
 import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static com.jun.plugin.common.db.DataSourcePool.main;
+import static com.jun.plugin.db.DataSourcePool.main;
 
 /**
  * @author wujun
@@ -63,7 +58,7 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 	public void afterPropertiesSet() {
 		initDefaultDataSource();
 		initBeans();
-		initActiveRecordPlugin();
+//		initActiveRecordPlugin();
 	}
 
 	private void initBeans() {
@@ -139,7 +134,8 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 		StaticLog.info("project.datasource.driver-class-name"+"="+driver);
 		StaticLog.info("current datasource is master ");
 		DataSource masterDataSource = DataSourcePool.init("master",url,username,password,driver);
-		DataSourcePool.initActiveRecordPlugin("master",masterDataSource);
+		Db.initAlias("master",url,username, password);
+//		DataSourcePool.initActiveRecordPlugin("master",masterDataSource);
 		return masterDataSource;
 	}
 
@@ -155,22 +151,23 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 		StaticLog.info("spring.datasource.driver-class-name"+"="+driver);
 		StaticLog.info("current datasource is default ");
 		if(!StringUtils.isEmpty(url)) {
+			Db.initAlias(main,url,username, password);
 			return DataSourcePool.init(main,url,username,password,driver);
 		}else {
 			return null;
 		}
 	}
 
-	public ActiveRecordPlugin initActiveRecordPlugin() {
-		DataSource dataSource = null;
-		if(dataSource == null){
-			dataSource = SpringUtil.getBean(DataSource.class);
-		}
-		if(dataSource != null){
-			return DataSourcePool.initActiveRecordPlugin("main",dataSource);
-		}else {
-			return null;
-		}
-	}
+//	public ActiveRecordPlugin initActiveRecordPlugin() {
+//		DataSource dataSource = null;
+//		if(dataSource == null){
+//			dataSource = SpringUtil.getBean(DataSource.class);
+//		}
+//		if(dataSource != null){
+//			return DataSourcePool.initActiveRecordPlugin("main",dataSource);
+//		}else {
+//			return null;
+//		}
+//	}
 
 }
