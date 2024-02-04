@@ -2,14 +2,14 @@ package com.jun.plugin.groovy.service;
 
 import cn.hutool.core.lang.Console;
 import com.alibaba.fastjson2.JSON;
+import com.jun.plugin.db.record.Db;
+import com.jun.plugin.db.record.Page;
+import com.jun.plugin.db.record.Record;
 import com.jun.plugin.groovy.common.model.ApiConfig;
 import com.jun.plugin.groovy.common.model.ApiDataSource;
 import com.jun.plugin.groovy.common.model.ApiSql;
 import com.google.common.collect.Lists;
-import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.activerecord.Page;
-import com.jfinal.plugin.activerecord.Record;
-import com.jun.plugin.common.db.RecordUtil;
+import com.jun.plugin.db.record.RecordUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.jun.plugin.common.db.DataSourcePool.main;
+import static com.jun.plugin.db.DataSourcePool.main;
 
 @Service
 @Slf4j
@@ -68,6 +68,7 @@ public class ApiService {
 		String totalRowSql = "select count(*) " + from;
 		String findSql = "select * " + from + " order by id";
 		Db.paginateByFullSql(1, 10, totalRowSql, findSql, 18);
+//		Db.paginate(1,10,findSql);
 
 		return null;
 	}

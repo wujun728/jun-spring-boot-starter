@@ -2,12 +2,13 @@ package com.jun.plugin.groovy.groovy;
 
 import cn.hutool.core.lang.Console;
 import com.alibaba.fastjson2.JSON;
+//import com.jfinal.plugin.activerecord.ActiveRecordException;
 import com.jun.plugin.groovy.common.model.ApiConfig;
 import com.jun.plugin.groovy.cache.IApiConfigCache;
 import com.jun.plugin.groovy.service.ApiService;
 import com.jun.plugin.groovy.cache.ApiConfigCache;
 import com.jun.plugin.groovy.mapping.http.RequestMappingService;
-import com.jfinal.plugin.activerecord.ActiveRecordException;
+//import com.jfinal.plugin.activerecord.ActiveRecordException;
 import groovy.lang.GroovyClassLoader;
 import lombok.extern.slf4j.Slf4j;
 import org.codehaus.groovy.control.CompilationFailedException;
@@ -83,13 +84,13 @@ public class GroovyDynamicLoader implements ApplicationContextAware, Initializin
 			//e.printStackTrace();
 			Console.log("数据源配置有误："+e.getMessage());
 			if(e.getMessage().contains("Config not found by configName")) {
-				Console.error("jfinal数据源配置有误："+e.getMessage());
+				Console.error("数据源配置有误："+e.getMessage());
 			}
-		} catch (ActiveRecordException e) {
-			//e.printStackTrace();
-			if(e.getMessage().contains("doesn't exist")) {
-				Console.error("api_config表或关联表结构在数据库不存在，配置有误："+e.getMessage());
-			}
+//		} catch (ActiveRecordException e) {
+//			//e.printStackTrace();
+//			if(e.getMessage().contains("doesn't exist")) {
+//				Console.error("api_config表或关联表结构在数据库不存在，配置有误："+e.getMessage());
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

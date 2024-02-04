@@ -18,7 +18,7 @@ import com.jun.plugin.groovy.common.model.ApiDataSource;
 import com.gitthub.wujun728.mybatis.sql.engine.DynamicSqlEngine;
 
 import com.jun.plugin.common.Result;
-import com.jun.plugin.common.db.DataSourcePool;
+import com.jun.plugin.db.DataSourcePool;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

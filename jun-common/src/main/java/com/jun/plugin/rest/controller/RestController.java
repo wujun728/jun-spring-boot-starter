@@ -101,8 +101,8 @@ public class RestController {
                 if(StrUtil.isNotEmpty(where)){
                     from = from + " where 1=1 "+ where;
                 }
-                Page<Record> pages = Db.use(main).paginate(page, limit, sql.toString(), null);
-//                Page<Record> pages = Db.use(main).paginate(page, limit, select, from);
+//                Page<Record> pages = Db.use(main).paginate(page, limit, sql.toString(), null);
+                Page<Record> pages = Db.use(main).paginate(page, limit, select, from);
                 List<Map<String, Object>> datas = RecordUtil.recordToMaps(pages.getList());
                 return Result.success(datas).put("count", pages.getTotalRow()).put("pageSize", pages.getPageSize()).put("totalPage", pages.getTotalPage()).put("pageNumber", pages.getPageNumber());
             } else {
@@ -131,8 +131,8 @@ public class RestController {
             Table table = tableCache.get().get(tableName);
             String primaryKey = RestUtil.getTablePrimaryKes(table);
             List args = RestUtil.getPrimaryKeyArgs(parameters, table);
-//            Record record = Db.use(main).findByIds(tableName, primaryKey, args.toArray());
-            Record record = Db.use(main).findById(tableName,primaryKey, (Number) args.get(0));
+            Record record = Db.use(main).findByIds(tableName, primaryKey, args.toArray());
+//            Record record = Db.use(main).findById(tableName,primaryKey, (Number) args.get(0));
             if (ObjectUtil.isNotNull(record)) {
                 Map data = RecordUtil.recordToMap(record);
                 return Result.success(data);
@@ -157,8 +157,8 @@ public class RestController {
             Table table = tableCache.get().get(tableName);
             String primaryKey = RestUtil.getTablePrimaryKes(table);
             List args = RestUtil.getPrimaryKeyArgs(parameters, table);
-//            Boolean flag = Db.use(main).deleteByIds(tableName, primaryKey, args.toArray());
-            Boolean flag = Db.use(main).deleteById(tableName,primaryKey, args.get(0));
+            Boolean flag = Db.use(main).deleteByIds(tableName, primaryKey, args.toArray());
+//            Boolean flag = Db.use(main).deleteById(tableName,primaryKey, args.get(0));
             if (flag) {
                 return Result.success("删除成功！",flag);
             } else {
@@ -235,9 +235,9 @@ public class RestController {
         if (!isSaveOrUpdate) {
             String primaryKey = RestUtil.getTablePrimaryKes(table);
             List args = RestUtil.getPrimaryKeyArgs(parameters, table);
-//            record = Db.use(main).findByIds(tableName, primaryKey, args.toArray());
+            record = Db.use(main).findByIds(tableName, primaryKey, args.toArray());
 //            record = Db.use(main).findById(tableName, primaryKey, args.toArray());
-            record = Db.use(main).findById(tableName,primaryKey, (Number) args.get(0));
+//            record = Db.use(main).findById(tableName,primaryKey, (Number) args.get(0));
             if (ObjectUtil.isNull(record)) {
                 return Result.fail("修改失败，无此ID对应的记录！");
             }

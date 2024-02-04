@@ -28,13 +28,21 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * RecordBuilder.
  */
 public class RecordBuilder {
 	
-	public static final List<Record> build(Config config, ResultSet rs) throws SQLException {
+	public static final RecordBuilder me = new RecordBuilder();
+	
+	public List<Record> build(Config config, ResultSet rs) throws SQLException {
+		return build(config, rs, null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Record> build(Config config, ResultSet rs, Function<Record, Boolean> func) throws SQLException {
 		List<Record> result = new ArrayList<Record>();
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int columnCount = rsmd.getColumnCount();
@@ -43,21 +51,103 @@ public class RecordBuilder {
 		buildLabelNamesAndTypes(rsmd, labelNames, types);
 		while (rs.next()) {
 			Record record = new Record();
-			record.setColumnsMap(config.getColumnsMap());
+			record.setColumnsMap(config.containerFactory.getColumnsMap());
 			Map<String, Object> columns = record.getColumns();
 			for (int i=1; i<=columnCount; i++) {
 				Object value;
-				if (types[i] < Types.BLOB)
+				if (types[i] < Types.BLOB) {
 					value = rs.getObject(i);
-				else if (types[i] == Types.CLOB)
-					value = RecordBuilder.handleClob(rs.getClob(i));
-				else if (types[i] == Types.NCLOB)
-					value = RecordBuilder.handleClob(rs.getNClob(i));
-				else if (types[i] == Types.BLOB)
-					value = RecordBuilder.handleBlob(rs.getBlob(i));
-				else
-					value = rs.getObject(i);
+				} else {
+					if (types[i] == Types.CLOB) {
+						value = RecordBuilder.me.handleClob(rs.getClob(i));
+					} else if (types[i] == Types.NCLOB) {
+						value = RecordBuilder.me.handleClob(rs.getNClob(i));
+					} else if (types[i] == Types.BLOB) {
+						value = RecordBuilder.me.handleBlob(rs.getBlob(i));
+					} else {
+						value = rs.getObject(i);
+					}
+				}
 				
+				columns.put(labelNames[i], value);
+			}
+			
+			if (func == null) {
+				result.add(record);
+			} else {
+				if ( ! func.apply(record) ) {
+					break ;
+				}
+			}
+		}
+		return result;
+	}
+	
+	public void buildLabelNamesAndTypes(ResultSetMetaData rsmd, String[] labelNames, int[] types) throws SQLException {
+		for (int i=1; i<labelNames.length; i++) {
+			// 备忘：getColumnLabel 获取 sql as 子句指定的名称而非字段真实名称
+			labelNames[i] = rsmd.getColumnLabel(i);
+			types[i] = rsmd.getColumnType(i);
+		}
+	}
+
+	public byte[] handleBlob(Blob blob) throws SQLException {
+		if (blob == null)
+			return null;
+
+		InputStream is = null;
+		try {
+			is = blob.getBinaryStream();
+			if (is == null)
+				return null;
+			byte[] data = new byte[(int)blob.length()];		// byte[] data = new byte[is.available()];
+			if (data.length == 0)
+				return null;
+			is.read(data);
+			return data;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		finally {
+			if (is != null)
+				try {is.close();} catch (IOException e) {throw new RuntimeException(e);}
+		}
+	}
+
+	public String handleClob(Clob clob) throws SQLException {
+		if (clob == null)
+			return null;
+
+		Reader reader = null;
+		try {
+			reader = clob.getCharacterStream();
+			if (reader == null)
+				return null;
+			char[] buffer = new char[(int)clob.length()];
+			if (buffer.length == 0)
+				return null;
+			reader.read(buffer);
+			return new String(buffer);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		finally {
+			if (reader != null)
+				try {reader.close();} catch (IOException e) {throw new RuntimeException(e);}
+		}
+	}
+	
+	/* backup before use columnType
+	static final List<Record> build(ResultSet rs) throws SQLException {
+		List<Record> result = new ArrayList<Record>();
+		ResultSetMetaData rsmd = rs.getMetaData();
+		int columnCount = rsmd.getColumnCount();
+		String[] labelNames = getLabelNames(rsmd, columnCount);
+		while (rs.next()) {
+			Record record = new Record();
+			Map<String, Object> columns = record.getColumns();
+			for (int i=1; i<=columnCount; i++) {
+				Object value = rs.getObject(i);
 				columns.put(labelNames[i], value);
 			}
 			result.add(record);
@@ -65,50 +155,40 @@ public class RecordBuilder {
 		return result;
 	}
 	
-	private static final void buildLabelNamesAndTypes(ResultSetMetaData rsmd, String[] labelNames, int[] types) throws SQLException {
-		for (int i=1; i<labelNames.length; i++) {
-			labelNames[i] = rsmd.getColumnLabel(i);
-			types[i] = rsmd.getColumnType(i);
+	private static final String[] getLabelNames(ResultSetMetaData rsmd, int columnCount) throws SQLException {
+		String[] result = new String[columnCount + 1];
+		for (int i=1; i<=columnCount; i++)
+			result[i] = rsmd.getColumnLabel(i);
+		return result;
+	}
+	*/
+	
+	/* backup
+	static final List<Record> build(ResultSet rs) throws SQLException {
+		List<Record> result = new ArrayList<Record>();
+		ResultSetMetaData rsmd = rs.getMetaData();
+		List<String> labelNames = getLabelNames(rsmd);
+		while (rs.next()) {
+			Record record = new Record();
+			Map<String, Object> columns = record.getColumns();
+			for (String lableName : labelNames) {
+				Object value = rs.getObject(lableName);
+				columns.put(lableName, value);
+			}
+			result.add(record);
 		}
+		return result;
 	}
 	
-	public static byte[] handleBlob(Blob blob) throws SQLException {
-		if (blob == null)
-			return null;
-		
-		InputStream is = null;
-		try {
-			is = blob.getBinaryStream();
-			byte[] data = new byte[(int)blob.length()];		// byte[] data = new byte[is.available()];
-			is.read(data);
-			is.close();
-			return data;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+	private static final List<String> getLabelNames(ResultSetMetaData rsmd) throws SQLException {
+		int columCount = rsmd.getColumnCount();
+		List<String> result = new ArrayList<String>();
+		for (int i=1; i<=columCount; i++) {
+			result.add(rsmd.getColumnLabel(i));
 		}
-		finally {
-			try {is.close();} catch (IOException e) {throw new RuntimeException(e);}
-		}
+		return result;
 	}
-	
-	public static String handleClob(Clob clob) throws SQLException {
-		if (clob == null)
-			return null;
-		
-		Reader reader = null;
-		try {
-			reader = clob.getCharacterStream();
-			char[] buffer = new char[(int)clob.length()];
-			reader.read(buffer);
-			return new String(buffer);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		finally {
-			try {reader.close();} catch (IOException e) {throw new RuntimeException(e);}
-		}
-	}
-	
+	*/
 }
 
 

@@ -26,13 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import com.jun.plugin.db.record.Db;
-import com.jun.plugin.db.record.DbKit;
-import com.jun.plugin.db.record.DbRecordException;
-import com.jun.plugin.db.record.Page;
-import com.jun.plugin.db.record.Record;
-import com.jun.plugin.db.record.RecordBuilder;
+import com.jun.plugin.db.record.*;
+import com.jun.plugin.db.record.builder.TimestampProcessedRecordBuilder;
 
 /**
  * AnsiSqlDialect. Try to use ANSI SQL dialect with ActiveRecordPlugin.
@@ -41,39 +38,48 @@ import com.jun.plugin.db.record.RecordBuilder;
  */
 public class AnsiSqlDialect extends Dialect {
 	
+	public AnsiSqlDialect() {
+		this.recordBuilder = TimestampProcessedRecordBuilder.me;
+	}
+	
 	public String forTableBuilderDoBuild(String tableName) {
 		return "select * from " + tableName + " where 1 = 2";
 	}
 	
-	public String forDbFindById(String tableName, String primaryKey, String columns) {
-		StringBuilder sql = new StringBuilder("select ");
-		if (columns.trim().equals("*")) {
-			sql.append(columns);
-		}
-		else {
-			String[] columnsArray = columns.split(",");
-			for (int i=0; i<columnsArray.length; i++) {
-				if (i > 0)
-					sql.append(", ");
-				sql.append(columnsArray[i].trim());
+	public String forDbFindById(String tableName, String[] pKeys) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
+		StringBuilder sql = new StringBuilder("select * from ").append(tableName).append(" where ");
+		for (int i=0; i<pKeys.length; i++) {
+			if (i > 0) {
+				sql.append(" and ");
 			}
+			sql.append(pKeys[i]).append(" = ?");
 		}
-		sql.append(" from ");
-		sql.append(tableName.trim());
-		sql.append(" where ").append(primaryKey).append(" = ?");
 		return sql.toString();
 	}
 	
-	public String forDbDeleteById(String tableName, String primaryKey) {
-		StringBuilder sql = new StringBuilder("delete from ");
-		sql.append(tableName.trim());
-		sql.append(" where ").append(primaryKey).append(" = ?");
+	public String forDbDeleteById(String tableName, String[] pKeys) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
+		StringBuilder sql = new StringBuilder("delete from ").append(tableName).append(" where ");
+		for (int i=0; i<pKeys.length; i++) {
+			if (i > 0) {
+				sql.append(" and ");
+			}
+			sql.append(pKeys[i]).append(" = ?");
+		}
 		return sql.toString();
 	}
 	
-	public void forDbSave(StringBuilder sql, List<Object> paras, String tableName, Record record) {
+	public void forDbSave(String tableName, String[] pKeys, Record record, StringBuilder sql, List<Object> paras) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
 		sql.append("insert into ");
-		sql.append(tableName.trim()).append("(");
+		sql.append(tableName).append('(');
 		StringBuilder temp = new StringBuilder();
 		temp.append(") values(");
 		
@@ -83,17 +89,24 @@ public class AnsiSqlDialect extends Dialect {
 				temp.append(", ");
 			}
 			sql.append(e.getKey());
-			temp.append("?");
+			temp.append('?');
 			paras.add(e.getValue());
 		}
-		sql.append(temp.toString()).append(")");
+		sql.append(temp.toString()).append(')');
 	}
 	
-	public void forDbUpdate(String tableName, String primaryKey, Object id, Record record, StringBuilder sql, List<Object> paras) {
-		sql.append("update ").append(tableName.trim()).append(" set ");
+	public void forDbUpdate(String tableName, String[] pKeys, Object[] ids, Record record, StringBuilder sql, List<Object> paras) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
+		// Record 新增支持 modifyFlag
+//		Set<String> modifyFlag = CPI.getModifyFlag(record);
+		Set<String> modifyFlag = record._getModifyFlag();
+
+		sql.append("update ").append(tableName).append(" set ");
 		for (Entry<String, Object> e: record.getColumns().entrySet()) {
 			String colName = e.getKey();
-			if (!primaryKey.equalsIgnoreCase(colName)) {
+			if (modifyFlag.contains(colName) && !isPrimaryKey(colName, pKeys)) {
 				if (paras.size() > 0) {
 					sql.append(", ");
 				}
@@ -101,15 +114,21 @@ public class AnsiSqlDialect extends Dialect {
 				paras.add(e.getValue());
 			}
 		}
-		sql.append(" where ").append(primaryKey).append(" = ?");
-		paras.add(id);
+		sql.append(" where ");
+		for (int i=0; i<pKeys.length; i++) {
+			if (i > 0) {
+				sql.append(" and ");
+			}
+			sql.append(pKeys[i]).append(" = ?");
+			paras.add(ids[i]);
+		}
 	}
 	
 	/**
 	 * SELECT * FROM subject t1 WHERE (SELECT count(*) FROM subject t2 WHERE t2.id < t1.id AND t2.key = '123') > = 10 AND (SELECT count(*) FROM subject t2 WHERE t2.id < t1.id AND t2.key = '123') < 20 AND t1.key = '123'
 	 */
-	public void forPaginate(StringBuilder sql, int pageNumber, int pageSize, String select) {
-		throw new DbRecordException("Your should not invoke this method because takeOverDbPaginate(...) will take over it.");
+	public String forPaginate(int pageNumber, int pageSize, StringBuilder findSql) {
+		throw new ActiveRecordException("Your should not invoke this method because takeOverDbPaginate(...) will take over it.");
 	}
 	
 	public boolean isTakeOverDbPaginate() {
@@ -117,29 +136,36 @@ public class AnsiSqlDialect extends Dialect {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public Page<Record> takeOverDbPaginate(Connection conn, int pageNumber, int pageSize, String select, boolean count, Object... paras) throws SQLException {
-		long totalRow = 0;
-		int totalPage = 0;
-		if(count) {
-			//TODO 此处该有bug  应该没有指定数据源
-			List result = Db.query(DbKit.getConfig(),conn, "select count(*) from (" +select+") as _tmp", paras);
-			int size = result.size();
-			if (size == 1)
-				totalRow = ((Number)result.get(0)).longValue();
-			else if (size > 1)
-				totalRow = result.size();
-			else
-				return new Page<Record>(new ArrayList<Record>(0), pageNumber, pageSize, 0, 0);
+	public Page<Record> takeOverDbPaginate(Connection conn, int pageNumber, int pageSize, Boolean isGroupBySql, String totalRowSql, StringBuilder findSql, Object... paras) throws SQLException {
+		// String totalRowSql = "select count(*) " + replaceOrderBy(sqlExceptSelect);
+//		List result = CPI.query(conn, totalRowSql, paras);
+		List result = Db.query(totalRowSql, paras);
+		int size = result.size();
+		if (isGroupBySql == null) {
+			isGroupBySql = size > 1;
 		}
 		
-		totalPage = (int) (totalRow / pageSize);
+		long totalRow;
+		if (isGroupBySql) {
+			totalRow = size;
+		} else {
+			totalRow = (size > 0) ? ((Number)result.get(0)).longValue() : 0;
+		}
+		if (totalRow == 0) {
+			return new Page<Record>(new ArrayList<Record>(0), pageNumber, pageSize, 0, 0);
+		}
+		
+		int totalPage = (int) (totalRow / pageSize);
 		if (totalRow % pageSize != 0) {
 			totalPage++;
 		}
+		if (pageNumber > totalPage) {
+			return new Page<Record>(new ArrayList<Record>(0), pageNumber, pageSize, totalPage, (int)totalRow);
+		}
 		
-		StringBuilder sql = new StringBuilder();
-		sql.append(select).append(" ");
-		PreparedStatement pst = conn.prepareStatement(sql.toString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+		// StringBuilder sql = new StringBuilder();
+		// sql.append(select).append(" ").append(sqlExceptSelect);
+		PreparedStatement pst = conn.prepareStatement(findSql.toString(), ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
 		for (int i=0; i<paras.length; i++) {
 			pst.setObject(i + 1, paras[i]);
 		}
@@ -147,9 +173,11 @@ public class AnsiSqlDialect extends Dialect {
 		
 		// move the cursor to the start
 		int offset = pageSize * (pageNumber - 1);
-		for (int i=0; i<offset; i++)
-			if (!rs.next())
+		for (int i=0; i<offset; i++) {
+			if (!rs.next()) {
 				break;
+			}
+		}
 		
 		List<Record> list = buildRecord(rs, pageSize);
 		if (rs != null) rs.close();
@@ -169,17 +197,17 @@ public class AnsiSqlDialect extends Dialect {
 			Map<String, Object> columns = record.getColumns();
 			for (int i=1; i<=columnCount; i++) {
 				Object value;
-				if (types[i] < Types.BLOB)
+				if (types[i] < Types.BLOB) {
 					value = rs.getObject(i);
-				else if (types[i] == Types.CLOB)
-					value = RecordBuilder.handleClob(rs.getClob(i));
-				else if (types[i] == Types.NCLOB)
-					value = RecordBuilder.handleClob(rs.getNClob(i));
-				else if (types[i] == Types.BLOB)
-					value = RecordBuilder.handleBlob(rs.getBlob(i));
-				else
+				} else if (types[i] == Types.CLOB) {
+					value = RecordBuilder.me.handleClob(rs.getClob(i));
+				} else if (types[i] == Types.NCLOB) {
+					value = RecordBuilder.me.handleClob(rs.getNClob(i));
+				} else if (types[i] == Types.BLOB) {
+					value = RecordBuilder.me.handleBlob(rs.getBlob(i));
+				} else {
 					value = rs.getObject(i);
-				
+				}
 				columns.put(labelNames[i], value);
 			}
 			result.add(record);
@@ -189,6 +217,7 @@ public class AnsiSqlDialect extends Dialect {
 	
 	private void buildLabelNamesAndTypes(ResultSetMetaData rsmd, String[] labelNames, int[] types) throws SQLException {
 		for (int i=1; i<labelNames.length; i++) {
+			// 备忘：getColumnLabel 获取 sql as 子句指定的名称而非字段真实名称
 			labelNames[i] = rsmd.getColumnLabel(i);
 			types[i] = rsmd.getColumnType(i);
 		}
@@ -198,4 +227,12 @@ public class AnsiSqlDialect extends Dialect {
 		return true;
 	}
 	
+
+	public void fillStatement(PreparedStatement pst, List<Object> paras) throws SQLException {
+		fillStatementHandleDateType(pst, paras);
+	}
+	
+	public void fillStatement(PreparedStatement pst, Object... paras) throws SQLException {
+		fillStatementHandleDateType(pst, paras);
+	}
 }

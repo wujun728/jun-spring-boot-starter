@@ -20,74 +20,94 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.jun.plugin.db.record.Record;
+import com.jun.plugin.db.record.builder.TimestampProcessedRecordBuilder;
 
 /**
  * OracleDialect.
  */
 public class OracleDialect extends Dialect {
 	
+	public OracleDialect() {
+		this.recordBuilder = TimestampProcessedRecordBuilder.me;
+	}
+	
 	public String forTableBuilderDoBuild(String tableName) {
 		return "select * from " + tableName + " where rownum < 1";
 	}
 	
-	public String forDbFindById(String tableName, String primaryKey, String columns) {
-		StringBuilder sql = new StringBuilder("select ");
-		if (columns.trim().equals("*")) {
-			sql.append(columns);
-		}
-		else {
-			String[] columnsArray = columns.split(",");
-			for (int i=0; i<columnsArray.length; i++) {
-				if (i > 0)
-					sql.append(", ");
-				sql.append(columnsArray[i].trim());
+
+	public String forDbFindById(String tableName, String[] pKeys) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
+		StringBuilder sql = new StringBuilder("select * from ").append(tableName).append(" where ");
+		for (int i=0; i<pKeys.length; i++) {
+			if (i > 0) {
+				sql.append(" and ");
 			}
+			sql.append(pKeys[i]).append(" = ?");
 		}
-		sql.append(" from ");
-		sql.append(tableName.trim());
-		sql.append(" where ").append(primaryKey).append(" = ?");
 		return sql.toString();
 	}
 	
-	public String forDbDeleteById(String tableName, String primaryKey) {
-		StringBuilder sql = new StringBuilder("delete from ");
-		sql.append(tableName.trim());
-		sql.append(" where ").append(primaryKey).append(" = ?");
+	public String forDbDeleteById(String tableName, String[] pKeys) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
+		StringBuilder sql = new StringBuilder("delete from ").append(tableName).append(" where ");
+		for (int i=0; i<pKeys.length; i++) {
+			if (i > 0) {
+				sql.append(" and ");
+			}
+			sql.append(pKeys[i]).append(" = ?");
+		}
 		return sql.toString();
 	}
 	
-	public void forDbSave(StringBuilder sql, List<Object> paras, String tableName, Record record) {
+	public void forDbSave(String tableName, String[] pKeys, Record record, StringBuilder sql, List<Object> paras) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
 		sql.append("insert into ");
-		sql.append(tableName.trim()).append("(");
+		sql.append(tableName).append('(');
 		StringBuilder temp = new StringBuilder();
 		temp.append(") values(");
 		
 		int count = 0;
 		for (Entry<String, Object> e: record.getColumns().entrySet()) {
+			String colName = e.getKey();
 			if (count++ > 0) {
 				sql.append(", ");
 				temp.append(", ");
 			}
-			sql.append(e.getKey());
+			sql.append(colName);
 			
 			Object value = e.getValue();
-			if(value instanceof String && (((String)value).endsWith(".nextval"))) {
+			if (value instanceof String && isPrimaryKey(colName, pKeys) && ((String)value).endsWith(".nextval")) {
 			    temp.append(value);
-			}else{
-				temp.append("?");
+			} else {
+				temp.append('?');
 				paras.add(value);
 			}
 		}
-		sql.append(temp.toString()).append(")");
+		sql.append(temp.toString()).append(')');
 	}
 	
-	public void forDbUpdate(String tableName, String primaryKey, Object id, Record record, StringBuilder sql, List<Object> paras) {
-		sql.append("update ").append(tableName.trim()).append(" set ");
+	public void forDbUpdate(String tableName, String[] pKeys, Object[] ids, Record record, StringBuilder sql, List<Object> paras) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
+		// Record 新增支持 modifyFlag
+//		Set<String> modifyFlag = CPI.getModifyFlag(record);
+		Set<String> modifyFlag = record._getModifyFlag();
+		
+		sql.append("update ").append(tableName).append(" set ");
 		for (Entry<String, Object> e: record.getColumns().entrySet()) {
 			String colName = e.getKey();
-			if (!primaryKey.equalsIgnoreCase(colName)) {
+			if (modifyFlag.contains(colName) && !isPrimaryKey(colName, pKeys)) {
 				if (paras.size() > 0) {
 					sql.append(", ");
 				}
@@ -95,17 +115,25 @@ public class OracleDialect extends Dialect {
 				paras.add(e.getValue());
 			}
 		}
-		sql.append(" where ").append(primaryKey).append(" = ?");
-		paras.add(id);
+		sql.append(" where ");
+		for (int i=0; i<pKeys.length; i++) {
+			if (i > 0) {
+				sql.append(" and ");
+			}
+			sql.append(pKeys[i]).append(" = ?");
+			paras.add(ids[i]);
+		}
 	}
 	
-	public void forPaginate(StringBuilder sql, int pageNumber, int pageSize, String select) {
-		int satrt = (pageNumber - 1) * pageSize + 1;
+	public String forPaginate(int pageNumber, int pageSize, StringBuilder findSql) {
+		int start = (pageNumber - 1) * pageSize;
 		int end = pageNumber * pageSize;
-		sql.append("select * from ( select row_.*, rownum rownum_ from (  ");
-		sql.append(select).append(" ");
-		sql.append(" ) row_ where rownum <= ").append(end).append(") table_alias");
-		sql.append(" where table_alias.rownum_ >= ").append(satrt);
+		StringBuilder ret = new StringBuilder();
+		ret.append("select * from ( select row_.*, rownum rownum_ from (  ");
+		ret.append(findSql);
+		ret.append(" ) row_ where rownum <= ").append(end).append(") table_alias");
+		ret.append(" where table_alias.rownum_ > ").append(start);
+		return ret.toString();
 	}
 	
 	public boolean isOracle() {
@@ -113,25 +141,11 @@ public class OracleDialect extends Dialect {
 	}
 	
 	public void fillStatement(PreparedStatement pst, List<Object> paras) throws SQLException {
-		for (int i=0, size=paras.size(); i<size; i++) {
-			Object value = paras.get(i);
-			if (value instanceof java.sql.Date)
-				pst.setDate(i + 1, (java.sql.Date)value);
-			else
-				pst.setObject(i + 1, value);
-		}
+		fillStatementHandleDateType(pst, paras);
 	}
 	
 	public void fillStatement(PreparedStatement pst, Object... paras) throws SQLException {
-		for (int i=0; i<paras.length; i++) {
-			Object value = paras[i];
-			if (value instanceof java.sql.Date)
-				pst.setDate(i + 1, (java.sql.Date)value);
-			else if (value instanceof java.sql.Timestamp)
-				pst.setTimestamp(i + 1, (java.sql.Timestamp)value);
-			else
-				pst.setObject(i + 1, value);
-		}
+		fillStatementHandleDateType(pst, paras);
 	}
 	
 	public String getDefaultPrimaryKey() {

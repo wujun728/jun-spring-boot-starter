@@ -18,47 +18,66 @@ package com.jun.plugin.db.record.dialect;
 
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.jun.plugin.db.record.Record;
+import com.jun.plugin.db.record.builder.TimestampProcessedRecordBuilder;
 
 /**
  * MysqlDialect.
  */
 public class MysqlDialect extends Dialect {
+
+	public MysqlDialect() {
+		this.recordBuilder = TimestampProcessedRecordBuilder.me;
+	}
 	
 	public String forTableBuilderDoBuild(String tableName) {
 		return "select * from `" + tableName + "` where 1 = 2";
 	}
 	
-	public String forDbFindById(String tableName, String primaryKey, String columns) {
-		StringBuilder sql = new StringBuilder("select ");
-		if (columns.trim().equals("*")) {
-			sql.append(columns);
-		}
-		else {
-			String[] columnsArray = columns.split(",");
-			for (int i=0; i<columnsArray.length; i++) {
-				if (i > 0)
-					sql.append(", ");
-				sql.append("`").append(columnsArray[i].trim()).append("`");
+	public String forFindAll(String tableName) {
+		return "select * from `" + tableName + "`";
+	}
+	
+
+	public String forDbFindById(String tableName, String[] pKeys) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
+		StringBuilder sql = new StringBuilder("select * from `").append(tableName).append("` where ");
+		for (int i=0; i<pKeys.length; i++) {
+			if (i > 0) {
+				sql.append(" and ");
 			}
+			sql.append('`').append(pKeys[i]).append("` = ?");
 		}
-		sql.append(" from `");
-		sql.append(tableName.trim());
-		sql.append("` where `").append(primaryKey).append("` = ?");
 		return sql.toString();
 	}
 	
-	public String forDbDeleteById(String tableName, String primaryKey) {
-		StringBuilder sql = new StringBuilder("delete from `");
-		sql.append(tableName.trim());
-		sql.append("` where `").append(primaryKey).append("` = ?");
+	public String forDbDeleteById(String tableName, String[] pKeys) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
+		StringBuilder sql = new StringBuilder("delete from `").append(tableName).append("` where ");
+		for (int i=0; i<pKeys.length; i++) {
+			if (i > 0) {
+				sql.append(" and ");
+			}
+			sql.append('`').append(pKeys[i]).append("` = ?");
+		}
 		return sql.toString();
 	}
 	
-	public void forDbSave(StringBuilder sql, List<Object> paras, String tableName, Record record) {
+	/**
+	 * Do not delete the String[] pKeys parameter, the element of pKeys needs to trim()
+	 */
+	public void forDbSave(String tableName, String[] pKeys, Record record, StringBuilder sql, List<Object> paras) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);	// important
+		
 		sql.append("insert into `");
-		sql.append(tableName.trim()).append("`(");
+		sql.append(tableName).append("`(");
 		StringBuilder temp = new StringBuilder();
 		temp.append(") values(");
 		
@@ -67,32 +86,44 @@ public class MysqlDialect extends Dialect {
 				sql.append(", ");
 				temp.append(", ");
 			}
-			sql.append("`").append(e.getKey()).append("`");
-			temp.append("?");
+			sql.append('`').append(e.getKey()).append('`');
+			temp.append('?');
 			paras.add(e.getValue());
 		}
-		sql.append(temp.toString()).append(")");
+		sql.append(temp.toString()).append(')');
 	}
 	
-	public void forDbUpdate(String tableName, String primaryKey, Object id, Record record, StringBuilder sql, List<Object> paras) {
-		sql.append("update `").append(tableName.trim()).append("` set ");
+	public void forDbUpdate(String tableName, String[] pKeys, Object[] ids, Record record, StringBuilder sql, List<Object> paras) {
+		tableName = tableName.trim();
+		trimPrimaryKeys(pKeys);
+		
+		// Record 新增支持 modifyFlag
+		Set<String> modifyFlag = record._getModifyFlag();
+		
+		sql.append("update `").append(tableName).append("` set ");
 		for (Entry<String, Object> e: record.getColumns().entrySet()) {
 			String colName = e.getKey();
-			if (!primaryKey.equalsIgnoreCase(colName)) {
+			if (modifyFlag.contains(colName) && !isPrimaryKey(colName, pKeys)) {
 				if (paras.size() > 0) {
 					sql.append(", ");
 				}
-				sql.append("`").append(colName).append("` = ? ");
+				sql.append('`').append(colName).append("` = ? ");
 				paras.add(e.getValue());
 			}
 		}
-		sql.append(" where `").append(primaryKey).append("` = ?");	// .append(" limit 1");
-		paras.add(id);
+		sql.append(" where ");
+		for (int i=0; i<pKeys.length; i++) {
+			if (i > 0) {
+				sql.append(" and ");
+			}
+			sql.append('`').append(pKeys[i]).append("` = ?");
+			paras.add(ids[i]);
+		}
 	}
 	
-	public void forPaginate(StringBuilder sql, int pageNumber, int pageSize, String select) {
+	public String forPaginate(int pageNumber, int pageSize, StringBuilder findSql) {
 		int offset = pageSize * (pageNumber - 1);
-		sql.append(select).append(" ");
-		sql.append(" limit ").append(offset).append(", ").append(pageSize);	// limit can use one or two '?' to pass paras
+		findSql.append(" limit ").append(offset).append(", ").append(pageSize);	// limit can use one or two '?' to pass paras
+		return findSql.toString();
 	}
 }
