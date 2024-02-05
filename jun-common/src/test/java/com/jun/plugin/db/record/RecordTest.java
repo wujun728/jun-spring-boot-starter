@@ -49,15 +49,17 @@ public class RecordTest {
 			@Override
 			public boolean run() throws SQLException {
 				try {
-					Record r = new Record();
-					r.set("id", "ddddd");
-					Db.save("biz_test", r);
+					Record r1 = new Record();
+					r1.set("id", "ddddd");
+					Db.save("biz_test", r1);
 
-					r.set("id", "ddddd");
-					r.set("remarks", "remarks");
-					Db.update("biz_test", "id", r);
+					Record r12 = new Record();
+					r12.set("id", "ddddd");
+					r12.set("remarks", "remarks");
+					Db.update("biz_test", "id", r12);
 
 				} catch (Exception e) {
+					e.printStackTrace();
 					return false;
 				}
 				return true;

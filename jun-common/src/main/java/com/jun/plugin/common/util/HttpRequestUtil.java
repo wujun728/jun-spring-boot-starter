@@ -1,6 +1,8 @@
 package com.jun.plugin.common.util;
 
+import cn.hutool.core.util.EscapeUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONConverter;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson2.JSON;
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -68,7 +71,7 @@ public class HttpRequestUtil {
 		// 解析contentType 格式: appliation/json;charset=utf-8
 		String[] contentTypeArr = unParseContentType.split(";");
 		String contentType = contentTypeArr[0];
-		Map<String, Object> params = null;
+		Map<String, Object> params = Maps.newHashMap();
 		// 如果是application/json请求，不管接口规定的content-type是什么，接口都可以访问，且请求参数都以json body 为准
 		if (contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
 			params = getHttpJsonParams(request);
@@ -115,7 +118,9 @@ public class HttpRequestUtil {
 				sb.append(line);
 			}
 			br.close();
-			JSONObject jsonObject = JSON.parseObject(sb.toString());
+			//String json = StringEscapeUtils.unescapeJson(sb.toString());
+			String jsonContent = JSONUtil.escape(sb.toString());
+			JSONObject jsonObject = JSON.parseObject(jsonContent);
 			return jsonObject;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
@@ -123,6 +128,31 @@ public class HttpRequestUtil {
 
 		}
 		return null;
+	}
+
+
+	public static void main(String[] args) {
+		StringBuilder sb= new StringBuilder();
+		sb.append("\"{\\\"id\\\":\\\"\\\",\\\"tableName\\\":\\\"sys_app\\\",\\\"tablePrefix\\\":\\\"Y\\\",\\\"tableComment\\\":\\\"系统应用表\\\",\\\"className\\\":\\\"App\\\",\\\"busName\\\":\\\"app\\\",\\\"generateType\\\":\\\"1\\\",\\\"appCode\\\":\\\"system\\\",\\\"menuPid\\\":\\\"1264622039642255331\\\",\\\"authorName\\\":\\\"22222\\\",\\\"packageName\\\":\\\"vip.xiaonuo\\\"}\"");
+		String json = sb.toString();
+		System.out.println(json);
+		String jsonContent = JSONUtil.formatJsonStr(json);
+		System.out.println(jsonContent);
+
+//		String unescapedJson = json;//StringEscapeUtils.unescapeJson(json);
+		String unescapedJson = StringEscapeUtils.unescapeJson(json);
+		String unescapedJson111 = unescapedJson.substring(1,unescapedJson.length()-1);
+		System.out.println(JSONUtil.isTypeJSON(unescapedJson111));
+		System.out.println(unescapedJson111);
+		JSONObject jsonObject = new JSONObject();
+		JSONArray jsonArray = new JSONArray();
+		Object jsonObj = JSON.parse(unescapedJson111);
+		if (jsonObj instanceof JSONObject) {
+			jsonObject = (JSONObject) jsonObj;
+		} else if (jsonObj instanceof JSONArray) {
+			jsonArray = (JSONArray) jsonObj;
+		}
+
 	}
 
 
@@ -138,24 +168,31 @@ public class HttpRequestUtil {
 				sb.append(line);
 			}
 			br.close();
-
+			String json = sb.toString();
+			json = StringEscapeUtils.unescapeJson(json);
+			if(StrUtil.isNotEmpty(json) && json.length()>2 && json.startsWith("\"") && json.endsWith("\"")){
+				json = json.substring(1,json.length()-1);
+			}
 			JSONObject jsonObject = new JSONObject();
 			JSONArray jsonArray = new JSONArray();
-//			if(JSONUtil.isTypeJSON(sb.toString())){
-//				if(JSONUtil.isTypeJSONObject(sb.toString())){
-//					jsonObject = JSONObject.from(JSONUtil.parseObj(sb.toString()));
+			String jsonContent = json;
+//			if(JSONUtil.isTypeJSON(jsonContent) ){
+//				if(JSONUtil.isTypeJSONObject(jsonContent)){
+//					jsonObject =  JSONUtil.parseObj(jsonContent).to;
 //				}
-//				if(JSONUtil.isTypeJSONArray(sb.toString())){
-//					jsonArray = JSONArray.of(JSONUtil.parseArray(sb.toString()));
+//				if(JSONUtil.isTypeJSONArray(jsonContent)){
+//					jsonArray = JSONArray.of(JSONUtil.parseArray(jsonContent));
 //				}
 //			}else{
-//				StaticLog.error("非JSON格式数据，无法解析："+sb.toString());
+//				StaticLog.error("非JSON格式数据，无法解析："+jsonContent);
 //			}
-			Object jsonObj = JSON.parse(sb.toString());
-			if (jsonObj instanceof JSONObject) {
+			Object jsonObj = JSON.parse(jsonContent);
+			if (jsonObj instanceof JSONObject  ||  JSONUtil.isTypeJSONObject(jsonContent) ) {
 				jsonObject = (JSONObject) jsonObj;
-			} else if (jsonObj instanceof JSONArray) {
+			} else if (jsonObj instanceof JSONArray || JSONUtil.isTypeJSONArray(jsonContent) ) {
 				jsonArray = (JSONArray) jsonObj;
+			}else{
+				StaticLog.error("非JSON格式数据，无法解析："+jsonContent);
 			}
 			if (!ObjectUtils.isEmpty(jsonObject)) {
 				//params = JSONObject.parseObject(jsonObject.toJSONString(), new TypeReference<Map<String, Object>>() { });
@@ -167,10 +204,8 @@ public class HttpRequestUtil {
 			return params;
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
-		} finally {
-
 		}
-		return null;
+		return Maps.newHashMap();
 	}
 
 
@@ -420,7 +455,7 @@ public class HttpRequestUtil {
 	}
 
 
-	public static void main(String[] args) {
+	public static void main1(String[] args) {
 
 		String jsonString = "{\n" +
 				"    \"name\":\"John\",\n" +

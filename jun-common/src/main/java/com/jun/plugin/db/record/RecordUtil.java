@@ -144,14 +144,29 @@ public class RecordUtil {
         return obj;
     }
 
-    public static List<Map<String, Object>> recordToMaps(List<Record> recordList){
+    public static List<Map> recordToMaps(List<Record> recordList){
         if (recordList == null || recordList.size() == 0){
             return null;
         }
-        List<Map<String, Object>> list = new ArrayList<>();
+        List<Map> list = new ArrayList<>();
         for (Record record : recordList){
             try {
                 list.add(RecordUtil.recordToMap(record));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return list;
+    }
+    @Deprecated
+    public static List<Map> recordToMaps2(List<Record> recordList){
+        if (recordList == null || recordList.size() == 0){
+            return null;
+        }
+        List<Map> list = new ArrayList<>();
+        for (Record record : recordList){
+            try {
+                list.add(RecordUtil.recordToMap2(record));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -186,6 +201,18 @@ public class RecordUtil {
 
     public static Map<String, Object> recordToMap(Record record) {
         Map<String, Object> map = new HashMap<String, Object>();
+        if (record != null) {
+            String[] columns = record.getColumnNames();
+            for (String col : columns) {
+                String fieldName = FieldUtils.columnNameToFieldName(col);
+                map.put(fieldName, record.get(col));
+            }
+        }
+        return map;
+    }
+    @Deprecated
+    public static Map recordToMap2(Record record) {
+        Map  map = new HashMap<String, Object>();
         if (record != null) {
             String[] columns = record.getColumnNames();
             for (String col : columns) {

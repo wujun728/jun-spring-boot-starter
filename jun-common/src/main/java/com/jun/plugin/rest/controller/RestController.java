@@ -19,10 +19,7 @@ import com.jun.plugin.common.util.HttpRequestUtil;
 import com.jun.plugin.common.Result;
 import com.jun.plugin.common.exception.BusinessException;
 import com.jun.plugin.common.util.FieldUtils;
-import com.jun.plugin.db.record.Db;
-import com.jun.plugin.db.record.Page;
-import com.jun.plugin.db.record.Record;
-import com.jun.plugin.db.record.RecordUtil;
+import com.jun.plugin.db.record.*;
 import com.jun.plugin.common.util.IdGenerator;
 import com.jun.plugin.rest.util.RestUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -72,12 +70,9 @@ public class RestController {
             Result fail = check(tableName);
             if (fail != null) return fail;
             Table table = tableCache.get().get(tableName);
-//            String id = MapUtil.getStr(parameters, "id");
-//            String eq = MapUtil.getStr(parameters, "eq");
-//            String like = MapUtil.getStr(parameters, "like");
+            Boolean isPage = false;
             Integer page = MapUtil.getInt(parameters, "page");
             Integer limit = MapUtil.getInt(parameters, "limit");
-            Boolean isPage = false;
             if ((page == null || page == 0) || (limit == null || limit == 0)) {
                 page = 1;
                 limit = 10;
@@ -90,27 +85,26 @@ public class RestController {
             String from = " from " + tableName;
             sql.append(select);
             sql.append(from);
-//            if (StrUtil.isNotEmpty(eq)) {
-//                eq = eq.replace(":", "=").replace(",", "AND");
-//                sql.append("WHERE ");
-//                sql.append("" + eq);
-//            }
-//            List<Map> likes = JSON.parseArray(like, Map.class);
             String where = RestUtil.getQueryCondition(parameters,table);
             if (isPage) {
                 if(StrUtil.isNotEmpty(where)){
                     from = from + " where 1=1 "+ where;
                 }
-//                Page<Record> pages = Db.use(main).paginate(page, limit, sql.toString(), null);
                 Page<Record> pages = Db.use(main).paginate(page, limit, select, from);
-                List<Map<String, Object>> datas = RecordUtil.recordToMaps(pages.getList());
+                List<Map> datas = RecordUtil.recordToMaps2(pages.getList());
                 return Result.success(datas).put("count", pages.getTotalRow()).put("pageSize", pages.getPageSize()).put("totalPage", pages.getTotalPage()).put("pageNumber", pages.getPageNumber());
             } else {
                 if(StrUtil.isNotEmpty(where)){
                     sql.append(" where 1=1 "+ where);
                 }
                 List<Record> lists = Db.use(main).find(sql.toString());
-                List<Map<String, Object>> datas = RecordUtil.recordToMaps(lists);
+                List<Map> datas = RecordUtil.recordToMaps2(lists);
+                String tree = MapUtil.getStr(parameters, "tree");
+                if(StrUtil.isNotEmpty(tree) && tree.contains(",")){
+                    String id = tree.split(",")[0];
+                    String pid = tree.split(",")[1];
+                    RestUtil.buildTree(datas,id,pid);
+                }
                 return Result.success(datas);
             }
         } catch (Exception e) {
@@ -157,8 +151,8 @@ public class RestController {
             Table table = tableCache.get().get(tableName);
             String primaryKey = RestUtil.getTablePrimaryKes(table);
             List args = RestUtil.getPrimaryKeyArgs(parameters, table);
-            Boolean flag = Db.use(main).deleteByIds(tableName, primaryKey, args.toArray());
-//            Boolean flag = Db.use(main).deleteById(tableName,primaryKey, args.get(0));
+            Boolean flag = Db.use(main).tx(() -> Db.use(main).deleteByIds(tableName, primaryKey, args.toArray()));
+//            Boolean flag = Db.use(main).deleteByIds(tableName, primaryKey, args.toArray());
             if (flag) {
                 return Result.success("删除成功！",flag);
             } else {
@@ -178,7 +172,7 @@ public class RestController {
     }
 
 
-    @RequestMapping(path = {"/save"}, produces = "application/json")
+    @RequestMapping(path = {"/save","/add"}, produces = "application/json")
     //@ApiOperation(value = "新增实体数据", notes = "{\"name\":\"tom\",\"args\":1}")
     public Result create(@PathVariable("entityName") String entityName, HttpServletRequest request) {
         try {
@@ -200,7 +194,7 @@ public class RestController {
         }
     }
 
-    @RequestMapping(path = "/update", produces = "application/json")
+    @RequestMapping(path = {"/update","/edit"}, produces = "application/json")
     //@ApiOperation(value = "更新实体数据", notes = "不需要更新的字段不设置或设置为空,{\"name\":\"tom\",\"args\":1}")
     public Result update(@PathVariable("entityName") String entityName, HttpServletRequest request) {
         try {
@@ -271,9 +265,11 @@ public class RestController {
         //Step4，根据表定义拿到全部参数并生成入库的对象，并持久化并返回数据
         Boolean isSucess;
         if (isSaveOrUpdate) {
-            isSucess = Db.use(main).save(tableName, record);
+            Record finalRecord = record;
+            isSucess = Db.use(main).tx(() -> Db.use(main).save(tableName, finalRecord));
         } else {
-            isSucess = Db.use(main).update(tableName, record);
+            Record finalRecord1 = record;
+            isSucess = Db.use(main).tx(() -> Db.use(main).update(tableName, finalRecord1));
         }
         System.out.println("返回数据为：" + JSONUtil.toJsonStr(isSucess));
         if (isSucess) {

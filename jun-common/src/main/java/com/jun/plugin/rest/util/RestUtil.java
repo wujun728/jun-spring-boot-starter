@@ -1,6 +1,7 @@
 package com.jun.plugin.rest.util;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
@@ -13,12 +14,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jun.plugin.common.exception.BusinessException;
 import com.jun.plugin.common.util.FieldUtils;
+import com.jun.plugin.common.util.StringUtil;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class RestUtil {
 
@@ -115,15 +119,12 @@ public class RestUtil {
 
     public static String getQueryCondition(Map<String, Object> parameters, Table table) {
         StringBuffer sqlbuilder = new StringBuffer();
-        Map<String,String> where = Maps.newHashMap();
         Collection<Column> columns = table.getColumns();
         for(String key : parameters.keySet()){
             for (Column column : columns) {
-//                if(!isExistsParamname(parameters,column.getName())){
-////                    StaticLog.info(key+" param is not exists in columns ");
-//                }else{
                 String fieldName = FieldUtils.columnNameToFieldName(column.getName());
-                if(key.contains(column.getName()) || key.contains(fieldName)){
+                // fielc.like=abc    field=abc    content-type=abc
+                if(key.startsWith(column.getName()) || key.startsWith(fieldName) || key.contains(fieldName) || key.contains(column.getName())){
                     if(key.contains(".")){
                         String keys[] = key.split("\\.");
                         String field = keys[0];
@@ -131,12 +132,12 @@ public class RestUtil {
                         String val = RestUtil.getParamValue(parameters, key);
                         sqlbuilder.append(" AND" + join(ex,column.getName(),val));
                     }else{
-                        String val = RestUtil.getParamValue(parameters, key);
-                        sqlbuilder.append(" AND" + join("eq",column.getName(),val));
+                        if(key.equalsIgnoreCase(fieldName) || key.equalsIgnoreCase(column.getName())){
+                            String val = RestUtil.getParamValue(parameters, key);
+                            sqlbuilder.append(" AND" + join("eq",column.getName(),val));
+                        }
                     }
                 }
-
-//                }
             }
         }
         return sqlbuilder.toString();
@@ -187,4 +188,69 @@ public class RestUtil {
         }
         return sql.toString();
     }
+
+
+    @ApiOperation("将Map集合构建为树集合")
+    public static void buildTree(@ApiParam("Map集合") Collection<Map> collection, @ApiParam("key属性名称") String key, @ApiParam("parent属性名称") String parent) {
+        String childrenKey = "children";
+        buildTree(collection, (item) -> {
+            return item.get(key);
+        }, (item) -> {
+            return item.get(parent);
+        }, (item) -> {
+            return (ArrayList)getValue(item,childrenKey, new ArrayList());
+        }, (BiConsumer)null);
+    }
+
+    @ApiOperation("获取对象值")
+    public static List  getValue(Map map,String key, List defaultValue) {
+        List value = (List) map.get(key);
+        if (StringUtil.isEmpty(value)) {
+            value = defaultValue;
+            map.put(key, defaultValue);
+        }
+        return value;
+    }
+
+    @ApiOperation("将集合构建为树集合")
+    public static <T, K> void buildTree(@ApiParam("集合") Collection<T> collection, @ApiParam("key值lambda表达式") Function<T, K> keyMapper, @ApiParam("parent值lambda表达式") Function<T, K> parentMapper, @ApiParam("获取子集合lambda表达式") Function<T, Collection<T>> getChildrenMapper, @ApiParam("设置子集合lambda表达式") BiConsumer<T, Collection<T>> setChildrenMapper) {
+        Map<K, T> map = toMap(collection, (item) -> {
+            Collection<T> children = (Collection)getChildrenMapper.apply(item);
+            if (children == null) {
+                Collection<T> childrenx = new ArrayList();
+                setChildrenMapper.accept(item, childrenx);
+            }
+
+            return keyMapper.apply(item);
+        });
+        Iterator<T> iterator = collection.iterator();
+        while(iterator.hasNext()) {
+            T t = iterator.next();
+            T parentT = map.get(parentMapper.apply(t));
+            if (parentT != null) {
+                Collection<T> children = (Collection)getChildrenMapper.apply(parentT);
+                children.add(t);
+                iterator.remove();
+            }
+        }
+
+    }
+
+    @ApiOperation("将对象集合转换为对象Map")
+    public static <T, K> Map<K, T> toMap(@ApiParam("集合") Collection<T> collection, @ApiParam("Map键值lambda表达式") Function<T, K> keyMapper) {
+        return toMap(collection, keyMapper, (item) -> {
+            return item;
+        });
+    }
+
+    @ApiOperation("将对象集合转换为对象Map")
+    public static <T, K, V> Map<K, V> toMap(@ApiParam("集合") Collection<T> collection, @ApiParam("Map键值lambda表达式") Function<T, K> keyMapper, @ApiParam("新对象lambda表达式") Function<T, V> valueMapper) {
+        return (Map)collection.stream().collect(Collectors.toMap(keyMapper, valueMapper));
+    }
+
+    @ApiOperation("将对象集合转换为新对象集合")
+    public static <T, N> List<N> map(@ApiParam("集合") Collection<T> collection, @ApiParam("新对象lambda表达式") Function<T, N> mapper) {
+        return (List)collection.stream().map(mapper).collect(Collectors.toList());
+    }
+
 }

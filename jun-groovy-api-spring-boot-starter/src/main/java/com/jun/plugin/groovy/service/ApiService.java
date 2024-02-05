@@ -74,11 +74,11 @@ public class ApiService {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Map<String, Object>> querySQLList(String apiId) {
+	public List<Map> querySQLList(String apiId) {
 		List<Record> lists = Db.use(main).find("select * from  "+tablename+"  ");
 		// List<Map<String, Object>> lists = jdbcTemplate.queryForList("select * from api_sql where api_id = "+apiId);
 		List<ApiSql> datas = RecordUtil.recordToListBean(lists,ApiSql.class);
-		List<Map<String, Object>>  datas2 = RecordUtil.recordToMaps(lists);
+		List<Map>  datas2 = RecordUtil.recordToMaps(lists);
 //		List<ApiSql> datas = RecordUtil.mapToBeans(lists,ApiSql.class);
 		//log.info(JSON.toJSONString(datas));
 		return datas2;
