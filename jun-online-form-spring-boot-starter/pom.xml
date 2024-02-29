@@ -5,15 +5,16 @@
 
     <groupId>com.jun.plugin</groupId>
     <artifactId>jun-online-form-spring-boot-starter</artifactId>
-	<version>1.0</version>
+    <version>1.0.10</version>
     <packaging>jar</packaging>
-    <name>onlineForm在线表单</name>
+    <name>jun-online-form-starter(onlineForm在线表单)</name>
 
     <dependencies>
         <dependency>
             <groupId>io.github.wujun728</groupId>
             <artifactId>jun-common</artifactId>
-            <version>1.0.9</version>
+            <version>1.0.10</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -25,6 +26,11 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>3.5.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>1.5.5.Final</version>
         </dependency>
     </dependencies>
 

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.jun.plugin</groupId>
-    <version>1.0</version>
+    <version>1.0.10</version>
     <artifactId>jun-generator-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
     <name>代码生成器</name>
@@ -20,12 +20,12 @@
         <dependency>
             <groupId>io.github.wujun728</groupId>
             <artifactId>jun-common</artifactId>
-            <version>1.0.9</version>
+            <version>1.0.10</version>
         </dependency>
         <dependency>
             <groupId>io.github.wujun728</groupId>
             <artifactId>jun-groovy-api-spring-boot-starter</artifactId>
-            <version>1.0.9</version>
+            <version>1.0.10</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-generator -->
         <dependency>

@@ -8,8 +8,6 @@
 	<artifactId>jun-framework</artifactId>
 	<version>1.0.8.5</version>
 	<name>jun-framework基础框架模块</name>
-	<description>jun-common</description>
-	<url>https://github.com/wujun728/jun_jar_publish/jun-common</url>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -20,7 +18,7 @@
         <dependency>
             <groupId>io.github.wujun728</groupId>
             <artifactId>jun-common</artifactId>
-            <version>1.0.8.5</version>
+			<version>1.0.10</version>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>

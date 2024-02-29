@@ -24,6 +24,7 @@
 		<module>jun-security-spring-boot-starter</module>
 		<module>jun-uidgenerator-spring-boot-starter</module>
 		<module>jun-online-form-spring-boot-starter</module>
+		<module>jun-generator-spring-boot-starter</module>
 	</modules>
 
 	<dependencies>
