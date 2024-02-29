@@ -32,7 +32,7 @@ import java.util.Map;
 </#if>
 /**
 * @description ${classInfo.classComment}
-* @author ${authorName}
+* @author ${authorName} 默认模板
 * @date ${.now?string('yyyy-MM-dd')}
 */
 @Api(tags = "${classInfo.classComment}-管理")

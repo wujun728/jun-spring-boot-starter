@@ -1086,5 +1086,24 @@ public class StringUtil extends StringUtils {
 		return "\'" + param + "\'";
 	}
 
+
+	/**
+	 * public int indexOf(int ch, int fromIndex)
+	 * 返回在此字符串中第一次出现指定字符处的索引，从指定的索引开始搜索
+	 *
+	 * @param srcText
+	 * @param findText
+	 * @return
+	 */
+	public static int appearNumber(String srcText, String findText) {
+		int count = 0;
+		int index = 0;
+		while ((index = srcText.indexOf(findText, index)) != -1) {
+			index = index + findText.length();
+			count++;
+		}
+		return count;
+	}
+
 }
 

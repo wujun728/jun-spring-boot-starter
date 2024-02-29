@@ -8,7 +8,7 @@ import java.util.List;
 </#if>
 /**
  * @description ${classInfo.classComment}Mapper
- * @author ${authorName}
+ * @author ${authorName}  默认模板
  * @date ${.now?string('yyyy-MM-dd')}
  */
 @Mapper

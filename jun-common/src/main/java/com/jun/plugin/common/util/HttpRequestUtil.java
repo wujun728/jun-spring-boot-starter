@@ -216,7 +216,7 @@ public class HttpRequestUtil {
 		while (headerKeys.hasMoreElements()) {
 			String key = headerKeys.nextElement();
 			String value = request.getHeader(key);
-			result.put(key, value);
+			result.put("header."+key, value);
 		}
 		return result;
 	}
@@ -226,7 +226,7 @@ public class HttpRequestUtil {
 		Map<String, Object> result = new HashMap<>();
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement();
-			result.put(key, request.getSession().getAttribute(key));
+			result.put("session."+key, request.getSession().getAttribute(key));
 		}
 		return result;
 	}

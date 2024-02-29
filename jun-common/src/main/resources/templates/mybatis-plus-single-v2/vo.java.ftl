@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiModelProperty;</#if>
 </#if>
 /**
  * @description ${classInfo.classComment}
- * @author ${authorName}
+ * @author ${authorName}  默认模板
  * @date ${.now?string('yyyy-MM-dd')}
  */
 <#if isLombok?exists && isLombok==true>@Data</#if><#if isSwagger?exists && isSwagger==true>
