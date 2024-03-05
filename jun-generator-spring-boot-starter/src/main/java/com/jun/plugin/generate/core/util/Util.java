@@ -50,7 +50,7 @@ public class Util {
      */
     public static void DownloadGen(HttpServletResponse response, byte[] bytes) throws IOException {
         response.reset();
-        response.setHeader("Content-Disposition", "attachment; filename=\"SnowyLayui.zip\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"CodeGenerator.zip\"");
         response.addHeader("Content-Length", "" + bytes.length);
         response.setContentType("application/octet-stream; charset=UTF-8");
         IOUtils.write(bytes, response.getOutputStream());
