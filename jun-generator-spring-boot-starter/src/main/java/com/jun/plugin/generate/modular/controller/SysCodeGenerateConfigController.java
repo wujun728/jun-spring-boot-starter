@@ -29,10 +29,7 @@ import com.jun.plugin.generate.core.ref.ResponseData;
 import com.jun.plugin.generate.core.ref.SuccessResponseData;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 //import vip.xiaonuo.core.annotion.BusinessLog;
 //import vip.xiaonuo.core.annotion.Permission;
 //import vip.xiaonuo.core.enums.LogAnnotionOpTypeEnum;
@@ -52,6 +49,7 @@ import javax.annotation.Resource;
  * @date 2021-02-06 20:19:49
  */
 @Controller
+@RequestMapping({"/","/api"})
 public class SysCodeGenerateConfigController {
 
     private static String PATH_PREFIX = "generate/";

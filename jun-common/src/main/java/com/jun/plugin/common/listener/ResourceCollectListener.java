@@ -32,6 +32,9 @@ public class ResourceCollectListener implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
+
+        log.info(">>> 资源搜集器111，将项目中所有接口（带@RequestMapping的）都搜集起来 ");
+
         //1.获取所有后端接口
         Set<String> urlSet = CollectionUtil.newHashSet();
         Map<String, RequestMappingHandlerMapping> mappingMap = SpringUtil.getApplicationContext().getBeansOfType(RequestMappingHandlerMapping.class);

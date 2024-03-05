@@ -16,6 +16,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +27,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
@@ -30,9 +35,7 @@ import org.springframework.stereotype.Service;
 
 import javax.script.ScriptEngineManager;
 import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.jun.plugin.db.DataSourcePool.main;
 
@@ -57,9 +60,31 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 	@Override
 	public void afterPropertiesSet() {
 		initDefaultDataSource();
+//		callRunners(applicationContext,new DefaultApplicationArguments(new String[]{""}));
 //		initBeans();
 //		initActiveRecordPlugin();
 	}
+
+	private void callRunners(ApplicationContext context, ApplicationArguments args) {
+		//将实现ApplicationRunner和CommandLineRunner接口的类，存储到集合中
+		List<Object> runners = new ArrayList<>();
+		runners.addAll(context.getBeansOfType(CommandLineRunner.class).values());
+		//按照加载先后顺序排序
+		AnnotationAwareOrderComparator.sort(runners);
+		for (Object runner : new LinkedHashSet<>(runners)) {
+			if (runner instanceof CommandLineRunner) {
+				// callRunner((CommandLineRunner) runner, args);
+				try {
+					//调用各个实现类中的逻辑实现
+					((CommandLineRunner)runner).run(args.getSourceArgs());
+				}
+				catch (Exception ex) {
+					throw new IllegalStateException("Failed to execute CommandLineRunner", ex);
+				}
+			}
+		}
+	}
+
 
 	private void initBeans() {
 		String url = SpringUtil.getProperty("project.config.packages");

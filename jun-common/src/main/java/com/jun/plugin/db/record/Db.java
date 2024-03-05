@@ -109,6 +109,9 @@ public class Db {
 		init(configName, dataSource,DbKit.DEFAULT_TRANSACTION_LEVEL,getDialect(null, dataSource),true);
 
 	}
+//	public static void init(String configName,DataSource dataSource) {
+//		init(configName, dataSource,DbKit.DEFAULT_TRANSACTION_LEVEL,getDialect(null, dataSource),true);
+//	}
 	public static void init(String configName,DataSource dataSource,Integer transactionLevel,Dialect dialect,Boolean showSql) {
 //		if (containerFactory == null) {
 //			throw new IllegalArgumentException("containerFactory can not be null");

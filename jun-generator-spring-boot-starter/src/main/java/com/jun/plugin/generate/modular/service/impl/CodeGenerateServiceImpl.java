@@ -26,6 +26,7 @@ package com.jun.plugin.generate.modular.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.log.StaticLog;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlRunner;
@@ -60,6 +61,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.sql.SQLSyntaxErrorException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -240,7 +242,15 @@ public class CodeGenerateServiceImpl extends ServiceImpl<CodeGenerateMapper, Cod
         param.setConfigList(configList);
         param.setCreateTimeString(StringDateTool.getStringDate());
         if (!codeGenerate.getMenuPid().equals("0")) {
-            Map<String, Object> map = SqlRunner.db().selectOne(SELECT_SYS_MENU_SQL, codeGenerate.getMenuPid());
+            Map<String, Object> map = null;
+            try {
+                map = SqlRunner.db().selectOne(SELECT_SYS_MENU_SQL, codeGenerate.getMenuPid());
+            } catch (Exception e) {
+                if(e.getMessage().contains("doesn't exist")){
+                    StaticLog.error("表不存在："+SELECT_SYS_MENU_SQL);
+                }
+                //throw new RuntimeException(e);
+            }
             if(!CollectionUtils.isEmpty(map)){
                 param.setMenuPids(map.get("pid").toString());
             }else{

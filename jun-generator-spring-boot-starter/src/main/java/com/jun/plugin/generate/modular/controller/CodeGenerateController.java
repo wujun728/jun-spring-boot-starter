@@ -8,10 +8,7 @@ import com.jun.plugin.generate.core.ref.SuccessResponseData;
 import com.jun.plugin.generate.core.util.TreeUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import com.jun.plugin.generate.modular.entity.CodeGenerate;
 import com.jun.plugin.generate.modular.param.CodeGenerateParam;
 import com.jun.plugin.generate.modular.service.CodeGenerateService;
@@ -27,6 +24,7 @@ import java.util.List;
  * @date 12/15/20 11:20 PM
  */
 @Controller
+@RequestMapping({"/","/api"})
 public class CodeGenerateController {
 
     private static String PATH_PREFIX = "generate/";

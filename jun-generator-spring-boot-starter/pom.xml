@@ -7,7 +7,7 @@
     <version>1.0.10</version>
     <artifactId>jun-generator-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
-    <name>代码生成器</name>
+    <name>jun-generator-spring-boot-starter</name>
 
 
     <properties>
