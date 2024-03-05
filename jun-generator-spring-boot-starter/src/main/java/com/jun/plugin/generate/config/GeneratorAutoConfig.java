@@ -1,4 +1,4 @@
-package com.jun.plugin.common.config;
+package com.jun.plugin.generate.config;
 
 import cn.hutool.core.lang.ClassScanner;
 import cn.hutool.core.lang.Console;
@@ -7,15 +7,26 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.log.StaticLog;
+import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
+import com.jun.plugin.common.util.SpringContextUtil;
+import com.jun.plugin.common.util.StringPool;
 import com.jun.plugin.db.DataSourcePool;
 import com.jun.plugin.db.record.Db;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
+import org.apache.ibatis.builder.xml.XMLMapperBuilder;
+import org.apache.ibatis.executor.ErrorContext;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +34,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
@@ -42,23 +54,18 @@ import static com.jun.plugin.db.DataSourcePool.main;
  */
 @Slf4j
 @Configuration
-public class CommonAutoConfig implements ApplicationContextAware, InitializingBean {
+public class GeneratorAutoConfig implements ApplicationContextAware, InitializingBean {
 	private ConfigurableApplicationContext applicationContext;
 	private BeanDefinitionRegistry registry;
-	private String packages[] = {"com.jun.plugin.common","com.jun.plugin.rest"};
+	private String packages[] = {"com.jun.plugin.common","com.jun.plugin.generate","com.jun.plugin.generate.modular"};
 
 	private List<Class> annotationClasss = Arrays.asList(Configuration.class,/*Mapper.class,*/ Service.class, Component.class,
 			Repository.class, Controller.class,ConfigurationProperties.class);
 
-//	@Resource
-//	private DataSource dataSource;
-
 
 	@Override
 	public void afterPropertiesSet() {
-		initDefaultDataSource();
 //		initBeans();
-//		initActiveRecordPlugin();
 	}
 
 	private void initBeans() {
@@ -93,81 +100,7 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 		registry.registerBeanDefinition(beanName, beanDefinition);
 	}
 
-	@Bean
-	@ConditionalOnMissingBean
-	public ScriptEngineManager scriptEngineManager() {
-		return new ScriptEngineManager();
-	}
 
-//	@Bean
-//	@Lazy
-//	@ConditionalOnMissingBean(DataSource.class)
-//	public DataSource initDataSource() {
-//		StaticLog.info("初始化jun-common的数据源1");
-//		return initDefaultDataSource();
-//	}
 
-	public DataSource initDefaultDataSource() {
-		DataSource dataSource = null;
-			if(dataSource == null){
-				dataSource = initDefaultDataSourceV1();
-				if(dataSource == null){
-					Console.log("initDefaultDataSource 数据源为空，需要手动初始化DataSource");
-					initActiveRecordPlusin();
-				}else {
-					log.info("datasource autowried init step2 ");
-				}
-			}else {
-				log.info("datasource autowried init step1 ");
-			}
-		return dataSource;
-	}
-
-	private static DataSource initActiveRecordPlusin() {
-		String url = SpringUtil.getProperty("project.datasource.url");
-		String username = SpringUtil.getProperty("project.datasource.username");
-		String password = SpringUtil.getProperty("project.datasource.password");
-		String driver = SpringUtil.getProperty("project.datasource.driver-class-name");
-		StaticLog.info("project.datasource.url"+"="+url);
-		StaticLog.info("project.datasource.username"+"="+username);
-		StaticLog.info("project.datasource.password"+"="+password);
-		StaticLog.info("project.datasource.driver-class-name"+"="+driver);
-		StaticLog.info("current datasource is master ");
-		DataSource masterDataSource = DataSourcePool.init("master",url,username,password,driver);
-		Db.initAlias("master",url,username, password);
-//		DataSourcePool.initActiveRecordPlugin("master",masterDataSource);
-		return masterDataSource;
-	}
-
-	public static DataSource initDefaultDataSourceV1() {
-		String url = SpringUtil.getProperty("spring.datasource.url");
-		String username = SpringUtil.getProperty("spring.datasource.username");
-		String password = SpringUtil.getProperty("spring.datasource.password");
-		String driver = SpringUtil.getProperty("spring.datasource.driver-class-name");
-		Console.log("initDefaultDataSource info  spring.datasource.url:{}",url);
-		StaticLog.info("spring.datasource.url"+"="+url);
-		StaticLog.info("spring.datasource.username"+"="+username);
-		StaticLog.info("spring.datasource.password"+"="+password);
-		StaticLog.info("spring.datasource.driver-class-name"+"="+driver);
-		StaticLog.info("current datasource is default ");
-		if(!StringUtils.isEmpty(url)) {
-			Db.initAlias(main,url,username, password);
-			return DataSourcePool.init(main,url,username,password,driver);
-		}else {
-			return null;
-		}
-	}
-
-//	public ActiveRecordPlugin initActiveRecordPlugin() {
-//		DataSource dataSource = null;
-//		if(dataSource == null){
-//			dataSource = SpringUtil.getBean(DataSource.class);
-//		}
-//		if(dataSource != null){
-//			return DataSourcePool.initActiveRecordPlugin("main",dataSource);
-//		}else {
-//			return null;
-//		}
-//	}
 
 }
