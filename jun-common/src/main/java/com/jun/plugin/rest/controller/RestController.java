@@ -18,7 +18,6 @@ import com.jun.plugin.common.util.HttpRequestUtil;
 //import com.jfinal.plugin.activerecord.Record;
 import com.jun.plugin.common.Result;
 import com.jun.plugin.common.exception.BusinessException;
-import com.jun.plugin.common.util.FieldUtils;
 import com.jun.plugin.db.record.*;
 import com.jun.plugin.common.util.IdGenerator;
 import com.jun.plugin.rest.util.RestUtil;
@@ -28,7 +27,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 

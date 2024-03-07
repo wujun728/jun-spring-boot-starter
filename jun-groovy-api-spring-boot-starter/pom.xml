@@ -6,7 +6,7 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-groovy-api-spring-boot-starter</artifactId>
-	<version>1.0.10</version>
+	<version>1.0.11</version>
 	<name>jun-groovy-api 动态API在线开发,可动态生成API并执行,动态编译加载映射并执行</name>
 	<description>jun-groovy-api 动态API生成开发，可动态生成API并执行API</description>
 	<url>https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter</url>
@@ -71,9 +71,9 @@
 			<version>2.0.37</version>
 		</dependency>
 		<dependency>
-		    <groupId>io.github.wujun728</groupId>
-		    <artifactId>jun-mybatis-sql-engine</artifactId>
-		    <version>1.0.0-RELEASE</version>
+			<groupId>io.github.wujun728</groupId>
+			<artifactId>jun-db-record-sql-engine</artifactId>
+			<version>1.0.11</version>
 		</dependency>
         <!-- https://mvnrepository.com/artifact/cglib/cglib-nodep -->
         <dependency>
@@ -179,7 +179,8 @@
 	<build>
 		<plugins>
 			<!-- Source -->
-			<!----><plugin>
+			<!---->
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<executions>
@@ -190,6 +191,7 @@
 						</goals>
 					</execution>
 				</executions>
+				<version>3.2.1</version>
 			</plugin>
 			<!-- Javadoc -->
 			<plugin>
@@ -214,7 +216,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- GPG --><!--
+			<!-- GPG --><!--  -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
@@ -227,7 +229,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>  -->
+			</plugin>
 
 			<!--Compiler -->
 			<plugin>

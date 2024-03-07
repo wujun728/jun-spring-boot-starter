@@ -71,9 +71,9 @@
 			<version>2.0.37</version>
 		</dependency>
 		<dependency>
-		    <groupId>io.github.wujun728</groupId>
-		    <artifactId>jun-mybatis-sql-engine</artifactId>
-		    <version>1.0.0-RELEASE</version>
+			<groupId>io.github.wujun728</groupId>
+			<artifactId>jun-db-record-sql-engine</artifactId>
+			<version>1.0.11</version>
 		</dependency>
         <!-- https://mvnrepository.com/artifact/cglib/cglib-nodep -->
         <dependency>

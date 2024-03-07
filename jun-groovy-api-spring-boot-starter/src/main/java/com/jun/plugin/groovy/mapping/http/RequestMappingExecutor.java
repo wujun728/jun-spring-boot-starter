@@ -22,9 +22,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.CharsetUtil;
-import com.jun.plugin.db.DataSourcePool;
 import com.jun.plugin.common.util.HttpRequestUtil;
 import com.jun.plugin.common.util.RequestWrapper;
+import com.jun.plugin.db.DataSourcePool;
 import com.jun.plugin.groovy.common.model.ApiConfig;
 import com.jun.plugin.groovy.common.model.ApiDataSource;
 import com.jun.plugin.groovy.common.model.ApiSql;
@@ -38,7 +38,7 @@ import com.jun.plugin.common.exception.BusinessException;
 import com.jun.plugin.groovy.plugin.CachePlugin;
 import com.jun.plugin.groovy.plugin.PluginManager;
 import com.jun.plugin.groovy.plugin.TransformPlugin;
-import com.jun.plugin.groovy.util.JdbcUtil;
+import com.jun.plugin.sql.SqlEngine;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,6 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.TypeReference;
-import com.gitthub.wujun728.mybatis.sql.SqlMeta;
 import com.google.common.collect.Lists;
 
 import cn.hutool.extra.spring.SpringUtil;
@@ -145,8 +144,9 @@ public class RequestMappingExecutor implements IMappingExecutor,ApplicationListe
 			else
 				connection.setAutoCommit(true);
 			for (ApiSql apiSql : sqlList) {
-				SqlMeta sqlMeta = JdbcUtil.getEngine().parse(apiSql.getSqlText(), sqlParam);
-				Object data = JdbcUtil.executeSql(connection, sqlMeta.getSql(), sqlMeta.getJdbcParamValues());
+//				SqlMeta sqlMeta = JdbcUtil.getEngine().parse(apiSql.getSqlText(), sqlParam);
+//				Object data = JdbcUtil.executeSql(connection, sqlMeta.getSql(), sqlMeta.getJdbcParamValues());
+				Object data = SqlEngine.executeSql(connection, apiSql.getSqlText(), sqlParam);
 				dataList.add(data);
 			}
 			if (flag)

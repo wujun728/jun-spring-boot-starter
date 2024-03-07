@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import cn.hutool.json.JSONUtil;
-import org.junit.Test;
 
 /**
  * Unit test for simple App.
