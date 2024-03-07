@@ -1,4 +1,4 @@
-package com.jun.plugin.common.util;
+package com.jun.plugin.db.record;
 
 
 import java.lang.reflect.Field;

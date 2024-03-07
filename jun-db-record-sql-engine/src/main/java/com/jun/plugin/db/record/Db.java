@@ -32,7 +32,7 @@ import cn.hutool.db.DbUtil;
 import cn.hutool.db.meta.MetaUtil;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.pool.DruidDataSource;
-import com.jun.plugin.common.exception.BusinessException;
+//import com.jun.plugin.common.exception.BusinessException;
 import com.jun.plugin.db.record.dialect.*;
 import com.jun.plugin.db.record.kit.SyncWriteMap;
 
@@ -101,7 +101,7 @@ public class Db {
 				return new AnsiSqlDialect();
 			}
 		} catch (SQLException e){
-			throw new BusinessException("获取数据库连接失败");
+			throw new ActiveRecordException("获取数据库连接失败");
 		}
 	}
 

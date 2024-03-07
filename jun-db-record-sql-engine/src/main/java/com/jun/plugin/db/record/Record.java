@@ -16,14 +16,12 @@
 
 package com.jun.plugin.db.record;
 
-import com.jun.plugin.db.record.kit.JsonKit;
 import com.jun.plugin.db.record.kit.TypeKit;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;

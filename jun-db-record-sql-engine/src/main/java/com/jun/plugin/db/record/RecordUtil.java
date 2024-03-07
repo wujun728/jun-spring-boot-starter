@@ -2,9 +2,10 @@ package com.jun.plugin.db.record;
 
 //import com.alibaba.fastjson2.JSONObject;
 //import com.google.common.collect.Lists;
-import com.jun.plugin.common.util.BeanMapUtil;
-import com.jun.plugin.common.util.FieldUtils;
-import org.springframework.util.CollectionUtils;
+//import org.springframework.util.CollectionUtils;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -91,11 +92,12 @@ public class RecordUtil {
     @Deprecated
 	public List convertRecord(List<Record> lists,Class clazz){
 		List datas = new ArrayList();
-		if(!CollectionUtils.isEmpty(lists)) {
+        if(lists!=null && lists.size()>0) {
 			lists.forEach(item->{
 				Object info = null;
 				try {
-					info = BeanMapUtil.columnsMapToBean(item.getColumns(), clazz);
+					//info = BeanMapUtil.columnsMapToBean(item.getColumns(), clazz);
+					info = BeanUtil.mapToBean(item.getColumns(),clazz,true,CopyOptions.create());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -109,7 +111,8 @@ public class RecordUtil {
 	public Object convertRecord(Record record,Class clazz){
 		Object info = null;
 		try {
-			info = BeanMapUtil.columnsMapToBean(record.getColumns(), clazz);
+            info = BeanUtil.mapToBean(record.getColumns(), clazz,true, CopyOptions.create());
+			//info = BeanMapUtil.columnsMapToBean(record.getColumns(), clazz);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -119,7 +122,7 @@ public class RecordUtil {
     @SuppressWarnings("unchecked")
     public static <T> List mapToBeans(List<Map<String, Object>> lists, Class<T> clazz){
         List<T> datas = new ArrayList();
-        if(!CollectionUtils.isEmpty(lists)) {
+        if(lists!=null && lists.size()>0) {
             lists.forEach(item->{
                 datas.add(RecordUtil.mapToBean(item,clazz));
             });
@@ -133,11 +136,8 @@ public class RecordUtil {
             m.put(FieldUtils.columnNameToFieldName(String.valueOf(k)), v);
         });
         try {
-            //obj = clazz.newInstance();
-            obj = BeanMapUtil.mapToBean(item,clazz);
-            //obj = JSONObject.parseObject(JSONObject.toJSONString(m), clazz);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
+            //obj = BeanMapUtil.mapToBean(item,clazz);
+            obj = BeanUtil.mapToBean(item, clazz,true, CopyOptions.create());
         } catch (Exception e) {
             e.printStackTrace();
         }
