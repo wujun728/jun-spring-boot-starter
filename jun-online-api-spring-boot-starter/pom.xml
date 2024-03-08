@@ -38,12 +38,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-redis</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
-		<dependency>
-		    <groupId>org.freemarker</groupId>
-		    <artifactId>freemarker</artifactId>
-		    <version>2.3.32</version>
-		</dependency>
 		 <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
@@ -52,12 +46,7 @@
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
-		<dependency>
-		    <groupId>com.alibaba</groupId>
-		    <artifactId>druid</artifactId>
-		    <version>1.2.18</version>
-		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
 		<!--<dependency>
 			<groupId>com.alibaba</groupId>
@@ -70,46 +59,13 @@
 			<artifactId>fastjson2</artifactId>
 			<version>2.0.37</version>
 		</dependency>
-		<dependency>
-			<groupId>io.github.wujun728</groupId>
-			<artifactId>jun-db-record-sql-engine</artifactId>
-			<version>1.0.12</version>
-		</dependency>
-        <!-- https://mvnrepository.com/artifact/cglib/cglib-nodep -->
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-        <dependency>
-        	<groupId>cn.hutool</groupId>
-        	<artifactId>hutool-all</artifactId>
-        	<version>5.8.20</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.jfinal/activerecord -->
-		<!--<dependency>
-			<groupId>com.jfinal</groupId>
-			<artifactId>activerecord</artifactId>
-			<version>5.1.2</version>
-		</dependency>-->
+
 		<!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus -->
 		<dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus</artifactId>
             <version>3.5.3.2</version>
         </dependency>
-		<!-- https://mvnrepository.com/artifact/com.auth0/java-jwt -->
-		<dependency>
-			<groupId>com.auth0</groupId>
-			<artifactId>java-jwt</artifactId>
-			<version>4.4.0</version>
-		</dependency>
-		<!--ehcache缓存框架-->
-		<dependency>
-			<groupId>net.sf.ehcache</groupId>
-			<artifactId>ehcache</artifactId>
-			<version>2.10.9.2</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.github.ulisesbocchio/jasypt-spring-boot-starter -->
 		<dependency>
 			<groupId>com.github.ulisesbocchio</groupId>
@@ -117,14 +73,9 @@
 			<version>2.1.1</version>
 		</dependency>
 		<dependency>
-			<groupId>com.belerweb</groupId>
-			<artifactId>pinyin4j</artifactId>
-			<version>2.5.1</version>
-		</dependency>
-		<dependency>
 			<groupId>io.github.wujun728</groupId>
 			<artifactId>jun-common</artifactId>
-			<version>1.0.10</version>
+			<version>1.0.12</version>
 		</dependency>
 	</dependencies>
 	
@@ -216,7 +167,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- GPG --><!--  -->
+			<!-- GPG --><!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
@@ -230,7 +181,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			-->
 			<!--Compiler -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

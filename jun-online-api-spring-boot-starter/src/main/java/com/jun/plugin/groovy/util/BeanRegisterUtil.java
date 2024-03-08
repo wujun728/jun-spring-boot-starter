@@ -1,6 +1,7 @@
-package com.jun.plugin.common.util;
+package com.jun.plugin.groovy.util;
 
 
+import com.jun.plugin.common.util.SpringContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;

@@ -4,24 +4,21 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.druid.pool.DruidDataSource;
+import com.jun.plugin.db.DataSourcePool;
 import org.junit.Test;
 
 import com.jun.plugin.sql.engine.DynamicSqlEngine;
 
+import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.*;
 
 public class TestSqlUser {
     public static void main(String[] args) throws SQLException {
-        DruidDataSource ds = new DruidDataSource();
-        ds.setName("test");
-        ds.setUrl("jdbc:mysql://localhost:3306/db_qixing_bk?useUnicode=true&useSSL=false&characterEncoding=utf8" +
-                "&serverTimezone=GMT%2b8&zeroDateTimeBehavior=convertToNull&useInformationSchema=true");
-        ds.setUsername("root");
-        ds.setPassword("");
-        ds.setDriverClassName("com.mysql.jdbc.Driver");
-        ds.setConnectionErrorRetryAttempts(3);       //失败后重连次数
-        ds.setBreakAfterAcquireFailure(true);
+
+        String jdbcUrl = "jdbc:mysql://localhost:3306/db_qixing_bk" +
+                "?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2b8&zeroDateTimeBehavior=convertToNull&useInformationSchema=true";
+        DataSource ds = DataSourcePool.init("ds1",jdbcUrl,"root","",DataSourcePool.mysqlDriver6);
 
         Map params = new HashMap();
         //params.put("id",10);

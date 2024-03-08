@@ -1,4 +1,4 @@
-package com.jun.plugin.common.listener;
+package com.jun.plugin.groovy.listener;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.db.DbUtil;
@@ -54,9 +54,9 @@ public class ConstantsInitListener implements ApplicationListener<ApplicationCon
         String dataSourcePassword = environment.getProperty("spring.datasource.password");
 
         // 缓存中放入datasource链接，代码生成时候使用
-        ConstantContext.putConstant(CommonConstant.DATABASE_URL_NAME, dataSourceUrl);
-        ConstantContext.putConstant(CommonConstant.DATABASE_DRIVER_NAME, environment.getProperty("spring.datasource.driver-class-name"));
-        ConstantContext.putConstant(CommonConstant.DATABASE_USER_NAME, dataSourceUsername);
+        com.jun.plugin.groovy.listener.ConstantContext.putConstant(CommonConstant.DATABASE_URL_NAME, dataSourceUrl);
+        com.jun.plugin.groovy.listener.ConstantContext.putConstant(CommonConstant.DATABASE_DRIVER_NAME, environment.getProperty("spring.datasource.driver-class-name"));
+        com.jun.plugin.groovy.listener.ConstantContext.putConstant(CommonConstant.DATABASE_USER_NAME, dataSourceUsername);
 
         // 如果有为空的配置，终止执行
         if (ObjectUtil.hasEmpty(dataSourceUrl, dataSourceUsername)) {
