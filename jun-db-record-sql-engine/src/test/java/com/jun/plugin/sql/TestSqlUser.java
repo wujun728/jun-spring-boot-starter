@@ -1,15 +1,35 @@
 package com.jun.plugin.sql;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import cn.hutool.log.StaticLog;
+import com.alibaba.druid.pool.DruidDataSource;
 import org.junit.Test;
 
 import com.jun.plugin.sql.engine.DynamicSqlEngine;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.sql.SQLException;
+import java.util.*;
 
 public class TestSqlUser {
+    public static void main(String[] args) throws SQLException {
+        DruidDataSource ds = new DruidDataSource();
+        ds.setName("test");
+        ds.setUrl("jdbc:mysql://localhost:3306/db_qixing_bk?useUnicode=true&useSSL=false&characterEncoding=utf8" +
+                "&serverTimezone=GMT%2b8&zeroDateTimeBehavior=convertToNull&useInformationSchema=true");
+        ds.setUsername("root");
+        ds.setPassword("");
+        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        ds.setConnectionErrorRetryAttempts(3);       //失败后重连次数
+        ds.setBreakAfterAcquireFailure(true);
+
+        Map params = new HashMap();
+        //params.put("id",10);
+        Object obj = SqlEngine.executeSql(ds.getConnection(),"select * from biz_test" +
+                "  <if test='id!=null'>  where id = #{id}  </if> ",params,true);
+        StaticLog.info(JSONUtil.toJsonStr(obj));
+        StaticLog.info("");
+    }
 
     @Test
     public void testSubMap() {

@@ -1,6 +1,8 @@
 package com.jun.plugin.sql;
 
-import com.alibaba.fastjson2.JSONObject;
+//import com.alibaba.fastjson2.JSONObject;
+import cn.hutool.json.JSONObject;
+import cn.hutool.log.StaticLog;
 import com.jun.plugin.sql.engine.DynamicSqlEngine;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,107 +23,24 @@ public class SqlEngine {
 		return engine;
 	}
 
-	public static ResultSet query(String sql, Connection connection) throws SQLException {
-		PreparedStatement preparedStatement = connection.prepareStatement(sql);
-		ResultSet resultSet = preparedStatement.executeQuery();
-		return resultSet;
-	}
 
 
 	/**
-	 * 查询库中所有表
-	 *
-	 * @param conn
-	 * @param sql
-	 * @return
-	 */
-	public static List<String> getAllTables(Connection conn, String sql) {
-		List<String> list = new ArrayList<>();
-		PreparedStatement pst = null;
-		try {
-			pst = conn.prepareStatement(sql);
-			ResultSet resultSet = pst.executeQuery();
-
-			while (resultSet.next()) {
-				String s = resultSet.getString(1);
-				list.add(s);
-			}
-			return list;
-		} catch (Exception e) {
-//			log.error(e.getMessage(), e);
-			return null;
-		} finally {
-			try {
-				if (pst != null)
-					pst.close();
-				if (conn != null)
-					conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/**
-	 * 查询表所有字段
-	 *
-	 * @param conn
-	 * @param type
-	 * @param table
-	 * @return
-	 */
-	public static List<JSONObject> getRDBMSColumnProperties(Connection conn, String type, String table) {
-		List<JSONObject> list = new ArrayList<>();
-		PreparedStatement pst = null;
-		try {
-			String sql;
-			switch (type) {
-			case "POSTGRESQL":
-				sql = "select * from " + table + " where 1=2";
-				break;
-			default:
-				sql = "select * from " + table + " where 1=2";
-			}
-			pst = conn.prepareStatement(sql);
-			ResultSetMetaData rsd = pst.executeQuery().getMetaData();
-
-			for (int i = 0; i < rsd.getColumnCount(); i++) {
-				JSONObject jsonObject = new JSONObject();
-
-				String columnTypeName = rsd.getColumnTypeName(i + 1);
-				jsonObject.put("fieldTypeName", columnTypeName);// 数据库字段类型名
-				jsonObject.put("TypeName", columnTypeName);
-				jsonObject.put("fieldJavaTypeName", rsd.getColumnClassName(i + 1));// 映射到java的类型名
-				String columnName = rsd.getColumnName(i + 1);
-				if (columnName.contains("."))
-					columnName = columnName.split("\\.")[1];
-				jsonObject.put("label", columnName);// 表字段
-				list.add(jsonObject);
-			}
-			return list;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		} finally {
-			try {
-				if (pst != null)
-					pst.close();
-				if (conn != null)
-					conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	/**
-	 * 没有关闭连接，需要在调用方关闭
-	 *
+	 * 1、查询返回List<JSONObject>
+	 * 2、新增、修改、删除返回int，成功条数。
+	 * 3、连接没有关闭，需要在调用方关闭
 	 * @param connection
 	 * @param sql
 	 * @param jdbcParamValues
 	 * @return
 	 */
+	public static Object executeSql(Connection connection, String sql, Map<String, Object> sqlParam,Boolean closeConn) throws SQLException {
+		Object obj = executeSql(connection,sql,sqlParam);
+		if(closeConn){
+			connection.close();
+		}
+		return obj;
+	}
 	public static Object executeSql(Connection connection, String sql, Map<String, Object> sqlParam) throws SQLException {
 		SqlMeta sqlMeta = SqlEngine.getEngine().parse(sql, sqlParam);
 		return SqlEngine.executeSql(connection, sqlMeta.getSql(), sqlMeta.getJdbcParamValues());
@@ -164,44 +83,11 @@ public class SqlEngine {
 			return list;
 		} else {
 			int updateCount = statement.getUpdateCount();
-			return "["+updateCount + "] rows affected";
+			System.out.println("["+updateCount + "] rows affected");
+			return updateCount;
 		}
 
 	}
 
-	/**
-	 * 表结构解析
-	 */
-	public static String getByPattern(String sql, String pattern, int group) {
-		Pattern compile = Pattern.compile(pattern);
-		Matcher matcher = compile.matcher(sql);
-		while (matcher.find()) {
-			return matcher.group(group);
-		}
-		return null;
-	}
-
-	public static List<String> getColumnSqls(String sql) {
-		List<String> lines = new ArrayList<>();
-		Scanner scanner = new Scanner(sql);
-		boolean start = false;
-		while (scanner.hasNextLine()) {
-			String nextLine = scanner.nextLine();
-			if (nextLine.indexOf("CREATE TABLE") != -1) {
-				start = true;
-				continue;
-			}
-			if (nextLine.indexOf("KEY") != -1 || nextLine.indexOf("ENGINE=") != -1) {
-				start = false;
-				continue;
-			}
-			if (start) {
-				lines.add(nextLine);
-			}
-		}
-		return lines;
-	}
-	
-	
 
 }
