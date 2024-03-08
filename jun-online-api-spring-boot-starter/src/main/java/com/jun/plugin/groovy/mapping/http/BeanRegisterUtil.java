@@ -1,4 +1,4 @@
-package com.jun.plugin.groovy.util;
+package com.jun.plugin.groovy.mapping.http;
 
 
 import com.jun.plugin.common.util.SpringContextUtil;

@@ -16,8 +16,8 @@ import javax.sql.DataSource;
 @Slf4j
 public class DataSourcePool {
 
+    public static final String main = "main";
     private static Lock lock = new ReentrantLock();
-
     private static Lock deleteLock = new ReentrantLock();
 
     public static final String mysqlDriver5 = "com.mysql.jdbc.Driver";
@@ -28,8 +28,6 @@ public class DataSourcePool {
 
     //所有数据源的连接池存在map里
     static ConcurrentHashMap<String, DataSource> map = new ConcurrentHashMap<>();
-
-//    static ConcurrentHashMap<String, ActiveRecordPlugin> configmaps = new ConcurrentHashMap<>();
 
     public static DataSource init(String dsname,String url,String username,String password,String driver) {
         if (map.containsKey(dsname)) {
@@ -101,6 +99,6 @@ public class DataSourcePool {
     public static Connection getConnection(String dsname) throws SQLException {
         return DataSourcePool.get(dsname).getConnection();
     }
-    public static String main = "main";
+
 
 }
