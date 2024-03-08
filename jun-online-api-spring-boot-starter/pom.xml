@@ -5,11 +5,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.github.wujun728</groupId>
-	<artifactId>jun-groovy-api-spring-boot-starter</artifactId>
-	<version>1.0.11</version>
-	<name>jun-groovy-api 动态API在线开发,可动态生成API并执行,动态编译加载映射并执行</name>
-	<description>jun-groovy-api 动态API生成开发，可动态生成API并执行API</description>
-	<url>https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter</url>
+	<artifactId>jun-online-api-spring-boot-starter</artifactId>
+	<version>1.0.12</version>
+	<name>jun-online-api 动态API在线开发,可动态生成API并执行,动态编译加载映射并执行</name>
+	<description>jun-online-api 动态API生成开发，可动态生成API并执行API</description>
+	<url>https://github.com/wujun728/jun-spring-boot-starter/jun-online-api-spring-boot-starter</url>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -73,7 +73,7 @@
 		<dependency>
 			<groupId>io.github.wujun728</groupId>
 			<artifactId>jun-db-record-sql-engine</artifactId>
-			<version>1.0.11</version>
+			<version>1.0.12</version>
 		</dependency>
         <!-- https://mvnrepository.com/artifact/cglib/cglib-nodep -->
         <dependency>
@@ -147,14 +147,14 @@
 		<developer>
 			<name>wujun728</name>
 			<email>wujun728@163.com</email>
-			<url>https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter</url>
+			<url>https://github.com/wujun728/jun-spring-boot-starter/jun-online-api-spring-boot-starter</url>
 		</developer>
 	</developers>
 
 	<scm>
-		<url>https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter.git</url>
-		<connection>scm:git:https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter.git</connection>
-		<developerConnection>scm:git:https://github.com/wujun728/jun-spring-boot-starter/jun-groovy-api-spring-boot-starter.git</developerConnection>
+		<url>https://github.com/wujun728/jun-spring-boot-starter/jun-online-api-spring-boot-starter.git</url>
+		<connection>scm:git:https://github.com/wujun728/jun-spring-boot-starter/jun-online-api-spring-boot-starter.git</connection>
+		<developerConnection>scm:git:https://github.com/wujun728/jun-spring-boot-starter/jun-online-api-spring-boot-starter.git</developerConnection>
 	</scm>
 
 	<licenses>

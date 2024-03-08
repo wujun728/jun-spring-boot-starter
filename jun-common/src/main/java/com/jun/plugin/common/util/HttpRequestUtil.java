@@ -1,8 +1,6 @@
 package com.jun.plugin.common.util;
 
-import cn.hutool.core.util.EscapeUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONConverter;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import com.alibaba.fastjson2.JSON;
@@ -21,7 +19,6 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.ServletRequest;
@@ -248,7 +245,8 @@ public class HttpRequestUtil {
 
 
 	public static String buildPattern(HttpServletRequest request) {
-		return (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+//		return (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+		return (String) request.getAttribute("HandlerMapping.bestMatchingPattern");
 	}
 
 

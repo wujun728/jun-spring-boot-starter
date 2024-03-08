@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 //import org.apache.commons.lang.StringUtils;
 
 //import org.apache.tomcat.util.codec.binary.Base64;
-import org.apache.tomcat.util.codec.binary.Base64;
+//import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.util.Base64Utils;
 //import sun.misc.BASE64Decoder;
 
@@ -48,7 +48,7 @@ public class EncryptUtils {
      * @return 编码后的base 64 code
      */
       private static String base64Encode(byte[] bytes){
-        return Base64.encodeBase64String(bytes);
+        return new String(Base64Utils.encode(bytes));
     }
 
     /**

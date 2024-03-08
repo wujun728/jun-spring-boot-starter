@@ -17,12 +17,12 @@
 	<modules> 
 		<module>jun-common</module>
 		<module>jun-framework</module>
-		<module>jun-groovy-api-spring-boot-starter</module>
 		<module>jun-hotcompile-spring-boot-starter</module>
 		<module>jun-db-record-sql-engine</module>
 		<module>jun-springjdbc-spring-boot-starter</module>
 		<module>jun-security-spring-boot-starter</module>
-		<module>jun-uidgenerator-spring-boot-starter</module>
+		<module>jun-uidgenerator-spring-boot-starter</module> 
+		<module>jun-online-api-spring-boot-starter</module>
 		<module>jun-online-form-spring-boot-starter</module>
 		<module>jun-generator-spring-boot-starter</module>
 	</modules>

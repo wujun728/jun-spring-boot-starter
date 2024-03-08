@@ -6,7 +6,7 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-common</artifactId>
-	<version>1.0.11</version>
+	<version>1.0.12</version>
 	<name>jun-common公共模块，基础功能及工具类</name>
 	<description>jun-common</description>
     <url>https://github.com/wujun728/jun-spring-boot-starter/jun-common</url>
@@ -17,7 +17,36 @@
 	</properties>
 
 	<dependencies>
-        <dependency>
+		<!-- Spring框架基本的核心工具 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+		</dependency>
+		<!-- SpringWeb模块 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.1</version>
+		</dependency>
+		<!--<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+		</dependency>-->
+        <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -25,7 +54,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <!--spring data jdbc 持久层框架-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jdbc</artifactId>
@@ -35,7 +63,6 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-        <!--redis 依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -43,7 +70,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
+        </dependency>-->
         <!--<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
@@ -64,17 +91,7 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>-->
-        <!-- thymeleaf ThymeleafConfigration 配置類  -->
-        <!--<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>-->
-        <!--数据库持久化 及 插件依赖-->
-        <!--<dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus</artifactId>
-            <version>3.5.3.2</version>
-        </dependency>-->
+
         <!--
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -95,17 +112,17 @@
             <version>2.10.9.2</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
-        <dependency>
+        <!--<dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
             <version>1.2.18</version>
-        </dependency>
+        </dependency>-->
         <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->
-        <dependency>
+        <!--<dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>5.8.20</version>
-        </dependency>
+        </dependency>-->
         <!-- https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2 -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
@@ -153,16 +170,16 @@
             <artifactId>jasypt-spring-boot-starter</artifactId>
             <version>2.1.1</version>
         </dependency>
+		<dependency>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-all</artifactId>
+			<version>5.8.21</version>
+		</dependency>
         <dependency>
             <groupId>io.github.wujun728</groupId>
             <artifactId>jun-db-record-sql-engine</artifactId>
-            <version>1.0.11</version>
+            <version>1.0.12</version>
         </dependency>
-        <!--<dependency>
-            <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-spring-boot-starter</artifactId>
-            <version>2.0.2</version>
-        </dependency>-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -185,11 +202,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.13.0</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>
-        </dependency>
+        </dependency>-->
         <!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
         <dependency>
             <groupId>org.freemarker</groupId>
@@ -202,11 +219,30 @@
             <artifactId>jsoup</artifactId>
             <version>1.11.3</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
+		<!--<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</dependency>-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
     </dependencies>
 	
 	<!-- 依赖声明 -->
@@ -307,7 +343,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- GPG --><!--  -->
+			<!-- GPG --><!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
@@ -321,7 +357,7 @@
 					</execution>
 				</executions>
 			</plugin>
-
+ -->
 			<!--Compiler -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

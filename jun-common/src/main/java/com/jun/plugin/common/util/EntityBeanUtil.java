@@ -3,7 +3,6 @@ package com.jun.plugin.common.util;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
-import org.springframework.data.annotation.Id;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -39,22 +38,22 @@ public class EntityBeanUtil {
      * @param entity 实体对象
      * @return [0]为ID字段名，[1]为ID字段值
      */
-    public static Object[] getId(Object entity) {
-        Field[] fields = entity.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            Id id = field.getAnnotation(Id.class);
-            if (id != null) {
-                try {
-                    field.setAccessible(true);
-                    return new Object[]{field.getName(), field.get(entity)};
-                } catch (IllegalAccessException e) {
-                    throw new FatalBeanException(
-                            "获取" + entity.getClass().getName() + "实体对象主键出错！", e);
-                }
-            }
-        }
-        return null;
-    }
+//    public static Object[] getId(Object entity) {
+//        Field[] fields = entity.getClass().getDeclaredFields();
+//        for (Field field : fields) {
+//            Id id = field.getAnnotation(Id.class);
+//            if (id != null) {
+//                try {
+//                    field.setAccessible(true);
+//                    return new Object[]{field.getName(), field.get(entity)};
+//                } catch (IllegalAccessException e) {
+//                    throw new FatalBeanException(
+//                            "获取" + entity.getClass().getName() + "实体对象主键出错！", e);
+//                }
+//            }
+//        }
+//        return null;
+//    }
 
     /**
      * 根据字段名获取实体对象值

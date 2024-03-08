@@ -135,13 +135,13 @@ public class CommonAutoConfig implements ApplicationContextAware, InitializingBe
 			if(dataSource == null){
 				dataSource = initDefaultDataSourceV1();
 				if(dataSource == null){
-					Console.log("initDefaultDataSource 数据源为空，需要手动初始化DataSource");
 					initActiveRecordPlusin();
+					Console.log("initDefaultDataSource 数据源为空，需要手动初始化DataSource");
 				}else {
-					log.info("datasource autowried init step2 ");
+					log.info("initDefaultDataSourceV1  datasource autowried init step2 ");
 				}
 			}else {
-				log.info("datasource autowried init step1 ");
+				log.info("datasource autowried sucess init step1 ");
 			}
 		return dataSource;
 	}

@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
+//import javax.validation.ConstraintViolation;
+//import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Set;
 
@@ -37,11 +37,11 @@ public class RestExceptionHandler {
         //return Result.getResult(BaseResponseCode.SYSTEM_BUSY);
     }
     
-    @ExceptionHandler(org.springframework.dao.QueryTimeoutException.class)
-    public Result handleQueryTimeoutException(Exception e) {
-    	log.error("Exception,exception:{}", e, e);
-    	return Result.getResult(BaseResponseCode.SYSTEM_REDIS_BUSY);
-    }
+//    @ExceptionHandler(org.springframework.dao.QueryTimeoutException.class)
+//    public Result handleQueryTimeoutException(Exception e) {
+//    	log.error("Exception,exception:{}", e, e);
+//    	return Result.getResult(BaseResponseCode.SYSTEM_REDIS_BUSY);
+//    }
 
     /**
      * 自定义全局异常处理
@@ -75,16 +75,16 @@ public class RestExceptionHandler {
      * 校验List<entity>类型， 需要controller添加@Validated注解
      * 处理Validated List<entity> 异常
      */
-    @ExceptionHandler
-    public Result handle(ConstraintViolationException exception) {
-        log.error("methodArgumentNotValidExceptionHandler bindingResult.allErrors():{},exception:{}", exception, exception);
-        Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
-        StringBuilder builder = new StringBuilder();
-        for (ConstraintViolation<?> violation : violations) {
-            builder.append(violation.getMessage());
-            break;
-        }
-        return Result.getResult(BaseResponseCode.METHODARGUMENTNOTVALIDEXCEPTION.getCode(), builder.toString());
-    }
+//    @ExceptionHandler
+//    public Result handle(ConstraintViolationException exception) {
+//        log.error("methodArgumentNotValidExceptionHandler bindingResult.allErrors():{},exception:{}", exception, exception);
+//        Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
+//        StringBuilder builder = new StringBuilder();
+//        for (ConstraintViolation<?> violation : violations) {
+//            builder.append(violation.getMessage());
+//            break;
+//        }
+//        return Result.getResult(BaseResponseCode.METHODARGUMENTNOTVALIDEXCEPTION.getCode(), builder.toString());
+//    }
 
 }
