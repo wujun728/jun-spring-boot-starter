@@ -1,9 +1,13 @@
-package com.jun.plugin.db.record;
+package com.jun.plugin.record;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import cn.hutool.json.JSONUtil;
+import com.jun.plugin.db.record.Db;
+import com.jun.plugin.db.record.IAtom;
+import com.jun.plugin.db.record.Page;
+import com.jun.plugin.db.record.Record;
 
 /**
  * Unit test for simple App.
