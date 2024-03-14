@@ -19,15 +19,14 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -38,6 +37,22 @@ import java.util.regex.Pattern;
 @Slf4j
 @Component
 public class HttpRequestUtil {
+
+	public static HttpServletRequest getHttpServletRequest() {
+		return ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+	}
+
+	public static boolean isAjaxRequest(HttpServletRequest request) {
+
+		String accept = request.getHeader("accept");
+		String xRequestedWith = request.getHeader("X-Requested-With");
+
+		// 如果是异步请求或是手机端，则直接返回信息
+		return ((accept != null && accept.contains("application/json")
+				|| (xRequestedWith != null && xRequestedWith.contains("XMLHttpRequest"))
+		));
+	}
+
 
 	private static final ThreadLocal<HttpServletRequest> requests = new ThreadLocal<HttpServletRequest>() {
 		@Override
@@ -128,7 +143,7 @@ public class HttpRequestUtil {
 	}
 
 
-	public static void main(String[] args) {
+	public static void main111(String[] args) {
 		StringBuilder sb= new StringBuilder();
 		sb.append("\"{\\\"id\\\":\\\"\\\",\\\"tableName\\\":\\\"sys_app\\\",\\\"tablePrefix\\\":\\\"Y\\\",\\\"tableComment\\\":\\\"系统应用表\\\",\\\"className\\\":\\\"App\\\",\\\"busName\\\":\\\"app\\\",\\\"generateType\\\":\\\"1\\\",\\\"appCode\\\":\\\"system\\\",\\\"menuPid\\\":\\\"1264622039642255331\\\",\\\"authorName\\\":\\\"22222\\\",\\\"packageName\\\":\\\"vip.xiaonuo\\\"}\"");
 		String json = sb.toString();
@@ -245,9 +260,15 @@ public class HttpRequestUtil {
 
 
 	public static String buildPattern(HttpServletRequest request) {
-//		return (String) request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
-		return (String) request.getAttribute("HandlerMapping.bestMatchingPattern");
+//		String s = HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE;
+//		return (String) request.getAttribute(s);
+		return (String) request.getAttribute("org.springframework.web.servlet.HandlerMapping.bestMatchingPattern");
 	}
+
+//	public static void main(String[] args) {
+//		String s = HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE;
+//		System.out.println(s);
+//	}
 
 
 	public static Map<String, String> getPathVar(String pattern, String url) {

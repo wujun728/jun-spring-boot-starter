@@ -2,7 +2,7 @@ package com.jun.plugin.common.aop.aspectj;
 
 import com.alibaba.fastjson2.JSON;
 import com.jun.plugin.common.aop.annotation.LogAnnotation;
-import com.jun.plugin.common.util.HttpContextUtils;
+import com.jun.plugin.common.util.HttpRequestUtil;
 import com.jun.plugin.common.util.IPUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -91,7 +91,7 @@ public class SysLogAspect {
             log.error("sysLog,exception:{}", e, e);
         }
         //获取request
-        HttpServletRequest request = HttpContextUtils.getHttpServletRequest();
+        HttpServletRequest request = HttpRequestUtil.getHttpServletRequest();
         //设置IP地址
         //sysLog.setIp(IPUtils.getIpAddr(request));
         log.info("Ip{}，接口地址{}，请求方式{}，入参：{}", IPUtils.getIpAddr(request), request.getRequestURL(), request.getMethod(), params);

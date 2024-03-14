@@ -4,7 +4,7 @@ import org.jasypt.util.text.BasicTextEncryptor;
 
 /**
  */
-public class EncryptConfigUtil {
+public class JasyptUtil {
 
     public static void main(String[] args) {
 
