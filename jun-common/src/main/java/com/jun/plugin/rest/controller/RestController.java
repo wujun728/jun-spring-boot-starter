@@ -27,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -344,6 +345,16 @@ public class RestController {
             }
         }
     }
+    @RequestMapping(path = {"/module/install"}, produces = "application/json")
+    public Result install(HttpServletRequest request, HttpServletResponse response) {
+        return Result.success("安装成功！");
+    }
+    @RequestMapping(path = {"/module/uninstall"}, produces = "application/json")
+    public Result uninstall(HttpServletRequest request, HttpServletResponse response) {
+        return Result.success("卸载成功！");
+    }
+
+
 
 
 }

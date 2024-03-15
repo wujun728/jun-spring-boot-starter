@@ -145,6 +145,9 @@ public class RestUtil {
         StringBuffer sqlbuilder = new StringBuffer();
         Collection<Column> columns = table.getColumns();
         for(String key : parameters.keySet()){
+            if(key.startsWith("header.") || key.startsWith("session.") || key.startsWith("cookies.")){
+                continue;
+            }
             for (Column column : columns) {
                 String fieldName = FieldUtils.columnNameToFieldName(column.getName());
                 // fielc.like=abc    field=abc    content-type=abc
