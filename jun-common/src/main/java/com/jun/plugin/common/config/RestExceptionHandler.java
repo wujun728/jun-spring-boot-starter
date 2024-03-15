@@ -1,4 +1,4 @@
-package com.jun.plugin.common.exception;
+package com.jun.plugin.common.config;
 
 import com.jun.plugin.common.Result;
 import com.jun.plugin.common.exception.BusinessException;

@@ -1,7 +1,7 @@
-package com.jun.plugin.common.run;
+package com.jun.plugin.common.base.interfaces;
 
 @FunctionalInterface
-public interface IInitRunner {
+public interface IPluginRunner {
 
         /**
          * Callback used to run the bean.

@@ -32,9 +32,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.jun.plugin.db.DataSourcePool.main;
 
+/**
+ * @author Wujun
+ * @desc 通用Rest服务接口
+ */
 @Slf4j
 @org.springframework.web.bind.annotation.RestController
-@RequestMapping({"${platform.path:}/rest/{entityName}", "${platform.path:}/public/rest/{entityName}"})
+@RequestMapping({"${platform.path:}/rest", "${platform.path:}/public/rest"})
 //@Api(value = "实体公共增删改查接口")
 public class RestController {
 
@@ -59,12 +63,14 @@ public class RestController {
     }
 
 
-    @GetMapping(path = {"/list", "/page"}, produces = "application/json")
+    @GetMapping(path = {"/{entityName}/list", "/{entityName}/page"}, produces = "application/json")
     //@ApiOperation(value = "返回实体数据列表", notes = "page与size同时大于零时返回分页实体数据列表,否则返回全部数据列表;
     public Result list(@PathVariable("entityName") String entityName, HttpServletRequest request) throws Exception {
         try {
             Map<String, Object> parameters = HttpRequestUtil.getAllParameters(request);
             String tableName = StrUtil.toUnderlineCase(entityName);
+            parameters.put("entityName" , entityName);
+            parameters.put("tableName" , tableName);
             Result fail = check(tableName);
             if (fail != null) return fail;
             Table table = tableCache.get().get(tableName);
@@ -112,12 +118,14 @@ public class RestController {
         }
     }
 
-    @RequestMapping(path = "/findOne", produces = "application/json")
+    @RequestMapping(path = {"/{entityName}/findOne","/{entityName}/getOne","/{entityName}/record","/{entityName}/row"}, produces = "application/json")
     //@ApiOperation(value = "根据ID返回单个实体数据")
     public Result findOne(@PathVariable("entityName") String entityName, HttpServletRequest request) {
         try {
             Map<String, Object> parameters = HttpRequestUtil.getAllParameters(request);
             String tableName = StrUtil.toUnderlineCase(entityName);
+            parameters.put("entityName" , entityName);
+            parameters.put("tableName" , tableName);
             Result fail = check(tableName);
             if (fail != null) return fail;
             Table table = tableCache.get().get(tableName);
@@ -138,12 +146,14 @@ public class RestController {
         }
     }
 
-    @RequestMapping(path = "/delete", produces = "application/json")
+    @RequestMapping(path = "/{entityName}/delete", produces = "application/json")
     //@ApiOperation(value = "根据id删除实体数据" )
     public Result delete(@PathVariable("entityName") String entityName, HttpServletRequest request) {
         try {
             Map<String, Object> parameters = HttpRequestUtil.getAllParameters(request);
             String tableName = StrUtil.toUnderlineCase(entityName);
+            parameters.put("entityName" , entityName);
+            parameters.put("tableName" , tableName);
             Result fail = check(tableName);
             if (fail != null) return fail;
             Table table = tableCache.get().get(tableName);
@@ -170,7 +180,7 @@ public class RestController {
     }
 
 
-    @RequestMapping(path = {"/save","/add"}, produces = "application/json")
+    @RequestMapping(path = {"/{entityName}/save","/{entityName}/add"}, produces = "application/json")
     //@ApiOperation(value = "新增实体数据", notes = "{\"name\":\"tom\",\"args\":1}")
     public Result create(@PathVariable("entityName") String entityName, HttpServletRequest request) {
         try {
@@ -178,13 +188,13 @@ public class RestController {
         } catch (Exception e) {
             e.printStackTrace();
             if (e.getMessage().contains("Duplicate")) {
-                return Result.fail("数据重复，主键冲突：" + e.getMessage());
+                return Result.fail("数据重复，主键冲突，请联系管理员，错误信息：" + e.getMessage());
             }
             if (e.getMessage().contains("Incorrect datetime")) {
-                return Result.fail("数据格式有误，日期格式不规范(yyyy-mm-dd)：" + e.getMessage());
+                return Result.fail("数据格式有误，日期格式不规范(yyyy-mm-dd)");
             }
             if (e.getMessage().contains("Data too long")) {
-                return Result.fail("数据字段值太长，超出最大长度：" + e.getMessage());
+                return Result.fail("数据值太长，超出最大长度限制" );
             }
             String message = ExceptionUtils.getMessage(e);
             log.error(message, e);
@@ -192,7 +202,7 @@ public class RestController {
         }
     }
 
-    @RequestMapping(path = {"/update","/edit"}, produces = "application/json")
+    @RequestMapping(path = {"/{entityName}/update","/{entityName}/edit"}, produces = "application/json")
     //@ApiOperation(value = "更新实体数据", notes = "不需要更新的字段不设置或设置为空,{\"name\":\"tom\",\"args\":1}")
     public Result update(@PathVariable("entityName") String entityName, HttpServletRequest request) {
         try {
@@ -214,17 +224,19 @@ public class RestController {
         }
     }
 
-    public Result saveOrUpdate(String entityName, HttpServletRequest request, Boolean isSaveOrUpdate) {
+    public Result saveOrUpdate(String entityName, HttpServletRequest request, Boolean isSave) {
         //Step1,校验表信息，并获取表定义及主键信息
         String tableName = StrUtil.toUnderlineCase(entityName);
         Result fail = check(tableName);
         if (fail != null) return fail;
         Map<String, Object> parameters = HttpRequestUtil.getAllParameters(request);
+        parameters.put("entityName" , entityName);
+        parameters.put("tableName" , tableName);
         Table table = tableCache.get().get(tableName);
         //Step2,根据表定义，获取表主键，并根据新增及修改，生成主键或者判断主键数据是否存在
         //Step3,根据表定义，新增必填字段信息校验，并将默认或者内置字段生成默认值
         Record record = new Record();
-        if (!isSaveOrUpdate) {
+        if (!isSave) {
             String primaryKey = RestUtil.getTablePrimaryKes(table);
             List args = RestUtil.getPrimaryKeyArgs(parameters, table);
             record = Db.use(main).findByIds(tableName, primaryKey, args.toArray());
@@ -237,7 +249,7 @@ public class RestController {
         Collection<Column> columns = table.getColumns();
         for (Column column : columns) {
             String val = RestUtil.getParamValue(parameters, column.getName());
-            if (isSaveOrUpdate) {
+            if (isSave) {
                 val = RestUtil.getId(val);
             }
             checkDataFormat(column, val);
@@ -249,10 +261,12 @@ public class RestController {
                     record.set(column.getName(), RestUtil.getDefaultValue(fieldName));
                 } else {
                     if (!column.isNullable() && !column.isAutoIncrement() && !column.isPk()) {
-                        throw new BusinessException("参数[" + column.getName() + "]不能为空！");
+                        if (isSave) {
+                            throw new BusinessException("参数[" + column.getName() + "]不能为空！");
+                        }
                     } else if (column.isPk() && !column.isAutoIncrement()) {
                         setPkValue(record, column);
-                        StaticLog.warn("参数未传值 111 " + column.getName());
+                        StaticLog.warn("参数未传值： " + column.getName());
                     }
                 }
                 if (!column.isAutoIncrement()) {
@@ -262,16 +276,18 @@ public class RestController {
         }
         //Step4，根据表定义拿到全部参数并生成入库的对象，并持久化并返回数据
         Boolean isSucess;
-        if (isSaveOrUpdate) {
+        if (isSave) {
+            RestUtil.fillRecord(record,tableName,true);
             Record finalRecord = record;
             isSucess = Db.use(main).tx(() -> Db.use(main).save(tableName, finalRecord));
         } else {
+            RestUtil.fillRecord(record,tableName,false);
             Record finalRecord1 = record;
             isSucess = Db.use(main).tx(() -> Db.use(main).update(tableName, finalRecord1));
         }
         System.out.println("返回数据为：" + JSONUtil.toJsonStr(isSucess));
         if (isSucess) {
-            if (isSaveOrUpdate) {
+            if (isSave) {
                 return Result.success("保存成功！",isSucess);
             }else{
                 return Result.success("修改成功！",isSucess);

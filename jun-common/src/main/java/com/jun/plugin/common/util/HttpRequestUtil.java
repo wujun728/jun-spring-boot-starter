@@ -26,6 +26,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -85,12 +87,16 @@ public class HttpRequestUtil {
 		String contentType = contentTypeArr[0];
 		Map<String, Object> params = Maps.newHashMap();
 		// 如果是application/json请求，不管接口规定的content-type是什么，接口都可以访问，且请求参数都以json body 为准
+
 		if (contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)) {
+			params = getHttpJsonParams(request);
+		} else if (contentType.equalsIgnoreCase(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
 			params = getHttpJsonParams(request);
 		} else {
 			params = getHttpJsonParams(request);
 		}
 		String uri = request.getRequestURI();
+		Map<String,String> parameterMap = HttpRequestUtil.getParameterMap(request);
 		Map<String, String> header = HttpRequestUtil.buildHeaderParams(request);
 		Map<String, Object> session = HttpRequestUtil.buildSessionParams(request);
 		Map<String, Object> urivar = HttpRequestUtil.getParam(request);
@@ -98,24 +104,73 @@ public class HttpRequestUtil {
 		Map<String, String> pathvar = HttpRequestUtil.getPathVar(pattern, uri);
 		Map<String, Object> params1 = HttpRequestUtil.getFromParams(request);
 		String ip = HttpRequestUtil.getIp(request);
-		if (!CollectionUtils.isEmpty(session)) {
-			params.putAll(session);
-		}
-		if (!CollectionUtils.isEmpty(header)) {
-			params.putAll(header);
-		}
-		if (!CollectionUtils.isEmpty(pathvar)) {
-			params.putAll(pathvar);
-		}
-		if (!CollectionUtils.isEmpty(urivar)) {
-			params.putAll(urivar);
-		}
-		if (!CollectionUtils.isEmpty(params1)) {
-			params.putAll(params1);
-		}
+		if (!CollectionUtils.isEmpty(parameterMap)) params.putAll(parameterMap);
+		if (!CollectionUtils.isEmpty(session)) params.putAll(session);
+		if (!CollectionUtils.isEmpty(header)) params.putAll(header);
+		if (!CollectionUtils.isEmpty(pathvar)) params.putAll(pathvar);
+		if (!CollectionUtils.isEmpty(urivar)) params.putAll(urivar);
+		if (!CollectionUtils.isEmpty(params1)) params.putAll(params1);
 		params.put("path", uri);
 		params.put("ip", ip);
 		return params;
+	}
+
+
+	//将url参数转换成map
+	public static Map getUrlParams(String param) {
+		Map map = new HashMap(0);
+		if (StrUtil.isBlank(param)) {
+			return map;
+		}
+		String[] params = param.split("&");
+		for (int i = 0; i < params.length; i++) {
+			String[] p = params[i].split("=");
+			if (p.length == 2) {
+				map.put(p[0], p[1]);
+			}
+		}
+		return map;
+	}
+
+	//将map转换成url
+	public static String getUrlParamsByMap(Map<String,Object> map) {
+		if (map == null) {
+			return "";
+		}
+		StringBuffer sb = new StringBuffer();
+		for (Map.Entry entry : map.entrySet()) {
+			sb.append(entry.getKey() + "=" + entry.getValue());
+			sb.append("&");
+		}
+		String s = sb.toString();
+		if (s.endsWith("&")) {
+//			s = org.apache.commons.lang.StringUtils.substringBeforeLast(s, "&");
+			s = StrUtil.subBefore(s, "&",true);
+		}
+		return s;
+	}
+
+
+	/**
+	 * 获取request中的参数集合转Map
+	 * Map<String,String> parameterMap = RequestUtil.getParameterMap(request)
+	 * @param request
+	 * @return
+	 */
+	public static Map<String, String> getParameterMap(HttpServletRequest request) {
+		Map<String, String> map = new HashMap<>();
+		Enumeration<String> paramNames = request.getParameterNames();
+		while (paramNames.hasMoreElements()) {
+			String paramName = paramNames.nextElement();
+			String[] paramValues = request.getParameterValues(paramName);
+			if (paramValues.length == 1) {
+				String paramValue = paramValues[0];
+				if (paramValue.length() != 0) {
+					map.put(paramName, paramValue);
+				}
+			}
+		}
+		return map;
 	}
 
 
@@ -170,10 +225,9 @@ public class HttpRequestUtil {
 
 	public static Map<String, Object> getHttpJsonParams(HttpServletRequest request) {
 		try {
-			ServletRequest requestWrapper = new RequestWrapper((HttpServletRequest) request);
+//			ServletRequest requestWrapper = new RequestWrapper((HttpServletRequest) request);
 			Map<String, Object> params = new HashMap<>();
-			InputStreamReader in = new InputStreamReader(requestWrapper.getInputStream(), "utf-8");
-			BufferedReader br = new BufferedReader(in);
+			BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream(),"UTF-8"));
 			StringBuilder sb = new StringBuilder();
 			String line = null;
 			while ((line = br.readLine()) != null) {
@@ -181,37 +235,34 @@ public class HttpRequestUtil {
 			}
 			br.close();
 			String json = sb.toString();
-			json = StringEscapeUtils.unescapeJson(json);
-			if(StrUtil.isNotEmpty(json) && json.length()>2 && json.startsWith("\"") && json.endsWith("\"")){
-				json = json.substring(1,json.length()-1);
-			}
-			JSONObject jsonObject = new JSONObject();
-			JSONArray jsonArray = new JSONArray();
 			String jsonContent = json;
-//			if(JSONUtil.isTypeJSON(jsonContent) ){
-//				if(JSONUtil.isTypeJSONObject(jsonContent)){
-//					jsonObject =  JSONUtil.parseObj(jsonContent).to;
-//				}
-//				if(JSONUtil.isTypeJSONArray(jsonContent)){
-//					jsonArray = JSONArray.of(JSONUtil.parseArray(jsonContent));
-//				}
-//			}else{
-//				StaticLog.error("非JSON格式数据，无法解析："+jsonContent);
-//			}
-			Object jsonObj = JSON.parse(jsonContent);
-			if (jsonObj instanceof JSONObject  ||  JSONUtil.isTypeJSONObject(jsonContent) ) {
-				jsonObject = (JSONObject) jsonObj;
-			} else if (jsonObj instanceof JSONArray || JSONUtil.isTypeJSONArray(jsonContent) ) {
-				jsonArray = (JSONArray) jsonObj;
+			if(JSONUtil.isTypeJSON(jsonContent) ){
+				json = StringEscapeUtils.unescapeJson(json);
+				if(StrUtil.isNotEmpty(json) && json.length()>2 && json.startsWith("\"") && json.endsWith("\"")){
+					json = json.substring(1,json.length()-1);
+				}
+				JSONObject jsonObject = new JSONObject();
+				JSONArray jsonArray = new JSONArray();
+				Object jsonObj = JSON.parse(jsonContent);
+				if (jsonObj instanceof JSONObject  ||  JSONUtil.isTypeJSONObject(jsonContent) ) {
+					jsonObject = (JSONObject) jsonObj;
+				} else if (jsonObj instanceof JSONArray || JSONUtil.isTypeJSONArray(jsonContent) ) {
+					jsonArray = (JSONArray) jsonObj;
+				}else{
+					StaticLog.error("非JSON格式数据，无法解析："+jsonContent);
+				}
+				if (!ObjectUtils.isEmpty(jsonObject)) {
+					//params = JSONObject.parseObject(jsonObject.toJSONString(), new TypeReference<Map<String, Object>>() { });
+					traverseJsonTree(jsonObject, "", params);
+				} else if (!ObjectUtils.isEmpty(jsonArray)) {
+					//List<Map> mapList =  JSONArray.parseArray(jsonObject.toJSONString(),Map.class );
+					traverseJsonArray(jsonArray, "", params);
+				}
 			}else{
-				StaticLog.error("非JSON格式数据，无法解析："+jsonContent);
-			}
-			if (!ObjectUtils.isEmpty(jsonObject)) {
-				//params = JSONObject.parseObject(jsonObject.toJSONString(), new TypeReference<Map<String, Object>>() { });
-				traverseJsonTree(jsonObject, "", params);
-			} else if (!ObjectUtils.isEmpty(jsonArray)) {
-				//List<Map> mapList =  JSONArray.parseArray(jsonObject.toJSONString(),Map.class );
-				traverseJsonArray(jsonArray, "", params);
+				params = HttpRequestUtil.getUrlParams(json);
+				if(CollectionUtil.isEmpty(params)){
+					StaticLog.error("非JSON格式数据，无法解析："+jsonContent);
+				}
 			}
 			return params;
 		} catch (Exception e) {

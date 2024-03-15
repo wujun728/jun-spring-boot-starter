@@ -50,11 +50,11 @@ public class Constant {
     public static final Integer DATA_SCOPE_DEPT_AND_CHILD = 3;
     public static final Integer DATA_SCOPE_DEPT = 4;
     public static final Integer DATA_SCOPE_DEPT_SELF = 5;
-    
-    
+
+
     //***********************************************************************************************
-    
-    
+
+
     /**
      * redis-OK
      */

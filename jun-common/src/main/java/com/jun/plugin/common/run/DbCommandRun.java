@@ -26,8 +26,8 @@ public class DbCommandRun implements CommandLineRunner {
             if(ds == null){
                 StaticLog.error("当前数据库未设置默认数据源，请设置默认数据源！！！");
             }else{
-                DataSourcePool.add(DbKit.MAIN_CONFIG_NAME,ds);
-                Db.init(DbKit.MAIN_CONFIG_NAME, DataSourcePool.get(DbKit.MAIN_CONFIG_NAME));
+                DataSourcePool.add(main,ds);
+                Db.init(main, DataSourcePool.get(DbKit.MAIN_CONFIG_NAME));
             }
         } catch (Exception e) {
             e.printStackTrace();

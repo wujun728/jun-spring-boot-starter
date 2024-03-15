@@ -6,15 +6,19 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.meta.Column;
 import cn.hutool.db.meta.Table;
 import cn.hutool.log.StaticLog;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.jun.plugin.common.base.interfaces.IRecordHandler;
 import com.jun.plugin.common.exception.BusinessException;
+import com.jun.plugin.common.util.ClassUtil;
 import com.jun.plugin.common.util.StringUtil;
 import com.jun.plugin.db.record.FieldUtils;
+import com.jun.plugin.db.record.Record;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.util.CollectionUtils;
@@ -34,6 +38,26 @@ public class RestUtil {
         String primaryKey = StrUtil.join(",",pks);
         return primaryKey;
     }
+
+    public static void fillRecord(Record record,String tableName,Boolean isSave) {
+        List<Class> allSuperclasses = ClassUtil.getAllClassByInterface(IRecordHandler.class);
+        for (Class clazz : allSuperclasses) {
+            try {
+                Object obj = clazz.newInstance();
+                String tablename = ReflectUtil.invoke(obj,"tableName");
+                if(tablename.equalsIgnoreCase(tablename) || tablename.equalsIgnoreCase("all")){
+                    if(isSave){
+                        ReflectUtil.invoke(obj,"insertFill",new Object[]{record});
+                    }else{
+                        ReflectUtil.invoke(obj,"updateFill",new Object[]{record});
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     public static Object getDefaultValue(String fieldname){
         if("createTime".equals(fieldname)){
