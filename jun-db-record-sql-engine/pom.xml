@@ -6,7 +6,7 @@
 
     <groupId>io.github.wujun728</groupId>
     <artifactId>jun-db-record-sql-engine</artifactId>
-    <version>1.0.12.1</version>
+    <version>1.0.12.2</version>
     <name>jun-db-record-sql-engine</name>
     <description>dynamic sql engine tool</description>
     <url>https://github.com/wujun728/jun-spring-boot-starter/jun-db-record-sql-engine</url>
