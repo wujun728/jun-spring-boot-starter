@@ -842,7 +842,7 @@ public class DbPro {
 				boolean result = atom.run();
 				if (result)
 					return true;
-				throw new NestedTransactionHelpException("Notice the outer transaction that the nested transaction return false");	// important:can not return false
+				throw new ActiveRecordException("Notice the outer transaction that the nested transaction return false");	// important:can not return false
 			}
 			catch (SQLException e) {
 				throw new ActiveRecordException(e);
@@ -862,7 +862,7 @@ public class DbPro {
 			else
 				conn.rollback();
 			return result;
-		} catch (NestedTransactionHelpException e) {
+		} catch (ActiveRecordException e) {
 			if (conn != null) try {conn.rollback();} catch (Exception e1) {
 				LogKit.error(e1.getMessage(), e1);}
 			LogKit.logNothing(e);

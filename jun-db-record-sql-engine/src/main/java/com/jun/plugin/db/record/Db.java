@@ -33,7 +33,6 @@ import cn.hutool.db.meta.MetaUtil;
 import com.alibaba.druid.DbType;
 import com.alibaba.druid.pool.DruidDataSource;
 //import com.jun.plugin.common.exception.BusinessException;
-import com.jun.plugin.db.record.cache.EhCache;
 import com.jun.plugin.db.record.dialect.*;
 import com.jun.plugin.db.record.kit.SyncWriteMap;
 
@@ -121,7 +120,7 @@ public class Db {
 //			throw new IllegalArgumentException("cache can not be null");
 //		}
 //		Config	config = new Config(configName, dataSource, dialect, showSql, transactionLevel);
-		Config	config = new Config(configName, dataSource, dialect,true,true,DbKit.DEFAULT_TRANSACTION_LEVEL, IContainerFactory.defaultContainerFactory,new EhCache());
+		Config	config = new Config(configName, dataSource, dialect,true,true,DbKit.DEFAULT_TRANSACTION_LEVEL, IContainerFactory.defaultContainerFactory);
 		DbKit.addConfig(config);
 		MAIN = DbPro.use(configName);
 	}

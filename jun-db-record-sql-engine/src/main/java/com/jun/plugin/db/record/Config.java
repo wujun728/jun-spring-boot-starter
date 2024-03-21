@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2023, James Zhan 詹波 (jfinal@126.com).
+ * Copyright (c) 2011-2015, James Zhan 詹波 (jfinal@126.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,17 @@
 
 package com.jun.plugin.db.record;
 
-import com.jun.plugin.db.record.cache.EhCache;
-import com.jun.plugin.db.record.cache.ICache;
-import com.jun.plugin.db.record.dialect.Dialect;
-import com.jun.plugin.db.record.dialect.MysqlDialect;
-import com.jun.plugin.db.record.kit.LogKit;
-import com.jun.plugin.db.record.kit.StrKit;
-import com.jun.plugin.db.record.sql.SqlKit;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import javax.sql.DataSource;
-//import com.jfinal.kit.LogKit;
-//import com.jfinal.kit.StrKit;
-//import com.jfinal.plugin.activerecord.cache.EhCache;
-//import com.jfinal.plugin.activerecord.cache.ICache;
-//import com.jfinal.plugin.activerecord.dialect.Dialect;
-//import com.jfinal.plugin.activerecord.dialect.MysqlDialect;
-//import com.jfinal.plugin.activerecord.sql.SqlKit;
+
+import com.jun.plugin.db.record.dialect.Dialect;
+import com.jun.plugin.db.record.dialect.MysqlDialect;
+import com.jun.plugin.db.record.kit.LogKit;
+import com.jun.plugin.db.record.kit.StrKit;
 
 public class Config {
 	private final ThreadLocal<Connection> threadLocal = new ThreadLocal<Connection>();
@@ -47,15 +38,15 @@ public class Config {
 	boolean showSql;
 	boolean devMode;
 	int transactionLevel;
-	IContainerFactory containerFactory;
+	IContainerFactory containerFactory = IContainerFactory.defaultContainerFactory;
 	IDbProFactory dbProFactory = IDbProFactory.defaultDbProFactory;
-	ICache cache;
+//	ICache cache;
 	
-	SqlKit sqlKit;
+//	SqlKit sqlKit;
 	
 	// For ActiveRecordPlugin only, dataSource can be null
 	public Config(String name, DataSource dataSource, int transactionLevel) {
-		init(name, dataSource, new MysqlDialect(), false, false, transactionLevel, IContainerFactory.defaultContainerFactory, new EhCache());
+		init(name, dataSource, new MysqlDialect(), false, false, transactionLevel, IContainerFactory.defaultContainerFactory/*, new EhCache()*/);
 	}
 	
 	/**
@@ -67,16 +58,15 @@ public class Config {
 	 * @param devMode the devMode
 	 * @param transactionLevel the transaction level
 	 * @param containerFactory the containerFactory
-	 * @param cache the cache
 	 */
-	public Config(String name, DataSource dataSource, Dialect dialect, boolean showSql, boolean devMode, int transactionLevel, IContainerFactory containerFactory, ICache cache) {
+	public Config(String name, DataSource dataSource, Dialect dialect, boolean showSql, boolean devMode, int transactionLevel, IContainerFactory containerFactory/*, ICache cache*/) {
 		if (dataSource == null) {
 			throw new IllegalArgumentException("DataSource can not be null");
 		}
-		init(name, dataSource, dialect, showSql, devMode, transactionLevel, containerFactory, cache);
+		init(name, dataSource, dialect, showSql, devMode, transactionLevel, containerFactory/*, cache*/);
 	}
 	
-	private void init(String name, DataSource dataSource, Dialect dialect, boolean showSql, boolean devMode, int transactionLevel, IContainerFactory containerFactory, ICache cache) {
+	private void init(String name, DataSource dataSource, Dialect dialect, boolean showSql, boolean devMode, int transactionLevel, IContainerFactory containerFactory/*, ICache cache*/) {
 		if (StrKit.isBlank(name)) {
 			throw new IllegalArgumentException("Config name can not be blank");
 		}
@@ -86,10 +76,6 @@ public class Config {
 		if (containerFactory == null) {
 			throw new IllegalArgumentException("ContainerFactory can not be null");
 		}
-		if (cache == null) {
-			throw new IllegalArgumentException("Cache can not be null");
-		}
-		
 		this.name = name.trim();
 		this.dataSource = dataSource;
 		this.dialect = dialect;
@@ -98,9 +84,8 @@ public class Config {
 		// this.transactionLevel = transactionLevel;
 		this.setTransactionLevel(transactionLevel);
 		this.containerFactory = containerFactory;
-		this.cache = cache;
-		
-		this.sqlKit = new SqlKit(this.name, this.devMode);
+//		this.cache = cache;
+//		this.sqlKit = new SqlKit(this.name, this.devMode);
 	}
 	
 	/**
@@ -114,16 +99,46 @@ public class Config {
 	 * Constructor with name, dataSource and dialect
 	 */
 	public Config(String name, DataSource dataSource, Dialect dialect) {
-		this(name, dataSource, dialect, false, false, DbKit.DEFAULT_TRANSACTION_LEVEL, IContainerFactory.defaultContainerFactory, new EhCache());
+		this(name, dataSource, dialect, false, false, DbKit.DEFAULT_TRANSACTION_LEVEL, IContainerFactory.defaultContainerFactory/*, new EhCache()*/);
 	}
 	
 	private Config() {
 		
 	}
+
+	/**
+	 * Constructor with full parameters
+	 * @param dataSource the dataSource, can not be null
+	 * @param dialect the dialect, set null with default value: new MysqlDialect()
+	 * @param showSql the showSql,set null with default value: false
+//	 * @param devMode the devMode, set null with default value: false
+	 * @param transactionLevel the transaction level, set null with default value: Connection.TRANSACTION_READ_COMMITTED
+//	 * @param cache the cache, set null with default value: new EhCache()
+	 */
+	public Config(String name,
+				  DataSource dataSource,
+				  Dialect dialect,
+				  Boolean showSql,
+				  Integer transactionLevel) {
+		if (StrKit.isBlank(name))
+			throw new IllegalArgumentException("Config name can not be blank");
+		if (dataSource == null)
+			throw new IllegalArgumentException("DataSource can not be null");
+
+		this.name = name.trim();
+		this.dataSource = dataSource;
+
+		if (dialect != null)
+			this.dialect = dialect;
+		if (showSql != null)
+			this.showSql = showSql;
+		if (transactionLevel != null)
+			this.transactionLevel = transactionLevel;
+	}
 	
 	void setDevMode(boolean devMode) {
 		this.devMode = devMode;
-		this.sqlKit.setDevMode(devMode);
+//		this.sqlKit.setDevMode(devMode);
 	}
 	
 	void setTransactionLevel(int transactionLevel) {
@@ -144,7 +159,7 @@ public class Config {
 		ret.devMode = false;
 		ret.transactionLevel = DbKit.DEFAULT_TRANSACTION_LEVEL;
 		ret.containerFactory = IContainerFactory.defaultContainerFactory;
-		ret.cache = new EhCache();
+//		ret.cache = new EhCache();
 		return ret;
 	}
 	
@@ -152,17 +167,17 @@ public class Config {
 		return name;
 	}
 	
-	public SqlKit getSqlKit() {
-		return sqlKit;
-	}
+//	public SqlKit getSqlKit() {
+//		return sqlKit;
+//	}
 	
 	public Dialect getDialect() {
 		return dialect;
 	}
 	
-	public ICache getCache() {
-		return cache;
-	}
+//	public ICache getCache() {
+//		return cache;
+//	}
 	
 	public int getTransactionLevel() {
 		return transactionLevel;

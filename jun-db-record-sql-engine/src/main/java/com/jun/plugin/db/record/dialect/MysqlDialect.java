@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2023, James Zhan 詹波 (jfinal@126.com).
+ * Copyright (c) 2011-2015, James Zhan 詹波 (jfinal@126.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,20 @@
 package com.jun.plugin.db.record.dialect;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-import com.jun.plugin.db.record.*;
+import java.util.Set;
+
+import com.jun.plugin.db.record.Record;
+import com.jun.plugin.db.record.builder.TimestampProcessedRecordBuilder;
 
 /**
  * MysqlDialect.
  */
 public class MysqlDialect extends Dialect {
+
+	public MysqlDialect() {
+		this.recordBuilder = TimestampProcessedRecordBuilder.me;
+	}
 	
 	public String forTableBuilderDoBuild(String tableName) {
 		return "select * from `" + tableName + "` where 1 = 2";
@@ -35,91 +40,7 @@ public class MysqlDialect extends Dialect {
 		return "select * from `" + tableName + "`";
 	}
 	
-	public void forModelSave(Table table, Map<String, Object> attrs, StringBuilder sql, List<Object> paras) {
-		sql.append("insert into `").append(table.getName()).append("`(");
-		StringBuilder temp = new StringBuilder(") values(");
-		for (Entry<String, Object> e: attrs.entrySet()) {
-			String colName = e.getKey();
-			if (table.hasColumnLabel(colName)) {
-				if (paras.size() > 0) {
-					sql.append(", ");
-					temp.append(", ");
-				}
-				sql.append('`').append(colName).append('`');
-				temp.append('?');
-				paras.add(e.getValue());
-			}
-		}
-		sql.append(temp.toString()).append(')');
-	}
-	
-	public String forModelDeleteById(Table table) {
-		String[] pKeys = table.getPrimaryKey();
-		StringBuilder sql = new StringBuilder(45);
-		sql.append("delete from `");
-		sql.append(table.getName());
-		sql.append("` where ");
-		for (int i=0; i<pKeys.length; i++) {
-			if (i > 0) {
-				sql.append(" and ");
-			}
-			sql.append('`').append(pKeys[i]).append("` = ?");
-		}
-		return sql.toString();
-	}
-	
-	public void forModelUpdate(Table table, Map<String, Object> attrs, Set<String> modifyFlag, StringBuilder sql, List<Object> paras) {
-		sql.append("update `").append(table.getName()).append("` set ");
-		String[] pKeys = table.getPrimaryKey();
-		for (Entry<String, Object> e : attrs.entrySet()) {
-			String colName = e.getKey();
-			if (modifyFlag.contains(colName) && !isPrimaryKey(colName, pKeys) && table.hasColumnLabel(colName)) {
-				if (paras.size() > 0) {
-					sql.append(", ");
-				}
-				sql.append('`').append(colName).append("` = ? ");
-				paras.add(e.getValue());
-			}
-		}
-		sql.append(" where ");
-		for (int i=0; i<pKeys.length; i++) {
-			if (i > 0) {
-				sql.append(" and ");
-			}
-			sql.append('`').append(pKeys[i]).append("` = ?");
-			paras.add(attrs.get(pKeys[i]));
-		}
-	}
-	
-	public String forModelFindById(Table table, String columns) {
-		StringBuilder sql = new StringBuilder("select ");
-		columns = columns.trim();
-		if ("*".equals(columns)) {
-			sql.append('*');
-		}
-		else {
-			String[] arr = columns.split(",");
-			for (int i=0; i<arr.length; i++) {
-				if (i > 0) {
-					sql.append(',');
-				}
-				sql.append('`').append(arr[i].trim()).append('`');
-			}
-		}
-		
-		sql.append(" from `");
-		sql.append(table.getName());
-		sql.append("` where ");
-		String[] pKeys = table.getPrimaryKey();
-		for (int i=0; i<pKeys.length; i++) {
-			if (i > 0) {
-				sql.append(" and ");
-			}
-			sql.append('`').append(pKeys[i]).append("` = ?");
-		}
-		return sql.toString();
-	}
-	
+
 	public String forDbFindById(String tableName, String[] pKeys) {
 		tableName = tableName.trim();
 		trimPrimaryKeys(pKeys);
@@ -177,7 +98,7 @@ public class MysqlDialect extends Dialect {
 		trimPrimaryKeys(pKeys);
 		
 		// Record 新增支持 modifyFlag
-		Set<String> modifyFlag = CPI.getModifyFlag(record);
+		Set<String> modifyFlag = record._getModifyFlag();
 		
 		sql.append("update `").append(tableName).append("` set ");
 		for (Entry<String, Object> e: record.getColumns().entrySet()) {
