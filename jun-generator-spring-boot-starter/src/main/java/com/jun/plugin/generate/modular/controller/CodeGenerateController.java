@@ -1,7 +1,7 @@
 package com.jun.plugin.generate.modular.controller;
 
 import com.baomidou.mybatisplus.extension.toolkit.SqlRunner;
-import com.jun.plugin.common.util.ConstantContextHolder;
+//import com.jun.plugin.common.util.ConstantContextHolder;
 import com.jun.plugin.generate.core.ref.PageResult;
 import com.jun.plugin.generate.core.ref.ResponseData;
 import com.jun.plugin.generate.core.ref.SuccessResponseData;
@@ -139,9 +139,6 @@ public class CodeGenerateController {
     //@BusinessLog(title = "代码生成_本地项目", opType = LogAnnotionOpTypeEnum.OTHER)
     public ResponseData runLocal(@RequestBody @Validated(CodeGenerateParam.detail.class) CodeGenerateParam codeGenerateParam) {
         // 演示环境开启，则不允许操作
-        if (ConstantContextHolder.getDemoEnvFlag()) {
-            throw new RuntimeException();
-        }
         this.codeGenerateService.runLocal(codeGenerateParam);
         return new SuccessResponseData();
     }
@@ -157,9 +154,6 @@ public class CodeGenerateController {
     //@BusinessLog(title = "代码生成_下载方式", opType = LogAnnotionOpTypeEnum.OTHER)
     public void runDown(@Validated(CodeGenerateParam.detail.class) CodeGenerateParam codeGenerateParam, HttpServletResponse response) {
         // 演示环境开启，则不允许操作
-        if (ConstantContextHolder.getDemoEnvFlag()) {
-            throw new RuntimeException();
-        }
         this.codeGenerateService.runDown(codeGenerateParam, response);
     }
 

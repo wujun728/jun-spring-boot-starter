@@ -110,8 +110,8 @@ public class HttpRequestUtil {
 		if (!CollectionUtils.isEmpty(pathvar)) params.putAll(pathvar);
 		if (!CollectionUtils.isEmpty(urivar)) params.putAll(urivar);
 		if (!CollectionUtils.isEmpty(params1)) params.putAll(params1);
-		params.put("path", uri);
-		params.put("ip", ip);
+		params.put("root.path", uri);
+		params.put("root.ip", ip);
 		return params;
 	}
 

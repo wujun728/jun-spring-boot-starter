@@ -145,7 +145,7 @@ public class RestUtil {
         StringBuffer sqlbuilder = new StringBuffer();
         Collection<Column> columns = table.getColumns();
         for(String key : parameters.keySet()){
-            if(key.startsWith("header.") || key.startsWith("session.") || key.startsWith("cookies.")){
+            if(key.startsWith("header.") || key.startsWith("session.") || key.startsWith("cookies.")|| key.startsWith("root.")){
                 continue;
             }
             for (Column column : columns) {

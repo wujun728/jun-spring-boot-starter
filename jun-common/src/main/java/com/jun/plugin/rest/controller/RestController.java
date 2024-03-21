@@ -9,9 +9,12 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.meta.Column;
 import cn.hutool.db.meta.MetaUtil;
 import cn.hutool.db.meta.Table;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.StaticLog;
 import com.google.common.collect.Maps;
+import com.jun.plugin.common.generator.util.TreeUtil;
 import com.jun.plugin.common.util.HttpRequestUtil;
 //import com.jfinal.plugin.activerecord.Db;
 //import com.jfinal.plugin.activerecord.Page;
@@ -64,10 +67,12 @@ public class RestController {
     }
 
 
-    @GetMapping(path = {"/{entityName}/list", "/{entityName}/page"}, produces = "application/json")
+    @GetMapping(path = {"/{entityName}/list", "/{entityName}/page","/{entityName}/tree"}, produces = "application/json")
     //@ApiOperation(value = "返回实体数据列表", notes = "page与size同时大于零时返回分页实体数据列表,否则返回全部数据列表;
     public Result list(@PathVariable("entityName") String entityName, HttpServletRequest request) throws Exception {
         try {
+            String url = request.getRequestURI();
+            StaticLog.info("url = "+ url);
             Map<String, Object> parameters = HttpRequestUtil.getAllParameters(request);
             String tableName = StrUtil.toUnderlineCase(entityName);
             parameters.put("entityName" , entityName);
@@ -103,7 +108,7 @@ public class RestController {
                     sql.append(" where 1=1 "+ where);
                 }
                 List<Record> lists = Db.use(main).find(sql.toString());
-                List<Map> datas = RecordUtil.recordToMaps2(lists);
+                List<Map> datas = RecordUtil.recordToMaps(lists);
                 String tree = MapUtil.getStr(parameters, "tree");
                 if(StrUtil.isNotEmpty(tree) && tree.contains(",")){
                     String id = tree.split(",")[0];
@@ -249,29 +254,32 @@ public class RestController {
         }
         Collection<Column> columns = table.getColumns();
         for (Column column : columns) {
-            String val = RestUtil.getParamValue(parameters, column.getName());
+            String paramValue = RestUtil.getParamValue(parameters, column.getName());
             if (isSave) {
-                val = RestUtil.getId(val);
+                paramValue = RestUtil.getId(paramValue);
             }
-            checkDataFormat(column, val);
-            if (ObjectUtil.isNotEmpty(val)) {
-                record.set(column.getName(), (val));
+            checkDataFormat(column, paramValue);
+            if (ObjectUtil.isNotEmpty(paramValue)) {//非空值，直接设置
+                record.set(column.getName(), (paramValue));
             } else {
                 String fieldName = FieldUtils.columnNameToFieldName(column.getName());
-                if (ObjectUtil.isNotEmpty(RestUtil.getDefaultValue(fieldName))) {
+                if (ObjectUtil.isNotEmpty(RestUtil.getDefaultValue(fieldName))) {//设置默认值的字段
                     record.set(column.getName(), RestUtil.getDefaultValue(fieldName));
                 } else {
-                    if (!column.isNullable() && !column.isAutoIncrement() && !column.isPk()) {
-                        if (isSave) {
-                            throw new BusinessException("参数[" + column.getName() + "]不能为空！");
+                    if(column.isPk()){
+                        if(column.isAutoIncrement()){
+                            //自增的主键，不自动赋值
+                        }else{
+                            setPkValue(record, column);
+                            StaticLog.warn("参数未传值： " + column.getName());
                         }
-                    } else if (column.isPk() && !column.isAutoIncrement()) {
-                        setPkValue(record, column);
-                        StaticLog.warn("参数未传值： " + column.getName());
+                    }else{
+                        if (!column.isNullable()){ //非空字段，保存的时候，必填直接返回提示
+                            if (isSave) {
+                                throw new BusinessException("参数[" + column.getName() + "]不能为空！");
+                            }
+                        }
                     }
-                }
-                if (!column.isAutoIncrement()) {
-
                 }
             }
         }
@@ -335,15 +343,23 @@ public class RestController {
                 "bit".equalsIgnoreCase(column.getTypeName()) ||
                 "integer".equalsIgnoreCase(column.getTypeName()) ||
                 "tinyint".equalsIgnoreCase(column.getTypeName())) {
+
             long idStr = IdGenerator.generateId();
-            if (column.getSize() >= String.valueOf(idStr).length()) {
+            long currentSeconds = DateUtil.currentSeconds();
+            if (column.getSize() >= String.valueOf(idStr).length()) {//十六位，雪花ID，毫秒级别
                 record.set(column.getName(), idStr);
+            } else if (column.getSize() >= String.valueOf(currentSeconds).length()) { //十位，时间戳，秒级别
+                record.set(column.getName(), currentSeconds);
             } else {
                 int size = Integer.valueOf((int) column.getSize());
-                int randomInt = RandomUtil.randomInt(size);
-                record.set(column.getName(), randomInt);
+                String numberkey = RandomUtil.randomNumbers(size);  //随机数，字段长度的随机数字，字段不能设置太短
+                record.set(column.getName(), numberkey);
             }
         }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(DateUtil.currentSeconds());
     }
     @RequestMapping(path = {"/module/install"}, produces = "application/json")
     public Result install(HttpServletRequest request, HttpServletResponse response) {
@@ -353,7 +369,35 @@ public class RestController {
     public Result uninstall(HttpServletRequest request, HttpServletResponse response) {
         return Result.success("卸载成功！");
     }
-
+    @RequestMapping(path = {"/cache/clear"}, produces = "application/json")
+    public Result cacheClear(HttpServletRequest request, HttpServletResponse response) {
+        tableCache.set(new HashMap<>());
+        return Result.success("缓存清理成功！");
+    }
+    @RequestMapping(path = {"/api/test"}, produces = "application/json")
+    public Result apiTest(HttpServletRequest request, HttpServletResponse response) {
+        //        String url = "localhost:8888/engine/install";
+        String url = new String();
+        HttpRequest post = HttpRequest.post(url).header("Content-Type", "multipart/form-data");
+        Map<String,Object> map = Maps.newHashMap();
+        map.put("aaa",123);
+        map.put("byk",45465);
+        post.form(map);
+        HttpResponse execute = null;
+        try {
+            execute = post.execute();
+        } catch (Exception e) {
+            throw new BusinessException("安装部署包失败，调用引擎["+url+"]端口失败"+e.getMessage());
+        }
+        String jsonStr = execute.body();
+        System.out.println("execute = " + jsonStr);
+        if(JSONUtil.isTypeJSON(jsonStr)){
+            Result result = JSONUtil.toBean(jsonStr,Result.class);
+            return result;
+        }else{
+            return Result.error(jsonStr);
+        }
+    }
 
 
 

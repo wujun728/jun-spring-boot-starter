@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class ApiDataSource {
-
     String id;
     String name;
     String url;
