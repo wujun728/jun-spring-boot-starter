@@ -1,26 +1,89 @@
 package com.jun.plugin.groovy.cache;
 
-import com.jun.plugin.groovy.common.model.ApiConfig;
-import lombok.extern.slf4j.Slf4j;
-
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.jun.plugin.groovy.common.model.ApiConfig;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-//import cn.hutool.core.lang.Assert;
-//import cn.hutool.core.lang.Console;
-//import cn.hutool.core.map.MapUtil;
-//import cn.hutool.core.util.ObjectUtil;
+//import cn.hutool.core.util.IdUtil;
+//import cn.hutool.core.util.StrUtil;
 
+/**
+ * API信息缓存
+ */
 @Slf4j
-public class ApiConfigCache {
+@Component
+public class ApiConfigCache implements IApiConfigCache {
 
-	/**
-	 * 脚本列表
-	 */
+    private Map<String, ApiConfig> cacheApiConfig = new ConcurrentHashMap<>();
+
+    private String instanceId = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 15);;
+//    private String instanceId = IdUtil.generateUUID();
+
+    @Override
+    public ApiConfig get(ApiConfig apiInfo){
+        return cacheApiConfig.get(buildApiConfigKey(apiInfo));
+    }
+    @Override
+    public ApiConfig get(String path){
+    	return cacheApiConfig.get(path);
+    }
+
+    @Override
+    public Collection<ApiConfig> getAll() {
+        return cacheApiConfig.values();
+    }
+
+    @Override
+    public void removeAll() {
+        cacheApiConfig.clear();
+    }
+
+    @Override
+    public void remove(ApiConfig apiInfo) {
+        cacheApiConfig.remove(buildApiConfigKey(apiInfo));
+    }
+
+    @Override
+    public void put(ApiConfig apiInfo) {
+        cacheApiConfig.put(buildApiConfigKey(apiInfo),apiInfo);
+    }
+    @Override
+    public void putAll(List<ApiConfig> apiInfos) {
+    	this.removeAll();
+    	for(ApiConfig apiInfo : apiInfos) {
+    		this.put(apiInfo);
+    	}
+    }
+
+    private String buildApiConfigKey(ApiConfig apiInfo) {
+//    	if(StrUtil.isNotEmpty(apiInfo.getMethod())) {
+//    		return apiInfo.getMethod() +" "+ apiInfo.getPath();
+//    	}
+    	return apiInfo.getPath();
+    }
+
+    	public static String getByPath(String path) {
+		return beanNameMap.get(path);
+	}
+
+
+
+
+
+
+
+
+    /**
+     //	 * 脚本列表
+     	 */
 	private static ConcurrentMap<String, ApiConfig> groovyMap = new ConcurrentHashMap<>();
 
 	/**
@@ -102,12 +165,8 @@ public class ApiConfigCache {
 	public static ApiConfig getByName(String scriptName) {
 		return groovyMap.get(scriptName);
 	}
-	
 
-	public static String getByPath(String path) {
-		return beanNameMap.get(path);
-	}
-	
+
 	public static ApiConfig getApiConfigByPath(String Path) {
 		String beanName = beanNameMap.get(Path);
 		if(ObjectUtils.isEmpty(beanName)) {
@@ -120,12 +179,13 @@ public class ApiConfigCache {
 		}
 		return info;
 	}
- 
+
 	public static Map<String, ApiConfig> getApiConfigs() {
 		return groovyMap;
 	}
-	
+
 	public static Map<String, String> getBeanNameMap() {
 		return beanNameMap;
 	}
+
 }

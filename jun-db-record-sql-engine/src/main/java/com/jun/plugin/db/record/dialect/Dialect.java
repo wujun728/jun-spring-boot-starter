@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2015, James Zhan 詹波 (jfinal@126.com).
+ * Copyright (c) 2011-2023, James Zhan 詹波 (jfinal@126.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,29 @@
 
 package com.jun.plugin.db.record.dialect;
 
+import com.jun.plugin.db.record.*;
+import com.jun.plugin.db.record.builder.KeepByteAndShortModelBuilder;
+import com.jun.plugin.db.record.builder.KeepByteAndShortRecordBuilder;
+
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
-
-import com.jun.plugin.db.record.Config;
-import com.jun.plugin.db.record.Page;
-import com.jun.plugin.db.record.Record;
-import com.jun.plugin.db.record.RecordBuilder;
+//import com.jfinal.plugin.activerecord.Config;
+//import com.jfinal.plugin.activerecord.Model;
+//import com.jfinal.plugin.activerecord.ModelBuilder;
+//import com.jfinal.plugin.activerecord.Page;
+//import com.jfinal.plugin.activerecord.Record;
+//import com.jfinal.plugin.activerecord.RecordBuilder;
+//import com.jfinal.plugin.activerecord.Table;
+//import com.jfinal.plugin.activerecord.builder.KeepByteAndShortModelBuilder;
+//import com.jfinal.plugin.activerecord.builder.KeepByteAndShortRecordBuilder;
 
 /**
  * Dialect.
@@ -36,7 +47,7 @@ public abstract class Dialect {
 	
 	// 指示 Generator、ModelBuilder、RecordBuilder 是否保持住 Byte、Short 类型
 	protected boolean keepByteAndShort = false;
-//	protected ModelBuilder modelBuilder = ModelBuilder.me;
+	protected ModelBuilder modelBuilder = ModelBuilder.me;
 	protected RecordBuilder recordBuilder = RecordBuilder.me;
 	
 	// Methods for common
@@ -44,10 +55,10 @@ public abstract class Dialect {
 	public abstract String forPaginate(int pageNumber, int pageSize, StringBuilder findSql);
 	
 	// Methods for Model
-//	public abstract String forModelFindById(Table table, String columns);
-//	public abstract String forModelDeleteById(Table table);
-//	public abstract void forModelSave(Table table, Map<String, Object> attrs, StringBuilder sql, List<Object> paras);
-//	public abstract void forModelUpdate(Table table, Map<String, Object> attrs, Set<String> modifyFlag, StringBuilder sql, List<Object> paras);
+	public abstract String forModelFindById(Table table, String columns);
+	public abstract String forModelDeleteById(Table table);
+	public abstract void forModelSave(Table table, Map<String, Object> attrs, StringBuilder sql, List<Object> paras);
+	public abstract void forModelUpdate(Table table, Map<String, Object> attrs, Set<String> modifyFlag, StringBuilder sql, List<Object> paras);
 	
 	// Methods for DbPro. Do not delete the String[] pKeys parameter, the element of pKeys needs to trim()
 	public abstract String forDbFindById(String tableName, String[] pKeys);
@@ -62,29 +73,29 @@ public abstract class Dialect {
 	/**
 	 * 指示 Generator、ModelBuilder、RecordBuilder 是否保持住 Byte、Short 类型
 	 */
-//	public Dialect setKeepByteAndShort(boolean keepByteAndShort) {
-//		this.keepByteAndShort = keepByteAndShort;
-//		/**
-//		 * 内部的 4 个 if 判断是为了避免替换掉用户通过 setModelBuilder(...)
-//		 * setRecordBuilder(...) 配置的自定义 builder
-//		 */
-//		if (keepByteAndShort) {
-//			if (modelBuilder.getClass() == ModelBuilder.class) {
-//				modelBuilder = KeepByteAndShortModelBuilder.me;
-//			}
-//			if (recordBuilder.getClass() == RecordBuilder.class) {
-//				recordBuilder = KeepByteAndShortRecordBuilder.me;
-//			}
-//		} else {
-//			if (modelBuilder.getClass() == KeepByteAndShortModelBuilder.class) {
-//				modelBuilder = ModelBuilder.me;
-//			}
-//			if (recordBuilder.getClass() == KeepByteAndShortRecordBuilder.class) {
-//				recordBuilder = RecordBuilder.me;
-//			}
-//		}
-//		return this;
-//	}
+	public Dialect setKeepByteAndShort(boolean keepByteAndShort) {
+		this.keepByteAndShort = keepByteAndShort;
+		/**
+		 * 内部的 4 个 if 判断是为了避免替换掉用户通过 setModelBuilder(...)
+		 * setRecordBuilder(...) 配置的自定义 builder
+		 */
+		if (keepByteAndShort) {
+			if (modelBuilder.getClass() == ModelBuilder.class) {
+				modelBuilder = KeepByteAndShortModelBuilder.me;
+			}
+			if (recordBuilder.getClass() == RecordBuilder.class) {
+				recordBuilder = KeepByteAndShortRecordBuilder.me;
+			}
+		} else {
+			if (modelBuilder.getClass() == KeepByteAndShortModelBuilder.class) {
+				modelBuilder = ModelBuilder.me;
+			}
+			if (recordBuilder.getClass() == KeepByteAndShortRecordBuilder.class) {
+				recordBuilder = RecordBuilder.me;
+			}
+		}
+		return this;
+	}
 	
 	/**
 	 * 指示 MetaBuilder 生成的 ColumnMeta.javaType 是否保持住 Byte、Short 类型
@@ -104,10 +115,10 @@ public abstract class Dialect {
 	 * 此外，还可以通过改变 ModelBuilder.buildLabelNamesAndTypes()
 	 * 方法逻辑，实现下划线字段名转驼峰变量名的功能
 	 */
-//	public Dialect setModelBuilder(ModelBuilder modelBuilder) {
-//		this.modelBuilder = modelBuilder;
-//		return this;
-//	}
+	public Dialect setModelBuilder(ModelBuilder modelBuilder) {
+		this.modelBuilder = modelBuilder;
+		return this;
+	}
 	
 	/**
 	 * 配置自定义 RecordBuilder
@@ -123,15 +134,15 @@ public abstract class Dialect {
 		return this;
 	}
 	
-//	@SuppressWarnings("rawtypes")
-//	public <T> List<T> buildModelList(ResultSet rs, Class<? extends Model> modelClass) throws SQLException, ReflectiveOperationException {
-//		return modelBuilder.build(rs, modelClass);
-//	}
-//
-//	@SuppressWarnings("rawtypes")
-//	public <T> void eachModel(ResultSet rs, Class<? extends Model> modelClass, Function<T, Boolean> func) throws SQLException, ReflectiveOperationException {
-//		modelBuilder.build(rs, modelClass, func);
-//	}
+	@SuppressWarnings("rawtypes")
+	public <T> List<T> buildModelList(ResultSet rs, Class<? extends Model> modelClass) throws SQLException, ReflectiveOperationException {
+		return modelBuilder.build(rs, modelClass);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public <T> void eachModel(ResultSet rs, Class<? extends Model> modelClass, Function<T, Boolean> func) throws SQLException, ReflectiveOperationException {
+		modelBuilder.build(rs, modelClass, func);
+	}
 	
 	public List<Record> buildRecordList(Config config, ResultSet rs) throws SQLException {
 		return recordBuilder.build(config, rs);
@@ -145,45 +156,45 @@ public abstract class Dialect {
 	 * 用于获取 Model.save() 以后自动生成的主键值，可通过覆盖此方法实现更精细的控制
 	 * 目前只有 PostgreSqlDialect，覆盖过此方法
 	 */
-//	public void getModelGeneratedKey(Model<?> model, PreparedStatement pst, Table table) throws SQLException {
-//		String[] pKeys = table.getPrimaryKey();
-//		ResultSet rs = pst.getGeneratedKeys();
-//		for (String pKey : pKeys) {
-//			if (model.get(pKey) == null || isOracle()) {
-//				if (rs.next()) {
-//					Class<?> colType = table.getColumnType(pKey);
-//					if (colType != null) {	// 支持没有主键的用法，有人将 model 改造成了支持无主键:济南-费小哥
-//						if (colType == Integer.class || colType == int.class) {
-//							model.set(pKey, rs.getInt(1));
-//						} else if (colType == Long.class || colType == long.class) {
-//							model.set(pKey, rs.getLong(1));
-//						} else if (colType == BigInteger.class) {
-//							processGeneratedBigIntegerKey(model, pKey, rs.getObject(1));
-//						} else {
-//							model.set(pKey, rs.getObject(1));	// It returns Long for int colType for mysql
-//						}
-//					}
-//				}
-//			}
-//		}
-//		rs.close();
-//	}
+	public void getModelGeneratedKey(Model<?> model, PreparedStatement pst, Table table) throws SQLException {
+		String[] pKeys = table.getPrimaryKey();
+		ResultSet rs = pst.getGeneratedKeys();
+		for (String pKey : pKeys) {
+			if (model.get(pKey) == null || isOracle()) {
+				if (rs.next()) {
+					Class<?> colType = table.getColumnType(pKey);
+					if (colType != null) {	// 支持没有主键的用法，有人将 model 改造成了支持无主键:济南-费小哥
+						if (colType == Integer.class || colType == int.class) {
+							model.set(pKey, rs.getInt(1));
+						} else if (colType == Long.class || colType == long.class) {
+							model.set(pKey, rs.getLong(1));
+						} else if (colType == BigInteger.class) {
+							processGeneratedBigIntegerKey(model, pKey, rs.getObject(1));
+						} else {
+							model.set(pKey, rs.getObject(1));	// It returns Long for int colType for mysql
+						}
+					}
+				}
+			}
+		}
+		rs.close();
+	}
 	
 	/**
 	 * mysql 数据库的  bigint unsigned 对应的 java 类型为 BigInteger
 	 * 但是 rs.getObject(1) 返回值为 Long 型，造成 model.save() 以后
 	 * model.getId() 时的类型转换异常 
 	 */
-//	protected void processGeneratedBigIntegerKey(Model<?> model, String pKey, Object v) {
-//		if (v instanceof BigInteger) {
-//			model.set(pKey, (BigInteger)v);
-//		} else if (v instanceof Number) {
-//			Number n = (Number)v;
-//			model.set(pKey, BigInteger.valueOf(n.longValue()));
-//		} else {
-//			model.set(pKey, v);
-//		}
-//	}
+	protected void processGeneratedBigIntegerKey(Model<?> model, String pKey, Object v) {
+		if (v instanceof BigInteger) {
+			model.set(pKey, (BigInteger)v);
+		} else if (v instanceof Number) {
+			Number n = (Number)v;
+			model.set(pKey, BigInteger.valueOf(n.longValue()));
+		} else {
+			model.set(pKey, v);
+		}
+	}
 	
 	/**
 	 * 用于获取 Db.save(tableName, record) 以后自动生成的主键值，可通过覆盖此方法实现更精细的控制
@@ -218,9 +229,9 @@ public abstract class Dialect {
 	}
 	
 	@SuppressWarnings("rawtypes")
-//	public Page takeOverModelPaginate(Connection conn, Class<? extends Model> modelClass, int pageNumber, int pageSize, Boolean isGroupBySql, String totalRowSql, StringBuilder findSql, Object... paras) throws Exception {
-//		throw new RuntimeException("You should implements this method in " + getClass().getName());
-//	}
+	public Page takeOverModelPaginate(Connection conn, Class<? extends Model> modelClass, int pageNumber, int pageSize, Boolean isGroupBySql, String totalRowSql, StringBuilder findSql, Object... paras) throws Exception {
+		throw new RuntimeException("You should implements this method in " + getClass().getName());
+	}
 	
 	public void fillStatement(PreparedStatement pst, List<Object> paras) throws SQLException {
 		for (int i=0, size=paras.size(); i<size; i++) {

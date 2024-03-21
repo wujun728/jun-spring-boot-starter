@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011-2015, James Zhan 詹波 (jfinal@126.com).
+ * Copyright (c) 2011-2023, James Zhan 詹波 (jfinal@126.com).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.jun.plugin.db.record;
 
-import com.jun.plugin.db.record.kit.StrKit;
+import com.jfinal.kit.StrKit;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -43,7 +43,7 @@ public final class DbKit {
 	 */
 	static Config brokenConfig = Config.createBrokenConfig();
 
-//	private static Map<Class<? extends Model>, Config> modelToConfig = new HashMap<Class<? extends Model>, Config>(512, 0.5F);
+	private static Map<Class<? extends Model>, Config> modelToConfig = new HashMap<Class<? extends Model>, Config>(512, 0.5F);
 	private static Map<String, Config> configNameToConfig = new HashMap<String, Config>(32, 0.25F);
 
 	static final Object[] NULL_PARA_ARRAY = new Object[0];
@@ -94,9 +94,9 @@ public final class DbKit {
 		return configNameToConfig.remove(configName);
 	}
 
-//	static void addModelToConfigMapping(Class<? extends Model> modelClass, Config config) {
-//		modelToConfig.put(modelClass, config);
-//	}
+	static void addModelToConfigMapping(Class<? extends Model> modelClass, Config config) {
+		modelToConfig.put(modelClass, config);
+	}
 
 	public static Config getConfig() {
 		return config;
@@ -106,9 +106,9 @@ public final class DbKit {
 		return configNameToConfig.get(configName);
 	}
 
-//	public static Config getConfig(Class<? extends Model> modelClass) {
-//		return modelToConfig.get(modelClass);
-//	}
+	public static Config getConfig(Class<? extends Model> modelClass) {
+		return modelToConfig.get(modelClass);
+	}
 
 	static final void close(ResultSet rs, Statement st) throws SQLException {
 		if (rs != null) {rs.close();}
@@ -128,13 +128,13 @@ public final class DbKit {
 	}
 
 	@SuppressWarnings("unchecked")
-//	public static Class<? extends Model> getUsefulClass(Class<? extends Model> modelClass) {
-//		// com.demo.blog.Blog$$EnhancerByCGLIB$$69a17158
-//		// return (Class<? extends Model>)((modelClass.getName().indexOf("EnhancerByCGLIB") == -1 ? modelClass : modelClass.getSuperclass()));
-//		// return (Class<? extends Model>)(modelClass.getName().indexOf("$$EnhancerBy") == -1 ? modelClass : modelClass.getSuperclass());
-//		String n = modelClass.getName();
-//		return (Class<? extends Model>)(n.indexOf("_$$_") > -1 || n.indexOf("$$Enhancer") > -1 ? modelClass.getSuperclass() : modelClass);
-//	}
+	public static Class<? extends Model> getUsefulClass(Class<? extends Model> modelClass) {
+		// com.demo.blog.Blog$$EnhancerByCGLIB$$69a17158
+		// return (Class<? extends Model>)((modelClass.getName().indexOf("EnhancerByCGLIB") == -1 ? modelClass : modelClass.getSuperclass()));
+		// return (Class<? extends Model>)(modelClass.getName().indexOf("$$EnhancerBy") == -1 ? modelClass : modelClass.getSuperclass());
+		String n = modelClass.getName();
+		return (Class<? extends Model>)(n.indexOf("_$$_") > -1 || n.indexOf("$$Enhancer") > -1 ? modelClass.getSuperclass() : modelClass);
+	}
 
 	/**
 	 * 原有框架方法更新只会取modelList第一个元素的字段状态，批量更新的SQL全部相同，只是参数值不同
@@ -147,47 +147,47 @@ public final class DbKit {
 	 * @return
 	 * @see ：https://jfinal.com/share/2629
 	 */
-//	public static List<Integer> batchListUpdate(List<? extends Model> modelList, int batchSize,String db) {
-//		if (modelList == null || modelList.size() == 0)
-//			return new ArrayList<>();
-//		Map<String, BatchInfo> modelUpdateMap = new HashMap<>();
-//
-//		for (Model model : modelList) {
-//			Set<String> modifyFlag = CPI.getModifyFlag(model);
-//			Config config = CPI.getConfig(model);
-//			Table table = TableMapping.me().getTable(model.getClass());
-//			String[] pKeys = table.getPrimaryKey();
-//			Map<String, Object> attrs = CPI.getAttrs(model);
-//			List<String> attrNames = new ArrayList<>();
-//
-//			// the same as the iterator in Dialect.forModelSave() to ensure the order of the attrs
-//			for (Map.Entry<String, Object> e : attrs.entrySet()) {
-//				String attr = e.getKey();
-//				if (modifyFlag.contains(attr) && !config.getDialect().isPrimaryKey(attr, pKeys) && table.hasColumnLabel(attr))
-//					attrNames.add(attr);
-//			}
-//			for (String pKey : pKeys)
-//				attrNames.add(pKey);
-//			String columns = StrKit.join(attrNames.toArray(new String[attrNames.size()]), ",");
-//			BatchInfo updateInfo = modelUpdateMap.get(columns);
-//			if (updateInfo == null) {
-//				updateInfo = new BatchInfo();
-//				updateInfo.list = new ArrayList<>();
-//				StringBuilder sql = new StringBuilder();
-//				config.getDialect().forModelUpdate(TableMapping.me().getTable(model.getClass()), attrs, modifyFlag, sql, new ArrayList<>());
-//				updateInfo.sql = sql.toString();
-//				modelUpdateMap.put(columns, updateInfo);
-//			}
-//			updateInfo.list.add(model);
-//		}
-//		return batchModelList(modelList, batchSize,db, modelUpdateMap);
-//	}
-//	public static List<Integer> batchListUpdate(List<? extends Model> modelList) {
-//		return batchListUpdate(modelList,DB_BATCH_COUNT,null);
-//	}
-//	public static List<Integer> batchListUpdate(List<? extends Model> modelList, String db) {
-//		return batchListUpdate(modelList,DB_BATCH_COUNT,db);
-//	}
+	public static List<Integer> batchListUpdate(List<? extends Model> modelList, int batchSize,String db) {
+		if (modelList == null || modelList.size() == 0)
+			return new ArrayList<>();
+		Map<String, BatchInfo> modelUpdateMap = new HashMap<>();
+
+		for (Model model : modelList) {
+			Set<String> modifyFlag = CPI.getModifyFlag(model);
+			Config config = CPI.getConfig(model);
+			Table table = TableMapping.me().getTable(model.getClass());
+			String[] pKeys = table.getPrimaryKey();
+			Map<String, Object> attrs = CPI.getAttrs(model);
+			List<String> attrNames = new ArrayList<>();
+
+			// the same as the iterator in Dialect.forModelSave() to ensure the order of the attrs
+			for (Map.Entry<String, Object> e : attrs.entrySet()) {
+				String attr = e.getKey();
+				if (modifyFlag.contains(attr) && !config.getDialect().isPrimaryKey(attr, pKeys) && table.hasColumnLabel(attr))
+					attrNames.add(attr);
+			}
+			for (String pKey : pKeys)
+				attrNames.add(pKey);
+			String columns = StrKit.join(attrNames.toArray(new String[attrNames.size()]), ",");
+			BatchInfo updateInfo = modelUpdateMap.get(columns);
+			if (updateInfo == null) {
+				updateInfo = new BatchInfo();
+				updateInfo.list = new ArrayList<>();
+				StringBuilder sql = new StringBuilder();
+				config.getDialect().forModelUpdate(TableMapping.me().getTable(model.getClass()), attrs, modifyFlag, sql, new ArrayList<>());
+				updateInfo.sql = sql.toString();
+				modelUpdateMap.put(columns, updateInfo);
+			}
+			updateInfo.list.add(model);
+		}
+		return batchModelList(modelList, batchSize,db, modelUpdateMap);
+	}
+	public static List<Integer> batchListUpdate(List<? extends Model> modelList) {
+		return batchListUpdate(modelList,DB_BATCH_COUNT,null);
+	}
+	public static List<Integer> batchListUpdate(List<? extends Model> modelList,String db) {
+		return batchListUpdate(modelList,DB_BATCH_COUNT,db);
+	}
 
 	private static List<Integer> batchModelList(List list, int batchSize, String db, Map<String, BatchInfo> modelUpdateMap) {
 		List<Integer> ret = new ArrayList<>(list.size());
@@ -212,49 +212,49 @@ public final class DbKit {
 	 * 本方法会根据modelList中所有元素，生成不同的SQL和参数，分批分别执行
 	 * 自动过滤所有null值属性
 	 *
-//	 * @param modelList
-//	 * @param batchSize
-//	 * @param db 使用的数据源，为空时使用默认
-//	 * @return
-//	 * @see ：https://jfinal.com/share/2629
+	 * @param modelList
+	 * @param batchSize
+	 * @param db 使用的数据源，为空时使用默认
+	 * @return
+	 * @see ：https://jfinal.com/share/2629
 	 */
-//	public static List<Integer> batchListSave(List<? extends Model> modelList, int batchSize, String db) {
-//		if (modelList == null || modelList.size() == 0)
-//			return new ArrayList<>();
-//		Map<String, BatchInfo> modelUpdateMap = new HashMap<>();
-//
-//		for (Model model : modelList) {
-//			Config config = CPI.getConfig(model);
-//			Map<String, Object> attrs = CPI.getAttrs(model);
-//			int index = 0;
-//			StringBuilder columns = new StringBuilder();
-//			// the same as the iterator in Dialect.forModelSave() to ensure the order of the attrs
-//			for (Map.Entry<String, Object> e : attrs.entrySet()) {
-//				if (index++ > 0) {
-//					columns.append(',');
-//				}
-//				columns.append(e.getKey());
-//			}
-//			String cs = columns.toString();
-//			BatchInfo batchInfo = modelUpdateMap.get(cs);
-//			if (batchInfo == null) {
-//				batchInfo = new BatchInfo();
-//				batchInfo.list = new ArrayList<>();
-//				StringBuilder sql = new StringBuilder();
-//				config.getDialect().forModelSave(TableMapping.me().getTable(model.getClass()), attrs, sql, new ArrayList());
-//				batchInfo.sql = sql.toString();
-//				modelUpdateMap.put(cs, batchInfo);
-//			}
-//			batchInfo.list.add(model);
-//		}
-//		return batchModelList(modelList, batchSize, db,modelUpdateMap);
-//	}
-//	public static List<Integer> batchListSave(List<? extends Model> modelList) {
-//		return batchListSave(modelList,DB_BATCH_COUNT,null);
-//	}
-//	public static List<Integer> batchListSave(List<? extends Model> modelList,String db) {
-//		return batchListSave(modelList,DB_BATCH_COUNT,db);
-//	}
+	public static List<Integer> batchListSave(List<? extends Model> modelList, int batchSize, String db) {
+		if (modelList == null || modelList.size() == 0)
+			return new ArrayList<>();
+		Map<String, BatchInfo> modelUpdateMap = new HashMap<>();
+
+		for (Model model : modelList) {
+			Config config = CPI.getConfig(model);
+			Map<String, Object> attrs = CPI.getAttrs(model);
+			int index = 0;
+			StringBuilder columns = new StringBuilder();
+			// the same as the iterator in Dialect.forModelSave() to ensure the order of the attrs
+			for (Map.Entry<String, Object> e : attrs.entrySet()) {
+				if (index++ > 0) {
+					columns.append(',');
+				}
+				columns.append(e.getKey());
+			}
+			String cs = columns.toString();
+			BatchInfo batchInfo = modelUpdateMap.get(cs);
+			if (batchInfo == null) {
+				batchInfo = new BatchInfo();
+				batchInfo.list = new ArrayList<>();
+				StringBuilder sql = new StringBuilder();
+				config.getDialect().forModelSave(TableMapping.me().getTable(model.getClass()), attrs, sql, new ArrayList());
+				batchInfo.sql = sql.toString();
+				modelUpdateMap.put(cs, batchInfo);
+			}
+			batchInfo.list.add(model);
+		}
+		return batchModelList(modelList, batchSize, db,modelUpdateMap);
+	}
+	public static List<Integer> batchListSave(List<? extends Model> modelList) {
+		return batchListSave(modelList,DB_BATCH_COUNT,null);
+	}
+	public static List<Integer> batchListSave(List<? extends Model> modelList,String db) {
+		return batchListSave(modelList,DB_BATCH_COUNT,db);
+	}
 	public static List<Integer> batchListSave(String tableName,List<? extends Record> recordList, int batchSize, String db) {
 		if (recordList == null || recordList.size() == 0)
 			return new ArrayList<>();
