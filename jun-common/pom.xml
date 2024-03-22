@@ -147,11 +147,6 @@
             <version>8.0.33</version>
             <scope>runtime</scope>
         </dependency>
-        <!--<dependency>
-            <groupId>com.jfinal</groupId>
-            <artifactId>activerecord</artifactId>
-            <version>5.1.2</version>
-        </dependency>-->
         <!-- Redis-Jedis -->
         <!-- https://mvnrepository.com/artifact/redis.clients/jedis -->
         <dependency>
@@ -185,6 +180,11 @@
             <groupId>io.github.wujun728</groupId>
             <artifactId>jun-db-record-sql-engine</artifactId>
             <version>1.0.12</version>
+        </dependency>-->
+		<!--<dependency>
+            <groupId>com.jfinal</groupId>
+            <artifactId>activerecord</artifactId>
+            <version>5.1.2</version>
         </dependency>-->
         <dependency>
             <groupId>com.google.guava</groupId>

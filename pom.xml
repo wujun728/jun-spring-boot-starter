@@ -17,14 +17,14 @@
 	<modules> 
 		<module>jun-common</module>
 		<module>jun-framework</module>
-		<module>jun-hotcompile-spring-boot-starter</module>
-		<module>jun-db-record-sql-engine</module>
-		<module>jun-springjdbc-spring-boot-starter</module>
+		<module>jun-activerecord</module>
+		<module>jun-mybatis-sql-engine</module>
+		<module>jun-uidgenerator-spring-boot-starter</module>
+		<module>jun-code-online-spring-boot-starter</module>
+		<module>jun-api-online-spring-boot-starter</module>
+		<module>jun-form-online-spring-boot-starter</module>
 		<module>jun-security-spring-boot-starter</module>
-		<module>jun-uidgenerator-spring-boot-starter</module> 
-		<module>jun-online-api-spring-boot-starter</module>
-		<module>jun-online-form-spring-boot-starter</module>
-		<module>jun-generator-spring-boot-starter</module>
+		<module>jun-code-generator</module>
 	</modules>
 
 	<dependencies>
