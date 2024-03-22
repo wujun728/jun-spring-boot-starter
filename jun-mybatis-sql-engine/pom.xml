@@ -6,7 +6,7 @@
 
     <groupId>io.github.wujun728</groupId>
     <artifactId>jun-mybatis-sql-engine</artifactId>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
     <name>jun-mybatis-sql-engine</name>
     <description>dynamic sql engine tool</description>
     <url>https://github.com/wujun728/jun-spring-boot-starter/jun-mybatis-sql-engine</url>

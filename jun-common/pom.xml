@@ -6,7 +6,7 @@
 
 	<groupId>io.github.wujun728</groupId>
 	<artifactId>jun-common</artifactId>
-	<version>1.0.12</version>
+	<version>1.0.13</version>
 	<name>jun-common公共模块，基础功能及工具类</name>
 	<description>jun-common</description>
     <url>https://github.com/wujun728/jun-spring-boot-starter/jun-common</url>
@@ -176,11 +176,11 @@
 			<artifactId>hutool-all</artifactId>
 			<version>5.8.21</version>
 		</dependency>
-        <!--<dependency>
-            <groupId>io.github.wujun728</groupId>
-            <artifactId>jun-db-record-sql-engine</artifactId>
-            <version>1.0.12</version>
-        </dependency>-->
+		<dependency>
+			<groupId>io.github.wujun728</groupId>
+			<artifactId>jun-activerecord</artifactId>
+			<version>1.0.13</version>
+		</dependency>
 		<!--<dependency>
             <groupId>com.jfinal</groupId>
             <artifactId>activerecord</artifactId>
